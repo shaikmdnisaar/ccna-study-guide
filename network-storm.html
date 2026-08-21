@@ -930,11 +930,36 @@ function exhibitImg(Q){
 function startLessonQuiz(mod,les){const pool=REAL.filter(q=>q.module==mod&&q.lesson==les);if(!pool.length){toast('No parsed questions for that quiz yet','gd');return}
  const M={k:'lesson',ico:'📚',n:'Module '+mod+' · Lesson '+les,d:pool[0].topic,filter:q=>q.module==mod&&q.lesson==les,len:pool.length,isLesson:true};
  ses={M,i:0,hist:[],xpGain:0,right:0,wrong:0,hints:0,t0:Date.now(),lastWrongTopic:null,over:false,bossHP:0,shields:3,topic:pool[0].topic,ends:[]};go('game');nextQ();}
+/* ---- study sheets ↔ course quizzes integration ---- */
+function sheetsForLesson(mod,les){
+ const ml='M'+mod+'L'+les;
+ return SHEET_NAMES.map((n,i)=>({n,i})).filter(x=>x.n.startsWith(ml+'_'));
+}
+function openLessonSheets(mod,les){
+ const sheets=sheetsForLesson(mod,les);
+ if(!sheets.length){toast('No study sheets for M'+mod+'L'+les+' yet','gd');return}
+ if(sheets.length===1){openSheet(sheets[0].i);return}
+ // multiple sheets → picker modal
+ const names=sheets.map(x=>`<button class="tb-btn" style="display:block;width:100%;text-align:left;margin-bottom:.4rem;padding:.5rem .7rem" onclick="document.getElementById('sheetModal').classList.remove('open');openSheet(${x.i})">🖼️ ${sheetLabel(x.n)}</button>`).join('');
+ let m=document.getElementById('lessonSheetModal');
+ if(!m){
+  m=document.createElement('div');m.id='lessonSheetModal';m.className='modal';
+  document.body.appendChild(m);
+ }
+ const T={'1':'Foundations','2':'IP Addressing','3':'IPv6','4':'Switching','5':'Routing','6':'Wireless','7':'Services','8':'Security','9':'Automation'};
+ m.innerHTML=`<div class="mbox" style="max-width:440px">
+  <h3>🖼️ Study Sheets — Module ${mod} · Lesson ${les} <small style="color:var(--mu)">${T[mod]||''}</small></h3>
+  <p style="font-size:.76rem;color:var(--mu);margin:.3rem 0 .7rem">Pick a sheet to review before the quiz</p>
+  ${names}
+  <div class="mrow2"><button class="tb-btn" onclick="document.getElementById('lessonSheetModal').classList.remove('open')">Close</button></div>
+ </div>`;
+ m.classList.add('open');
+}
 function renderLessonRail(){const rail=document.getElementById('lessonRail');if(!rail)return;
  if(!REAL.length){rail.innerHTML='<div style="color:var(--mu);font-size:.82rem;padding:.6rem">Loading course quizzes…</div>';return}
  const T={'1':'Foundations','2':'IP Addressing','3':'IPv6','4':'Switching','5':'Routing','6':'Wireless','7':'Services','8':'Security','9':'Automation'};
  rail.innerHTML=Object.keys(T).map(m=>{const ms=[...new Set(REAL.filter(q=>q.module==m).map(q=>q.lesson))];
-  return '<div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.7rem .85rem"><b style="font-size:.8rem">MODULE '+m+' · '+T[m]+'</b><div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.45rem">'+ms.map(l=>{const n=REAL.filter(q=>q.module==m&&q.lesson==l).length;const played=S.q['M'+m+'-L'+l]?'✓ ':'';return '<button class="tb-btn" style="padding:.28rem .6rem;font-size:.7rem" onclick="startLessonQuiz('+m+','+l+')">'+played+'Lesson '+l+' <small style="color:var(--mu)">('+n+')</small></button>'}).join('')+'</div></div>'}).join('');}
+  return '<div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.7rem .85rem"><b style="font-size:.8rem">MODULE '+m+' · '+T[m]+'</b><div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.45rem">'+ms.map(l=>{const n=REAL.filter(q=>q.module==m&&q.lesson==l).length;const played=S.q['M'+m+'-L'+l]?'✓ ':'';const sh=sheetsForLesson(m,l);const sheetBtn=sh.length?`<button class="tb-btn" style="padding:.28rem .45rem;font-size:.7rem;border-color:var(--bl);color:var(--bl)" title="${sh.length} study sheet(s)" onclick="openLessonSheets(${m},${l})">🖼️ ${sh.length}</button>`:'';return '<span style="display:inline-flex;gap:.25rem">'+sheetBtn+'<button class="tb-btn" style="padding:.28rem .6rem;font-size:.7rem" onclick="startLessonQuiz('+m+','+l+')">'+played+'Lesson '+l+' <small style="color:var(--mu)">('+n+')</small></button></span>'}).join('')+'</div></div>'}).join('');}
 function renderViz(vz,mode){const V=VIZ[vz]||VIZ.generic;const st=document.getElementById("stage");
  st.className="stage "+(mode||"");st.innerHTML=V.h()+`<div class="bigmark ${mode==="win"?"okm":mode==="fail"?"badm":""}">${mode==="win"?"✅":mode==="fail"?"❌":""}</div>`;
  document.getElementById("vizTitle").textContent="NETWORK · "+V.t;}
