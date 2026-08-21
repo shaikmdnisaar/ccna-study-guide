@@ -37,6 +37,23 @@
     return true;
   }
 
+  // ===== OAUTH (Google, GitHub, etc.) =====
+  const OAUTH_PROVIDERS = {
+    google: { label: 'Continue with Google', icon: '🔴', cls: 'oauth-google' },
+    github: { label: 'Continue with GitHub', icon: '🐙', cls: 'oauth-github' }
+  };
+
+  async function signInWithOAuth(provider) {
+    if (!sb) return { error: 'Supabase not configured' };
+    const redirectTo = window.location.origin + window.location.pathname;
+    const { error } = await sb.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo }
+    });
+    if (error) return { error: error.message };
+    return { ok: true }; // browser redirects to provider
+  }
+
   // ===== AUTH =====
   async function signUp(email, password, displayName) {
     if (!sb) return { error: 'Supabase not configured' };
@@ -225,6 +242,19 @@
     area.style.cssText = 'display:flex;align-items:center;gap:.5rem;margin-left:auto';
     topbar.appendChild(area);
 
+    // Inject OAuth button styles once
+    if (!document.getElementById('oauthStyles')) {
+      const style = document.createElement('style');
+      style.id = 'oauthStyles';
+      style.textContent = `
+        .oauth-btn{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.6rem;border-radius:9px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-weight:700;font-size:.86rem;cursor:pointer;transition:.15s;font-family:inherit}
+        .oauth-btn:hover{border-color:var(--cy);transform:translateY(-1px)}
+        .oauth-btn.oauth-google:hover{border-color:#ea4335}
+        .oauth-btn.oauth-github:hover{border-color:#333}
+      `;
+      document.head.appendChild(style);
+    }
+
     refreshAuthUI();
   }
 
@@ -255,7 +285,16 @@
       m.innerHTML = `
         <div class="mbox" style="max-width:380px">
           <h3 id="authTitle">Login</h3>
-          <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.6rem">
+          <div style="display:flex;flex-direction:column;gap:.55rem;margin-top:.7rem">
+            <button class="oauth-btn oauth-google" onclick="window.SUPA.oauth('google')">
+              <span style="font-size:1.05rem">🔴</span> Continue with Google
+            </button>
+            <button class="oauth-btn oauth-github" onclick="window.SUPA.oauth('github')">
+              <span style="font-size:1.05rem">🐙</span> Continue with GitHub
+            </button>
+            <div style="display:flex;align-items:center;gap:.6rem;color:var(--mu);font-size:.74rem;margin:.2rem 0">
+              <span style="flex:1;height:1px;background:var(--line)"></span>or use email<span style="flex:1;height:1px;background:var(--line)"></span>
+            </div>
             <input id="authName" placeholder="Display name (signup only)" style="display:none;padding:.6rem;border-radius:9px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-size:.88rem">
             <input id="authEmail" type="email" placeholder="Email" style="padding:.6rem;border-radius:9px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-size:.88rem">
             <input id="authPass" type="password" placeholder="Password (min 6 chars)" style="padding:.6rem;border-radius:9px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-size:.88rem">
@@ -326,7 +365,7 @@
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
-  // ===== AUTO-SYNC (debounced) =====
+  // ===== AUTO-SYNC =====
   let syncTimer = null;
   function scheduleSync(getStateFn) {
     if (!sb || !currentUser) return;
@@ -337,10 +376,47 @@
     }, 3000); // 3 second debounce
   }
 
+  // Immediate sync — called right after each answer so nothing is lost
+  async function syncNow(getStateFn) {
+    if (!sb || !currentUser) return;
+    clearTimeout(syncTimer); // cancel pending debounce
+    const state = typeof getStateFn === 'function' ? getStateFn() : getStateFn;
+    await saveProgress(state);
+  }
+
+  // Sync when tab is hidden or closed (best-effort)
+  function installExitSync(getStateFn) {
+    const handler = () => {
+      if (sb && currentUser) {
+        const state = typeof getStateFn === 'function' ? getStateFn() : getStateFn;
+        saveProgress(state); // fire-and-forget
+      }
+    };
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') handler(); });
+    window.addEventListener('pagehide', handler);
+    window.addEventListener('beforeunload', handler);
+  }
+
   // ===== INIT ON LOAD =====
   async function boot() {
     const ok = initSupabase();
     if (!ok) return;
+
+    // Handle OAuth redirect callback (?code=... from provider via Supabase)
+    if (sb && window.location.search.includes('code=')) {
+      try {
+        const { data, error } = await sb.auth.exchangeCodeForSession(window.location.search);
+        if (!error && data && data.user) {
+          currentUser = data.user;
+          // Clean the URL (remove ?code=...)
+          window.history.replaceState({}, document.title, window.location.pathname);
+          if (window.toast) window.toast('Welcome, ' + (data.user.user_metadata?.full_name || data.user.email || 'player') + '!', 'gd');
+          if (window.onSupabaseAuth) window.onSupabaseAuth(currentUser);
+        }
+      } catch (e) {
+        console.warn('[Supabase] OAuth callback error:', e);
+      }
+    }
 
     // Check existing session
     const user = await getSession();
@@ -361,7 +437,12 @@
   window.SUPA = {
     boot,
     signUp, signIn, signOut, getSession,
+    signInWithOAuth,
+    oauth: (provider) => signInWithOAuth(provider).then(r => {
+      if (r.error && window.toast) window.toast(r.error, 'rd');
+    }),
     saveProgress, loadProgress,
+    syncNow, installExitSync,
     loadQuizzes, loadLabs, loadLabsCli, loadStudySheets,
     loadLeaderboard,
     showLogin: () => showAuthModal('login'),

@@ -498,12 +498,17 @@ const LEVELS=[[0,"END DEVICE","🖥️"],[100,"NETWORK TECHNICIAN","🔧"],[250,
 const NS="nstorm1.";
 const load=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(NS+k));return v??d}catch(e){return d}};
 const save=(k,v)=>{try{localStorage.setItem(NS+k,JSON.stringify(v))}catch(e){}
- // Supabase cloud sync (debounced) — only for 'state' key and if logged in
- if(k==="state"&&window.SUPA&&window.SUPA.isConnected()&&window.SUPA.getUser()){window.SUPA.scheduleSync(v)}
+ // Supabase cloud sync — immediate fire-and-forget after each save (per-answer)
+ if(k==="state"&&window.SUPA&&window.SUPA.isConnected()&&window.SUPA.getUser()){window.SUPA.syncNow(v)}
 };
 let S=Object.assign({xp:0,streak:0,best:0,answered:0,right:0,topics:{},q:{},recent:[],labs:{}},load("state",{}));
 if(!Array.isArray(S.recent))S.recent=[];
-S.recent=S.recent.filter(r=>r&&typeof r==="object"&&(r.t||r.q)).map(r=>({q:r.q||"",t:r.t||"GENERAL",s:r.s||shortQ(r.q),at:r.at||0})).slice(0,8);
+S.recent=S.recent.filter(r=>r&&typeof r==="object"&&(r.t||r.q)).map(r=>({q:r.q||"",t:r.t||"GENERAL",s:r.s||shortQ(r.q),at:r.at||0,id:r.id||"",given:r.given||""})).slice(0,25);
+// Save progress to cloud when tab hides/closes — nothing is lost
+(function installExitSyncWhenReady(){
+ if(window.SUPA&&window.SUPA.installExitSync){window.SUPA.installExitSync(()=>S);return}
+ setTimeout(installExitSyncWhenReady,2000);
+})();
 TOPICS.forEach(t=>{if(!S.topics[t])S.topics[t]={m:0,seen:0,right:0}});
 let CUSTOM=load("custom",[]);
 let REAL=[]; // loaded from real_quizzes.json (course PDF source of truth)
@@ -525,10 +530,26 @@ window.onSupabaseAuth=async function(user){
     S.best=Math.max(S.best||0,cloudState.bestStreak||cloudState.best||0);
     S.answered=Math.max(S.answered||0,cloudState.answered||0);
     S.right=Math.max(S.right||0,cloudState.correct||cloudState.right||0);
-    if(cloudState.q)Object.assign(S.q,cloudState.q);
-    if(cloudState.topics)Object.assign(S.topics,cloudState.topics);
+    if(cloudState.q)Object.keys(cloudState.q).forEach(qid=>{
+     const c=cloudState.q[qid],l=S.q[qid];
+     // keep whichever record saw the question most recently (by st.last)
+     if(!l||((c.last||0)>(l.last||0)))S.q[qid]=c;
+    });
+    if(cloudState.topics)Object.keys(cloudState.topics).forEach(t=>{
+     const c=cloudState.topics[t],l=S.topics[t];
+     if(!l||((c.seen||0)>(l.seen||0)))S.topics[t]=c;
+    });
     if(cloudState.labs)Object.assign(S.labs,cloudState.labs);
-    if(cloudState.recent&&Array.isArray(cloudState.recent))S.recent=cloudState.recent;
+    // UNION-MERGE mistakes: combine local + cloud, dedupe by question text, keep newest 25
+    if(cloudState.recent&&Array.isArray(cloudState.recent)&&cloudState.recent.length){
+     const seen=new Map();
+     S.recent.concat(cloudState.recent).forEach(r=>{
+      if(!r||typeof r!=="object"||!r.q)return;
+      const prev=seen.get(r.q);
+      if(!prev||((r.at||0)>(prev.at||0)))seen.set(r.q,r);
+     });
+     S.recent=[...seen.values()].sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,25);
+    }
     save("state",S);renderHome();renderTop();
     toast('Cloud progress loaded!','gd');
    }
@@ -587,7 +608,14 @@ function streakPop(n){const map={3:"🔥 3 STREAK!",5:"🔥🔥 5 IN A ROW!",10:
 
 /* ============ MASTERY + SPACED REPETITION ============ */
 const BOXMIN=[3*60e3,20*3600e3,3*864e5,7*864e5,16*864e5];
-function afterAnswer(Q,ok,timeMs){
+const MISTAKE_CAP=25; // keep last 25 mistakes (was 8)
+function recordMistake(Q,chosenIdx){
+ const entry={q:Q.q,t:(Q.t||Q.topic||"GENERAL"),s:(Q.s||Q.sub||shortQ(Q.q)),at:Date.now(),id:Q.id||""};
+ const opts=Q.options||Q.o; // seeded bank uses 'o', REAL/custom use 'options'
+ if(typeof chosenIdx==="number"&&opts&&opts[chosenIdx]!=null)entry.given=String(opts[chosenIdx]);
+ S.recent=[entry].concat(S.recent.filter(r=>r.q!==Q.q)).slice(0,MISTAKE_CAP);
+}
+function afterAnswer(Q,ok,timeMs,chosenIdx){
  const tk=Q.t||Q.topic||'GENERAL';
  const T=S.topics[tk]||(S.topics[tk]={m:0,seen:0,right:0});
   T.seen++; if(ok)T.right++;
@@ -595,7 +623,7 @@ function afterAnswer(Q,ok,timeMs){
   const st=S.q[Q.id]||(S.q[Q.id]={seen:0,wrong:0,box:0,due:0});
   st.seen++; st.last=Date.now(); st.ms=Math.round(timeMs);
   if(ok){st.box=Math.min(4,st.box+1);st.due=Date.now()+BOXMIN[st.box];}
-  else{st.box=0;st.wrong++;st.due=Date.now()+90e3;S.recent=[{q:Q.q,t:(Q.t||Q.topic||"GENERAL"),s:(Q.s||Q.sub||shortQ(Q.q)),at:Date.now()}].concat(S.recent.filter(r=>r.q!==Q.q)).slice(0,8);}
+  else{st.box=0;st.wrong++;st.due=Date.now()+90e3;recordMistake(Q,chosenIdx);}
   S.answered++; if(ok)S.right++;
   save("state",S);
 }
@@ -991,7 +1019,7 @@ function answer(i,btn){
  const btns=document.querySelectorAll(".ans");btns.forEach(b=>b.disabled=true);
  btns.forEach((b,j)=>{if(isCorrectIdx(cur,map[j].orig))b.classList.add("ok")});
  if(btn&&!ok)btn.classList.add("bad");
- afterAnswer(cur,ok,took);
+ afterAnswer(cur,ok,took,map[i]?map[i].orig:i);
  ses.hist.push({id:cur.id,t:cur.t,ok,xp:0});
  ok?ses.right++:ses.wrong++;
  renderViz(vzFor(cur)|| (cur.id&&String(cur.id).includes("-")?"generic":"generic"),ok?"win":"fail");
@@ -1083,7 +1111,10 @@ function renderHome(){
  renderLabs();
  renderSheets();
  renderLeaderboard();
- $("recentList").innerHTML=S.recent.length?S.recent.filter(r=>r&&(r.t||r.q)).map(r=>`<span class="rchip">${r.t||"GENERAL"} · ${shortQ(r.s||r.q)}</span>`).join(""):`<span style="color:var(--mu);font-size:.8rem">none yet — misses appear here & auto-enter spaced review</span>`;
+ $("recentList").innerHTML=S.recent.length?S.recent.filter(r=>r&&(r.t||r.q)).map(r=>{
+  const when=r.at?new Date(r.at).toLocaleDateString(undefined,{month:'short',day:'numeric'}):'';
+  const given=r.given?` <span style="color:var(--rd)" title="your answer">✗ ${shortQ(r.given)}</span>`:'';
+  return `<span class="rchip" title="${String(r.q||'').replace(/"/g,'&quot;').slice(0,150)}">${r.t||"GENERAL"} · ${shortQ(r.s||r.q)}${given} · ${when}</span>`}).join(""):`<span style="color:var(--mu);font-size:.8rem">none yet — misses appear here & auto-enter spaced review</span>`;
 }
 
 /* ============ LEADERBOARD ============ */

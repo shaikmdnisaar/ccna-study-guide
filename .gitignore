@@ -32,3 +32,6 @@ real_quizzes.json.bak2
 # - supabase-client.js
 # - study_sheets/ (150 PNGs)
 # - labs_img/ (14 PNGs)
+# OAuth secrets — never commit
+supabase/GITHUB_OAUTH.md
+supabase/CREDENTIALS.md
