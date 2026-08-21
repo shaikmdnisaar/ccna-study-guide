@@ -286,9 +286,6 @@
         <div class="mbox" style="max-width:380px">
           <h3 id="authTitle">Login</h3>
           <div style="display:flex;flex-direction:column;gap:.55rem;margin-top:.7rem">
-            <button class="oauth-btn oauth-google" onclick="window.SUPA.oauth('google')">
-              <span style="font-size:1.05rem">🔴</span> Continue with Google
-            </button>
             <button class="oauth-btn oauth-github" onclick="window.SUPA.oauth('github')">
               <span style="font-size:1.05rem">🐙</span> Continue with GitHub
             </button>
