@@ -1,0 +1,1414 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NETWORK STORM — CCNA Mastery Game</title>
+<style>
+:root{--bg:#eef2f8;--bg2:#e2e8f2;--card:#ffffff;--card2:#f5f8fc;--line:#c3d0e2;--cy:#0891b2;--bl:#4f46e5;--gd:#b45309;--gn:#047857;--rd:#b91c1c;--or:#c2410c;--tx:#1e293b;--mu:#64748b;--mono:'Consolas',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:radial-gradient(ellipse at 15% -5%,#0891b215,transparent 55%),radial-gradient(ellipse at 90% 110%,#4f46e515,transparent 55%),var(--bg);color:var(--tx);min-height:100vh;line-height:1.45}
+button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#c3d0e2;border-radius:9px}
+
+/* ===== TOP BAR ===== */
+#topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:1rem;padding:.55rem .9rem;background:#ffffffee;border-bottom:1px solid var(--line);backdrop-filter:blur(8px);flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:.5rem;font-weight:900;letter-spacing:1px;font-size:1rem}
+.logo .bolt{color:var(--cy);font-size:1.2rem;filter:drop-shadow(0 0 8px #22d3ee88)}
+.lvchip{display:flex;align-items:center;gap:.45rem;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:.28rem .8rem;font-size:.78rem}
+.lvchip b{color:var(--gd)}
+.xpwrap{flex:1;min-width:130px;max-width:260px}
+.xpbar{height:8px;background:#e2e8f2;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.xpfill{height:100%;background:linear-gradient(90deg,var(--cy),var(--bl));border-radius:6px;width:0;transition:width .6s}
+.xptxt{font-size:.64rem;color:var(--mu);margin-top:2px;text-align:center;letter-spacing:.5px}
+.tb-btn{background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:9px;padding:.4rem .85rem;font-size:.78rem;font-weight:700;transition:.15s}
+.tb-btn:hover{border-color:var(--cy)}
+.flame{font-size:1rem}
+
+/* ===== LAYOUT ===== */
+main{max-width:1120px;margin:0 auto;padding:1.2rem .9rem 3rem}
+.screen{display:none}.screen.active{display:block;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ===== HOME ===== */
+.hero{display:grid;grid-template-columns:1.4fr 1fr;gap:1rem;margin-bottom:1.1rem}
+.ringcard{position:relative;display:flex;align-items:center;gap:1.1rem;background:linear-gradient(145deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:1.1rem 1.2rem}
+.ringwrap{position:relative;width:104px;height:104px;flex-shrink:0}
+.ringwrap svg{transform:rotate(-90deg)}
+.ringfill{stroke:url(#lg);transition:stroke-dashoffset .8s}
+.ringlbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ringlbl b{font-size:1.5rem;color:var(--gd)}
+.ringlbl span{font-size:.56rem;color:var(--mu);letter-spacing:1.5px}
+.hstats{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;flex:1}
+.hstat{background:#f5f8fc;border:1px solid var(--line);border-radius:12px;padding:.55rem .7rem;text-align:center}
+.hstat b{display:block;font-size:1.25rem;color:var(--cy)}
+.hstat.hot b{color:var(--or)}
+.hstat span{font-size:.6rem;color:var(--mu);letter-spacing:1px;text-transform:uppercase}
+.wngrid{display:grid;gap:.6rem}
+.wncard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.75rem .9rem}
+.wncard h4{font-size:.68rem;letter-spacing:1.5px;color:var(--mu);margin-bottom:.35rem}
+.wncard .big{font-size:1.05rem;font-weight:800}
+.wncard .big.hot{color:var(--or)}.wncard .big.go{color:var(--gn)}
+
+.secttl{font-size:1.05rem;font-weight:800;margin:1.4rem 0 .7rem;display:flex;align-items:center;gap:.5rem}
+.secttl small{font-weight:400;color:var(--mu);font-size:.72rem}
+
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:.75rem}
+.mode{position:relative;background:linear-gradient(150deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:15px;padding:.9rem .85rem;color:var(--tx);text-align:left;transition:.18s;overflow:hidden}
+.mode:hover{border-color:var(--cy);transform:translateY(-3px)}
+.mode .mi{font-size:1.5rem;display:block;margin-bottom:.3rem;filter:drop-shadow(0 0 8px #22d3ee44)}
+.mode b{display:block;font-size:.86rem}
+.mode span{font-size:.66rem;color:var(--mu);display:block;margin-top:.15rem}
+.mode .lock{position:absolute;inset:0;background:#eef2f8cc;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+
+.mbars{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.55rem}
+.mrow{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:.6rem .8rem}
+.mrow .top{display:flex;justify-content:space-between;font-size:.72rem;letter-spacing:1px;color:var(--mu);margin-bottom:.3rem}
+.mrow .top b{color:var(--tx);font-size:.76rem}
+.mbar{height:9px;background:#e2e8f2;border-radius:6px;overflow:hidden}
+.mfill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--or),var(--gd));width:0;transition:width .9s}
+.mfill.g{background:linear-gradient(90deg,var(--gn),var(--cy))}
+
+.missions{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.7rem}
+.mis{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:.7rem .8rem;display:flex;align-items:center;gap:.7rem}
+.mis .dotst{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;background:#f5f8fc;border:2px solid var(--line);flex-shrink:0}
+.mis .info{flex:1}.mis .info b{font-size:.78rem;display:block}
+.mis .info span{font-size:.62rem;color:var(--mu)}
+.mis button{background:#f5f8fc;border:1px solid var(--cy);color:var(--cy);border-radius:8px;padding:.3rem .6rem;font-size:.66rem;font-weight:800}
+.mis button:disabled{border-color:var(--line);color:var(--mu);cursor:not-allowed}
+
+.recent{display:flex;flex-wrap:wrap;gap:.45rem}
+.rchip{background:var(--card);border:1px solid #f8717144;color:#fca5a5;border-radius:999px;padding:.28rem .75rem;font-size:.7rem}
+
+/* ===== LABS ===== */
+.labtask{background:#f5f8fc;border:1px solid var(--line);border-radius:11px;padding:.6rem .75rem;margin-bottom:.5rem;font-size:.85rem;line-height:1.5}
+.labtask.on{border-color:#34d39955;background:#34d3990d}
+.labtask label{display:flex;gap:.55rem;align-items:flex-start;cursor:pointer}
+.labtask input[type=checkbox]{accent-color:var(--gn);width:16px;height:16px;margin-top:.2rem;flex-shrink:0}
+.labtask.on label{color:var(--mu)}
+.labtask.on label b{color:var(--gn)}
+.labsol{font-family:var(--mono);font-size:.7rem;color:var(--cy);background:#eef4fb;border:1px dashed #0891b244;border-radius:8px;padding:.5rem .6rem;margin-top:.5rem;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto}
+.lq{display:flex;gap:.6rem;flex-wrap:wrap}
+
+/* ===== CLI LAB BATTLE ===== */
+#scr-cli{max-width:1120px;margin:0 auto;padding:1.2rem .9rem 3rem}
+.cliterm{background:#1e293b;border:1px solid #334155;border-radius:12px 12px 0 0;padding:.9rem;font-family:var(--mono);font-size:.82rem;line-height:1.55;height:380px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;color:#e2e8f0}
+.cliterm .cur{color:var(--cy)}
+.cliterm .ok{color:var(--gn)}
+.cliterm .err{color:var(--rd)}
+.cliterm .dim{color:#94a3b8}
+.cliterm .echo{color:#cbd5e1}
+.cliinput{display:flex;gap:.55rem;align-items:center;background:#1e293b;border:1px solid #334155;border-top:none;border-radius:0 0 12px 12px;padding:.55rem .8rem}
+.cliinput input{flex:1;background:transparent;border:none;outline:none;color:#e2e8f0;font-family:var(--mono);font-size:.88rem}
+.cliprompt{font-family:var(--mono);color:var(--gn);font-size:.85rem;flex-shrink:0}
+.cligrid{display:grid;grid-template-columns:1.5fr .9fr;gap:.9rem;align-items:start}
+.climission{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:14px;padding:.9rem;font-size:.86rem;line-height:1.5}
+.clitopo{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:14px;padding:.75rem;margin-bottom:.7rem}
+.clitopo h5{font-size:.62rem;letter-spacing:2px;color:var(--mu);text-align:center;margin-bottom:.45rem}
+.clitopimgw{background:#f5f7fb;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:zoom-in;max-height:210px}
+.clitopimgw img{width:100%;height:100%;max-height:210px;object-fit:contain;display:block}
+.clitopohint{font-size:.58rem;color:#64748b;text-align:center;margin-top:.3rem;letter-spacing:1px}
+#topoZoom{position:fixed;inset:0;z-index:400;background:#1e293bdd;display:none;align-items:center;justify-content:center;padding:2rem;cursor:zoom-out}
+#topoZoom.open{display:flex}
+#topoZoom img{max-width:92vw;max-height:88vh;border-radius:12px;background:#fff;box-shadow:0 20px 80px #000a}
+.climission h4{color:var(--cy);letter-spacing:1.5px;font-size:.72rem;margin-bottom:.4rem}
+.climission .mstep{display:flex;gap:.5rem;margin-bottom:.4rem}
+.climission .mstep.done{opacity:.55;text-decoration:line-through}
+.climission .mstep.done .n{color:var(--gn)}
+.climission .n{color:var(--gd);font-weight:900}
+.clihp{display:flex;gap:.3rem;font-size:1rem;margin:.4rem 0}
+.clittl{font-weight:900;letter-spacing:2px;font-size:1rem}
+.climeta{display:flex;gap:1.2rem;font-size:.78rem;color:var(--mu);align-items:center}
+.clihead{display:flex;align-items:center;gap:1rem;margin-bottom:.8rem;flex-wrap:wrap}
+@media(max-width:860px){.cligrid{grid-template-columns:1fr}}
+
+/* ===== GAME ===== */
+.gamegrid{display:grid;grid-template-columns:1.25fr .95fr;gap:1rem;align-items:start}
+.gcard{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:1.15rem;position:relative;overflow:hidden}
+.hud{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.75rem}
+.chip{font-size:.64rem;font-weight:800;letter-spacing:1.2px;padding:.28rem .7rem;border-radius:999px;border:1px solid}
+.chip.topic{border-color:#22d3ee66;color:var(--cy);background:#22d3ee11}
+.chip.easy{border-color:#34d39955;color:var(--gn)}
+.chip.med{border-color:#fbbf2455;color:var(--gd)}
+.chip.hard{border-color:#f8717155;color:var(--rd)}
+.chip.qn{border-color:var(--line);color:var(--mu)}
+.hud .sp{flex:1}
+.streakhud{font-weight:900;color:var(--or);font-size:.95rem}
+.streakhud.pulse{animation:stPulse .5s ease}
+@keyframes stPulse{0%{transform:scale(1)}45%{transform:scale(1.45)}100%{transform:scale(1)}}
+.bossbar{margin:0 0 .7rem}
+.bossbar .bt{font-size:.72rem;font-weight:800;letter-spacing:1px;color:var(--rd);margin-bottom:.25rem;display:flex;justify-content:space-between}
+.bhp{height:13px;background:#e2e8f2;border:1px solid #f8717155;border-radius:8px;overflow:hidden}
+.bhpf{height:100%;background:linear-gradient(90deg,#ef4444,#f97316);width:100%;transition:width .5s}
+.bsh{font-size:.9rem;letter-spacing:.2rem;margin-top:.3rem}
+.qtext{font-size:1.18rem;font-weight:800;line-height:1.5;margin:.35rem 0 1rem;min-height:3.2em}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+.ans{position:relative;display:flex;align-items:center;gap:.6rem;background:#f5f8fc;border:2px solid var(--line);border-radius:13px;padding:.85rem .9rem;color:var(--tx);font-size:.92rem;text-align:left;transition:.15s;min-height:60px}
+.ans:hover:not(:disabled){border-color:var(--cy);transform:translateY(-2px)}
+.ans:disabled{cursor:default}
+.ans .k{width:26px;height:26px;border-radius:8px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem;color:var(--cy);flex-shrink:0}
+.ans.ok{border-color:var(--gn);background:#34d39922;animation:optP .45s}
+.ans.ok .k{background:var(--gn);color:#fff;border-color:var(--gn)}
+.ans.bad{border-color:var(--rd);background:#f8717122}
+.ans.bad .k{background:var(--rd);color:#fff;border-color:var(--rd)}
+.ans.dim{opacity:.3}
+@keyframes optP{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+.tbarw{margin-top:.9rem}
+.tbar{height:7px;background:#e2e8f2;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.tfill{height:100%;background:linear-gradient(90deg,var(--gn),var(--cy));width:100%}
+.tfill.danger{background:linear-gradient(90deg,var(--rd),var(--or))}
+.hintrow{display:flex;gap:.6rem;margin-top:.8rem;align-items:center;flex-wrap:wrap}
+.hintbtn{background:#fbbf2418;border:1px solid #fbbf2455;color:var(--gd);border-radius:10px;padding:.5rem 1rem;font-weight:800;font-size:.8rem}
+.hintbtn:disabled{opacity:.4;cursor:not-allowed}
+.speakbtn{background:#22d3ee18;border:1px solid #22d3ee55;color:var(--cy);border-radius:9px;padding:.5rem .85rem;font-weight:800;font-size:.8rem;transition:.2s}
+.speakbtn:hover{background:#22d3ee2e}
+.speakbtn.speaking{background:#22d3ee;border-color:var(--cy);color:#fff;animation:speakPulse 1s infinite}
+@keyframes speakPulse{0%,100%{box-shadow:0 0 0 0 #22d3ee66}50%{box-shadow:0 0 0 7px #22d3ee00}}
+.tb-btn.von{background:#22d3ee22;border-color:var(--cy);color:var(--cy)}
+.hintlab{font-size:.74rem;color:var(--gd)}
+.nextbtn{margin-left:auto;background:linear-gradient(135deg,var(--cy),var(--bl));color:#fff;border:none;border-radius:11px;padding:.55rem 1.4rem;font-weight:900;font-size:.9rem;animation:nudge 1.4s infinite}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+.fb{margin-top:.9rem;border-radius:13px;padding:.9rem 1rem;display:none;animation:fadeUp .3s}
+.fb.show{display:block}
+.fb.good{background:#34d39912;border:1px solid #34d39955}
+.fb.bad{background:#f8717110;border:1px solid #f8717155}
+.fb h4{font-size:.95rem;margin-bottom:.35rem}
+.fb.good h4{color:var(--gn)}.fb.bad h4{color:var(--rd)}
+.xpgain{float:right;color:var(--gd);font-weight:900;font-size:.95rem}
+.fb .why{font-size:.86rem;color:var(--tx);opacity:.92}
+.fb .mis{margin-top:.5rem;font-size:.78rem;color:var(--mu);border-top:1px dashed #ffffff22;padding-top:.5rem}
+.endbtn{background:none;border:1px solid var(--line);color:var(--mu);border-radius:9px;padding:.35rem .8rem;font-size:.72rem}
+
+/* ===== VIZ ===== */
+.vizcard{background:linear-gradient(160deg,#e2e8f2,var(--card));border:1px solid var(--line);border-radius:18px;padding:.9rem;position:relative;overflow:hidden}
+.vizcard h5{font-size:.62rem;letter-spacing:2px;color:var(--mu);text-align:center;margin-bottom:.4rem;text-transform:uppercase}
+.stage{position:relative;height:190px;background:#f1f5fb;border:1px solid #c3d0e2;border-radius:12px;overflow:hidden}
+.stage .cap{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:.62rem;color:#64748b;letter-spacing:1.5px}
+.node{position:absolute;border:1px solid #94a3b8;background:var(--card2);border-radius:9px;width:52px;text-align:center;padding:.25rem 0;font-size:.66rem;font-weight:800;box-shadow:0 0 12px #0891b21c}
+.node i{display:block;font-style:normal;font-size:.95rem;line-height:1.1}
+.node.root{border-color:var(--gd);box-shadow:0 0 14px #fbbf2440}
+.node.dst.glow{border-color:var(--gn);box-shadow:0 0 18px #34d39988;animation:optP .5s}
+.node small{display:block;font-weight:400;font-size:.52rem;color:var(--mu)}
+.link{position:absolute;height:2px;background:#94a3b8;border-radius:2px}
+.link.vert{width:2px;height:auto}
+.link.blocked{background:repeating-linear-gradient(90deg,#f8717166 0 5px,transparent 5px 9px)}
+.pkt{position:absolute;width:11px;height:11px;border-radius:3px;z-index:5;box-shadow:0 0 8px currentColor}
+.pkt.v10{background:#38bdf8;color:#38bdf8}.pkt.v20{background:#34d399;color:#34d399}.pkt.v30{background:#c084fc;color:#c084fc}
+.pkt.red{background:#f87171;color:#f87171}.pkt.gn{background:#34d399;color:#34d399}.pkt.gd{background:#fbbf24;color:#fbbf24}
+.pk-lr{animation:pkLR 2.4s linear infinite}
+.pk-ud{animation:pkUD 2.4s linear infinite}
+.pk-lr2{animation:pkLR 2.4s 1.2s linear infinite}
+.pk-ud2{animation:pkUD 2.4s 1.2s linear infinite}
+@keyframes pkLR{0%{left:6%;opacity:0}10%{opacity:1}88%{opacity:1}100%{left:88%;opacity:0}}
+@keyframes pkUD{0%{top:8%;opacity:0}10%{opacity:1}88%{opacity:1}100%{top:82%;opacity:0}}
+.stage.fail .pkt{animation:pktDrop .7s forwards!important;background:#f87171!important}
+@keyframes pktDrop{to{transform:translateY(70px) rotate(45deg);opacity:0}}
+.stage.win .pkt{filter:brightness(1.6) drop-shadow(0 0 8px #34d399)}
+.bigmark{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%) scale(.3);font-size:3rem;opacity:0;z-index:9}
+.stage.win .bigmark.okm{animation:markPop .7s ease both}
+.stage.fail .bigmark.badm{animation:markPop .7s ease both}
+@keyframes markPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}45%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+.tlabel{position:absolute;font-size:.56rem;color:var(--mu);letter-spacing:.5px;background:#ffffffcc;padding:1px 5px;border-radius:5px;border:1px solid #c3d0e2}
+.trunkbar{position:absolute;height:14px;background:repeating-linear-gradient(45deg,#1d3a5f 0 9px,#12233c 9px 18px);border:1px solid #2b6ca8;border-radius:4px}
+.sblock{position:absolute;height:22px;border-radius:4px;background:#1c3a5f;border:1px solid #38bdf866;transition:flex-grow .8s;display:flex;align-items:center;justify-content:center;font-size:.56rem;color:#9fd7ff}
+.smark{position:absolute;top:34px;font-size:.56rem;color:var(--mu)}
+.addr{position:absolute;font-family:var(--mono);font-size:.68rem;background:#ffffff;border:1px solid #94a3b8;border-radius:7px;padding:.3rem .5rem;color:#0891b2;transition:.6s}
+.addr.morph{border-color:var(--gn);color:var(--gn);box-shadow:0 0 12px #34d39944}
+.stepdot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--gd);animation:stepP 2.4s infinite}
+@keyframes stepP{0%,100%{opacity:.15}50%{opacity:1;box-shadow:0 0 8px #fbbf24}}
+.shieldic{position:absolute;font-size:1.35rem;animation:shieldB 2s infinite}
+@keyframes shieldB{0%,100%{filter:drop-shadow(0 0 2px currentColor)}50%{filter:drop-shadow(0 0 10px currentColor)}}
+.macrow{position:absolute;font-family:var(--mono);font-size:.6rem;background:#ffffff;border:1px solid #94a3b8;border-radius:6px;padding:.18rem .4rem;animation:fadeUp .4s both}
+.macrow.rg{border-color:#f8717166;color:#fca5a5;text-decoration:line-through}
+
+/* ===== SUMMARY ===== */
+.sumwrap{max-width:640px;margin:0 auto}
+.sumcard{background:linear-gradient(150deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:20px;padding:1.6rem;text-align:center;animation:fadeUp .4s}
+.sumcard h1{font-size:1.6rem;letter-spacing:1px}
+.gstats{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin:1.2rem 0}
+.gstat{background:#f5f8fc;border:1px solid var(--line);border-radius:12px;padding:.7rem}
+.gstat b{display:block;font-size:1.4rem;color:var(--cy)}
+.gstat.hot b{color:var(--or)}.gstat.gd b{color:var(--gd)}.gstat.gn b{color:var(--gn)}
+.gstat span{font-size:.6rem;color:var(--mu);letter-spacing:1px;text-transform:uppercase}
+.rec{margin-top:1.1rem;background:#22d3ee10;border:1px solid #22d3ee44;border-radius:12px;padding:.9rem;font-size:.9rem}
+.rec b{color:var(--cy)}
+.bosswin{font-size:1.25rem;font-weight:900;color:var(--gd);margin:.8rem 0;letter-spacing:2px}
+
+/* ===== MODAL / TOAST ===== */
+.modal{position:fixed;inset:0;background:#1e293bcc;z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal.open{display:flex}
+.mbox{background:var(--card);border:1px solid var(--cy);border-radius:18px;max-width:640px;width:100%;padding:1.3rem;max-height:88vh;overflow:auto}
+.mbox h3{margin-bottom:.5rem;font-size:1.1rem}
+.mbox textarea{width:100%;height:170px;background:#f5f8fc;border:1px solid var(--line);border-radius:11px;color:var(--tx);padding:.8rem;font-family:var(--mono);font-size:.78rem;resize:vertical}
+.mbox textarea:focus{outline:none;border-color:var(--cy)}
+.mrow2{display:flex;gap:.6rem;margin-top:.8rem;flex-wrap:wrap}
+.pv{margin-top:.8rem;font-size:.8rem;background:#f5f8fc;border:1px solid var(--line);border-radius:10px;padding:.7rem;max-height:170px;overflow:auto}
+#toasts{position:fixed;top:60px;right:14px;z-index:200;display:flex;flex-direction:column;gap:.5rem}
+.toast{background:#fffffff2;border:1px solid var(--cy);border-radius:11px;padding:.6rem 1rem;font-weight:800;font-size:.84rem;animation:toastIn .3s,tOut .3s 2.4s forwards;box-shadow:0 6px 24px -8px #0891b255}
+.toast.gd{border-color:var(--gd);color:var(--gd)}.toast.xp{border-color:var(--cy);color:var(--cy)}
+@keyframes toastIn{from{transform:translateX(40px);opacity:0}}
+@keyframes tOut{to{transform:translateX(40px);opacity:0}}
+#streakPop{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;pointer-events:none}
+#streakPop.show{display:flex}
+.spop{font-size:3.2rem;font-weight:900;background:linear-gradient(90deg,var(--or),var(--gd));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 22px #fbbf2488);animation:spopA 1.4s ease both;text-align:center}
+@keyframes spopA{0%{transform:scale(.3);opacity:0}30%{transform:scale(1.25);opacity:1}70%{transform:scale(1);opacity:1}100%{transform:scale(1.1);opacity:0}}
+.dis{margin-top:2rem;text-align:center;font-size:.64rem;color:#64748b}
+.gohome{margin-top:1rem;display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap}
+
+@media(max-width:860px){
+ .hero{grid-template-columns:1fr}
+ .gamegrid{grid-template-columns:1fr}
+ .answers{grid-template-columns:1fr}
+ .qtext{font-size:1.05rem}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbbf24"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs></svg>
+
+<header id="topbar">
+  <div class="logo"><span class="bolt">⚡</span>NETWORK<span style="color:var(--cy)">STORM</span></div>
+  <div class="lvchip" id="tbLevel"></div>
+  <div class="xpwrap"><div class="xpbar"><div class="xpfill" id="tbXpFill"></div></div><div class="xptxt" id="tbXpTxt"></div></div>
+  <div class="streakhud flame" id="tbStreak" title="best streak"></div>
+  <button class="tb-btn" id="voiceBtn" onclick="toggleVoice()" title="Read questions & options aloud">🔇 Voice</button>
+  <select id="voiceRate" class="tb-btn" style="padding:.32rem .4rem" title="Voice speed" onchange="voiceRateSync(this.value)">
+    <option value="1">1×</option>
+    <option value="1.25">1.25×</option>
+    <option value="1.5">1.5×</option>
+    <option value="1.75">1.75×</option>
+    <option value="2">2×</option>
+  </select>
+  <button class="tb-btn" onclick="go('home')">🏠 Base</button>
+  <button class="tb-btn" onclick="openImport()">📥 Import MCQs</button>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section class="screen active" id="scr-home">
+    <div class="hero">
+      <div class="ringcard">
+        <div class="ringwrap">
+          <svg width="104" height="104"><circle cx="52" cy="52" r="44" fill="none" stroke="#12203a" stroke-width="9"/><circle class="ringfill" id="homeRing" cx="52" cy="52" r="44" fill="none" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5"/></svg>
+          <div class="ringlbl"><b id="ringLv">1</b><span>LEVEL</span></div>
+        </div>
+        <div class="hstats">
+          <div class="hstat"><b id="stXp">0</b><span>XP</span></div>
+          <div class="hstat hot"><b id="stStreak">0🔥</b><span>Streak now</span></div>
+          <div class="hstat"><b id="stAcc">—</b><span>Accuracy</span></div>
+          <div class="hstat"><b id="stAns">0</b><span>Answered</span></div>
+        </div>
+      </div>
+      <div class="wngrid">
+        <div class="wncard"><h4>🔥 CURRENT WEAKNESS</h4><div class="big hot" id="wcWeak">—</div></div>
+        <div class="wncard"><h4>🎯 NEXT TARGET</h4><div class="big go" id="wcNext">—</div></div>
+      </div>
+    </div>
+
+    <div class="secttl">📚 Course Quizzes <small>REAL exam-style quizzes from your 31 course PDFs — pick Module → Lesson</small></div>
+    <div class="mbars" id="lessonRail" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.55rem"></div>
+
+    <div class="secttl">⚔️ Game Modes <small>adaptive engine picks from ALL your MCQs</small></div>
+    <div class="modes" id="modeGrid"></div>
+
+    <div class="secttl">📈 Topic Mastery <small>updates after every answer</small></div>
+    <div class="mbars" id="masteryList"></div>
+
+    <div class="secttl">🧪 Labs <small>REAL lab missions from your 14 course PDFs — task by task, command by command</small></div>
+    <div class="modes" id="labGrid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))"></div>
+
+    <div class="secttl">🖼️ Study Sheets <small>Active-Recall Visual Study Sheets for every CCNA lesson — click to view</small></div>
+    <div class="modes" id="sheetGrid" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))"></div>
+
+    <div class="secttl">🩹 Recent Mistakes <small>they enter your spaced review queue</small></div>
+    <div class="recent" id="recentList"></div>
+    <div class="dis">Game progression only — not a professional certification. Topic tags auto-derived; your imported MCQs remain the source of truth.</div>
+
+    <div class="secttl" id="lbSection" style="display:none">🏆 Leaderboard <small>top CCNA players by XP</small></div>
+    <div class="mbars" id="leaderboardList" style="display:none"></div>
+  </section>
+
+  <!-- GAME -->
+  <section class="screen" id="scr-game">
+    <div class="gamegrid">
+      <div class="gcard" id="qCard">
+        <div class="hud" id="hud"></div>
+        <div class="bossbar" id="bossBar" style="display:none"></div>
+        <div class="qtext" id="qText"></div>
+        <div class="answers" id="answers"></div>
+        <div class="tbarw"><div class="tbar"><div class="tfill" id="tFill"></div></div></div>
+        <div class="hintrow">
+          <button class="hintbtn" id="hintBtn" onclick="useHint()">💡 Hint (−5 XP)</button>
+          <span class="hintlab" id="hintLab"></span>
+          <button class="endbtn" onclick="confirmEnd()">End session</button>
+          <button class="nextbtn" id="nextBtn" style="display:none" onclick="nextQ()">NEXT ▶</button>
+        </div>
+        <div class="fb" id="fb"></div>
+      </div>
+      <div class="vizcard"><h5 id="vizTitle">Network View</h5><div class="stage" id="stage"></div><div id="exhibitBox" style="display:none;margin-top:.6rem"></div></div>
+    </div>
+  </section>
+
+  <!-- CLI LAB BATTLE -->
+  <section class="screen" id="scr-cli">
+    <div class="cliwrap">
+      <div class="clihead">
+        <button class="tb-btn" onclick="go('home')">🏠 Base</button>
+        <div class="clittl" id="cliTitle">🧪 LAB BATTLE</div>
+        <div class="climeta"><span id="cliHp"></span><span id="cliProg"></span></div>
+      </div>
+      <div class="cligrid">
+        <div class="clileft">
+          <div class="cliterm" id="cliTerm"></div>
+          <div class="cliinput">
+            <span class="cliprompt" id="cliPrompt">SW1&gt;</span>
+            <input id="cliIn" autocomplete="off" spellcheck="false" placeholder="type a command… (Tab = hint, Enter = run)">
+            <button class="tb-btn" onclick="cliHint()" title="reveal next command (-15 XP)">💡 Hint</button>
+          </div>
+        </div>
+        <div class="cliright">
+          <div class="clitopo" id="cliTopo">
+            <h5>🗺️ TOPOLOGY</h5>
+            <div class="clitopimgw" id="cliTopoImgW"><img id="cliTopoImg" alt="lab topology" onclick="zoomTopo()"></div>
+            <div class="clitopohint">click to enlarge</div>
+          </div>
+          <div class="climission" id="cliMission"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUMMARY -->
+  <section class="screen" id="scr-summary">
+    <div class="sumwrap"><div class="sumcard" id="sumBody"></div></div>
+  </section>
+</main>
+
+<!-- IMPORT MODAL -->
+<div class="modal" id="impModal">
+  <div class="mbox">
+    <h3>📥 Import your MCQs — they become the source of truth</h3>
+    <p style="font-size:.78rem;color:var(--mu);margin-bottom:.6rem">Paste JSON array · CSV (question,a,b,c,d,answer,explanation,topic) · or plain text blocks with A) B) C) D) and an "Answer: B" line. Questions, options and correct answers are stored exactly as provided — never altered.</p>
+    <textarea id="impText" placeholder='[{"q":"...","options":["...","...","...","..."],"answer":"B","explanation":"...","topic":"VLAN"}]  ·or· CSV rows ·or· plain text blocks'></textarea>
+    <div class="mrow2">
+      <button class="tb-btn" style="border-color:var(--cy)" onclick="parseImport()">🔍 Detect &amp; Parse</button>
+      <button class="tb-btn" style="border-color:var(--gn);color:var(--gn)" id="impAdd" onclick="applyImport()" disabled>Add to bank</button>
+      <button class="tb-btn" onclick="closeImport()">Cancel</button>
+      <span style="flex:1"></span>
+      <button class="tb-btn" style="border-color:#f8717155;color:#f87171" onclick="wipe()">Reset ALL game data</button>
+    </div>
+    <div class="pv" id="impPv">Parsed questions will preview here.</div>
+  </div>
+</div>
+
+<!-- LAB MODAL -->
+<div class="modal" id="labModal">
+  <div class="mbox">
+    <div id="labBody"></div>
+    <div class="mrow2">
+      <button class="tb-btn" onclick="document.getElementById('labModal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- STUDY SHEET MODAL -->
+<div class="modal" id="sheetModal">
+  <div class="mbox" style="max-width:900px;text-align:center">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+      <h3 id="sheetTitle" style="margin:0">Study Sheet</h3>
+      <button class="tb-btn" onclick="document.getElementById('sheetModal').classList.remove('open')">Close ✕</button>
+    </div>
+    <div id="sheetNav" style="display:flex;gap:.5rem;justify-content:center;margin-bottom:.6rem;flex-wrap:wrap"></div>
+    <div style="background:#fff;border:1px solid var(--line);border-radius:12px;overflow:auto;max-height:72vh;display:flex;align-items:center;justify-content:center">
+      <img id="sheetImg" alt="study sheet" style="width:100%;max-height:72vh;object-fit:contain;display:block">
+    </div>
+  </div>
+</div>
+
+<!-- TOPOLOGY ZOOM -->
+<div id="topoZoom" onclick="this.classList.remove('open')"><img id="topoZoomImg" alt="topology enlarged"></div>
+
+<div id="toasts"></div>
+<div id="streakPop"><div class="spop" id="spopTxt"></div></div>
+
+<!-- Supabase Integration (load before game script) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="supabase-client.js"></script>
+
+<script>
+/* ================= QUESTION BANK (seeded from your existing verified set — content untouched) =================
+   {t:topic, s:subtopic, d:difficulty(0 easy/1 med/2 hard), q, o[4] (correct ALWAYS index 0 here; shuffled at render), w:why, vz:viz} */
+const TOPICS=["NETWORK FUNDAMENTALS","SWITCHING","ROUTING & OSPF","IP ADDRESSING","SUBNETTING","IPv6","NETWORK SERVICES","WIRELESS","SECURITY","AUTOMATION"];
+const BANK=[
+{t:"SWITCHING",s:"MAC learning",d:1,vz:"switch",q:"A frame arrives for an unknown MAC. What does the switch do?",o:["Floods it out all ports except the ingress port","Drops it silently","Sends it to the default gateway","Buffers it until the MAC is learned"],v:"switches", w:"Switches flood unknown unicast out every port except the one it came in on — that's how the destination is discovered."},
+{t:"NETWORK FUNDAMENTALS",s:"Devices",d:0,vz:"routing",q:"Which device makes forwarding decisions using destination IP?",o:["Router","Switch","Hub","Repeater"],v:"routers", w:"Routers work at L3 (IP); switches work at L2 (MAC); hubs just repeat electricity."},
+{t:"SWITCHING",s:"MAC",d:0,vz:"switch",q:"MAC address size & origin?",o:["48-bit, burned into the NIC by the manufacturer","64-bit, assigned by the OS","32-bit, configured by DHCP","128-bit, randomly generated"],v:"switches", w:"48 bits (6 hex pairs), burned in at manufacture — that's why it's 'globally unique'."},
+{t:"NETWORK FUNDAMENTALS",s:"Transport",d:0,vz:"tcp",q:"TCP vs UDP: which pairing is correct?",o:["TCP=connection-oriented+reliable; UDP=connectionless+fast","TCP=fast+unreliable; UDP=reliable+ordered","Both are connection-oriented","Both use 3-way handshakes"],v:"tcp-vs-udp", w:"TCP: handshake, ACKs, retransmit (web, file transfer). UDP: fire-and-forget (voice, video, gaming)."},
+{t:"NETWORK SERVICES",s:"DHCP",d:0,vz:"dhcp",q:"The DHCP DORA order is:",o:["Discover → Offer → Request → Acknowledge","Discover → Request → Offer → Accept","Request → Offer → Discover → Acknowledge","Broadcast → Unicast → Request → Ack"],v:"dynamic-ipv4-address-assignment", w:"Client broadcasts Discover, server Offers, client Requests, server ACKs the lease."},
+{t:"NETWORK SERVICES",s:"DHCP",d:1,vz:"dhcp",q:"A host self-assigns 169.254.x.x. Diagnosis?",o:["DHCP failed — APIPA/link-local fallback","It's on the internet with a public IP","Static misconfig of a routable address","The switch blocked DHCP snooping"],v:"dynamic-ipv4-address-assignment", w:"169.254.0.0/16 = APIPA. Check the DHCP server, scope, or the ip helper-address relay."},
+{t:"IP ADDRESSING",s:"Private ranges",d:0,vz:"nat",q:"RFC1918 private ranges are:",o:["10/8, 172.16/12, 192.168/16","172.16/16 only","10/8 and 8.8/8","192.168/24 and 100.64/10"],v:"public-vs-private-ipv4-addresses", w:"10.0.0.0/8 · 172.16.0.0/12 · 192.168.0.0/16 — not internet-routable, need NAT."},
+{t:"NETWORK SERVICES",s:"DNS",d:1,vz:"dns",q:"'What happens when you type a URL?' — first stop after caches?",o:["Recursive resolver → root → TLD → authoritative","Authoritative server → root → resolver","TLD server → root → local host file","Root → resolver → DNS registrar"],v:"domain-name-system-dns", w:"Cache miss → recursive resolver asks root ('which TLD?') → TLD ('which authoritative?') → authoritative returns the A record."},
+{t:"SUBNETTING",s:"Hosts",d:1,vz:"subnet",q:"Usable hosts in a /26 subnet?",vz:"subnet",o:["62","64","30","126"],v:"calculating-available-hosts", w:"2^6 − 2 = 62 usable (64 minus network & broadcast)."},
+{t:"SUBNETTING",s:"Ranges",d:2,vz:"subnet",q:"200.100.50.0/27 — the 3rd subnet's network address is:",vz:"subnet",o:["200.100.50.64","200.100.50.32","200.100.50.63","200.100.50.96"],w:"Block = 256−224 = 32 ⇒ subnets at .0, .32, .64… 3rd one starts at .64."},
+{t:"SECURITY",s:"ACL wildcards",d:2,vz:"acl",q:"Wildcard mask matching an entire /29 subnet?",o:["0.0.0.7","0.0.0.248","0.0.0.255","0.0.7.0"],v:"numbered-standard-acls", w:"Wildcard = 255−mask. /29=248 ⇒ 255−248 = 7 ⇒ 0.0.0.7."},
+{t:"ROUTING & OSPF",s:"Lookup",d:1,vz:"routing",q:"Routing table has 10.0.0.0/8, 10.1.0.0/16 and 10.1.1.0/24. Packet for 10.1.1.5 uses:",o:["10.1.1.0/24 — longest prefix wins","10.0.0.0/8 — lowest metric","10.1.0.0/16 — newest entry","All three, load-balanced"],v:"review-of-the-routing-process", w:"Longest-prefix match always beats metric/AD — most specific route wins."},
+{t:"ROUTING & OSPF",s:"Adjacency",d:1,vz:"ospf",q:"OSPF neighbor states in order:",o:["Down → 2-Way → ExStart → Exchange → Loading → Full","Down → Full → Exchange → Hello","Init → Full → 2-Way","Hello → Full → Sync → Done"],v:"ospf-neighbor-formation", w:"Hello → 2-Way → ExStart → Exchange → Loading → FULL adjacency."},
+{t:"ROUTING & OSPF",s:"Troubleshooting",d:2,vz:"ospf",q:"NOT a reason OSPF neighbors fail to form:",o:["Mismatched hostname","Mismatched Hello/Dead timers","Mismatched area ID","Duplicate router IDs"],v:"ospf-neighbor-formation", w:"Hostnames are irrelevant! Timers, areas, subnets, auth, and router IDs must all match."},
+{t:"ROUTING & OSPF",s:"DR election",d:1,vz:"ospf",q:"DR election on a broadcast segment is won by:",o:["Highest priority, tie-break highest router ID","Lowest MAC address","First router to boot","Lowest IP address"],v:"dr-and-bdr-election", w:"Priority 0 = never DR; default priority 1; tie broken by the highest RID."},
+{t:"ROUTING & OSPF",s:"Administrative distance",d:1,vz:"routing",q:"AD of OSPF vs RIP vs static:",o:["Static 1 < OSPF 110 < RIP 120","RIP 120 < OSPF 110 < static 1","Static 110 < OSPF 120 < RIP 1","All are 110"],v:"administrative-distance", w:"Lower AD = more trusted: connected 0, static 1, eBGP 20, OSPF 110, RIP 120."},
+{t:"ROUTING & OSPF",s:"Static routes",d:0,vz:"routing",q:"Create a default route via next-hop 203.0.113.1:",o:["ip route 0.0.0.0 0.0.0.0 203.0.113.1","ip default-gateway 203.0.113.1","ip route 203.0.113.1 0.0.0.0 0.0.0.0","default-route 203.0.113.1"],v:"static-default-route-configuration", w:"Quad-zero = 'any destination, any mask' via that next hop. (default-gateway is for switches without routing.)"},
+{t:"ROUTING & OSPF",s:"Static routes",d:1,vz:"routing",q:"A floating static route differs because it:",o:["Has a higher AD, active only when the primary fails","Floats between interfaces","Is advertised by OSPF","Uses DHCP-learned next hops"],v:"floating-static-route-configuration", w:"Configure AD like 254: hidden while the primary (AD 1) lives, floats up on failure = instant backup."},
+{t:"ROUTING & OSPF",s:"FHRP",d:1,vz:"routing",v:"hot-standby-router-protocol-hsrp",q:"HSRP's core trick is:",o:["Two routers share one virtual gateway IP","Load-balancing per-packet like GLBP","Replacing OSPF on the LAN","Encrypting host traffic"],w:"Hosts point at the virtual IP; active router answers, standby takes over on failure — transparent default-gateway redundancy."},
+{t:"SWITCHING",s:"Trunking",d:0,vz:"trunk",q:"802.1Q tag describes:",o:["A 4-byte VLAN tag inserted into Ethernet frames on a trunk","An encryption header for Wi-Fi","The trunk negotiation protocol itself","A QoS priority mark"],v:"trunking-theory", w:"The tag carries the VLAN ID across trunk links; native VLAN frames ride untagged (must match both ends!)."},
+{t:"SWITCHING",s:"SVI",d:1,vz:"vlan",q:"SVI vs routed port on a multilayer switch:",o:["SVI = virtual L3 interface for a VLAN; routed port = a physical port acting like a router interface","They're identical","SVI is wireless-only; routed is wired-only","Routed ports need a trunk; SVIs don't"],v:"switch-virtual-interface-svi", w:"interface vlan 10 (SVI) routes FOR a VLAN; 'no switchport' (routed port) routes ON that port like a router."},
+{t:"SWITCHING",s:"STP",d:0,vz:"stp",v:"stp-port-states",q:"STP's primary job:",o:["Prevent L2 loops by blocking redundant paths","Encrypt trunk links","Speed up MAC learning","Balance traffic across uplinks"],w:"Redundant links would cause broadcast storms/loops — STP elects a root (lowest BID) and blocks backup paths until needed."},
+{t:"SWITCHING",s:"STP edge",d:1,vz:"stp",v:"portfast",q:"PortFast + BPDU Guard together give you:",o:["Instant forwarding on access ports, err-disabled if a switch plugs in","Faster STP convergence on trunks","Root bridge protection on uplinks","MAC-based authentication"],v:"portfast", w:"PortFast skips listening/learning on edge ports; BPDU Guard kills the port if a BPDU arrives (= rogue switch). Root Guard protects uplinks instead."},
+{t:"SWITCHING",s:"EtherChannel",d:1,vz:"trunk",q:"EtherChannel bundles links so that:",o:["STP sees one logical link — no blocked ports","Each cable is its own broadcast domain","Speed doubles per VLAN","CDP runs on every member port"],v:"introduction-to-etherchannel", w:"Up to 8 links = 1 logical port: aggregated bandwidth, redundancy, and STP doesn't block anything. LACP standard / PAgP Cisco."},
+{t:"NETWORK SERVICES",s:"NAT",d:1,vz:"nat",v:"port-address-translation-pat-configuration",q:"NAT 'overload' (PAT) works by:",o:["Tracking source ports to share one public IP among many hosts","Translating MAC addresses","Assigning each host its own public IP","Queueing packets at the NAT boundary"],w:"Many insiders:1 public IP — the router keeps a translation table of ports. This is every home/office internet connection."},
+{t:"NETWORK SERVICES",s:"SNMP",d:1,vz:"mgmt",v:"simple-network-management-protocol-snmp-theory",q:"SNMPv3's big advantage over v2c:",o:["Authentication + encryption (no plaintext communities)","Faster polling loops","Built-in syslog relay","Automatic MIB discovery"],w:"v2c community strings travel in cleartext; v3 adds auth (who) and privacy (encryption)."},
+{t:"NETWORK SERVICES",s:"Syslog",d:0,vz:"mgmt",q:"Syslog level 2 = ?",o:["Critical","Warning","Error","Notification"],v:"syslog", w:"0 Emergency · 1 Alert · 2 CRITICAL · 3 Error · 4 Warning · 5 Notification · 6 Info · 7 Debug."},
+{t:"NETWORK SERVICES",s:"QoS",d:1,vz:"qos",q:"Voice traffic gets which DSCP marking?",o:["EF (46)","AF11","CS1","Best Effort"],v:"prioritizing-traffic-types", w:"Expedited Forwarding = priority queue for voice; video uses AF41-ish classes."},
+{t:"SECURITY",s:"Fundamentals",d:0,vz:"security",q:"CIA triad =",o:["Confidentiality, Integrity, Availability","Control, Identity, Authentication","Crypto, Inspection, Access","Compliance, IAAA, Audit"],v:"cia-triad", w:"Every security control maps to keeping secrets secret (C), data untampered (I), systems up (A)."},
+{t:"SECURITY",s:"AAA",d:1,vz:"security",q:"RADIUS vs TACACS+ — the Cisco one that encrypts the whole packet is:",o:["TACACS+","RADIUS","Both equally","Neither"],v:"authentication-authorization-and-acounting-aaa", w:"TACACS+ (Cisco) encrypts everything & does per-service authz; RADIUS (open) encrypts only the password, combines authz."},
+{t:"SECURITY",s:"Wireless security",d:0,vz:"wifi",v:"wireless-security-protocols",q:"Wireless security worst → best:",o:["WEP → WPA-TKIP → WPA2-PSK → WPA3-SAE","WPA3 → WPA2 → WEP → open","WPA2 → WPA3 → WEP","They're all equivalent with AES"],v:"wireless-security-protocols", w:"WEP is crackable in minutes; WPA3-SAE replaces the PSK handshake — that's the modern answer."},
+{t:"SECURITY",s:"ACL placement",d:1,vz:"acl",v:"acl-considerations",q:"Standard ACL — best placement?",o:["Close to the destination","Close to the source","On the router's loopback","Anywhere — placement is irrelevant"],v:"acl-considerations", w:"Standard filters only source IP → putting it near the source would block traffic to ALL destinations. Extended → near source."},
+{t:"SECURITY",s:"ACL",d:0,vz:"acl",q:"Every ACL ends with an implicit:",o:["deny any","permit any","log all","return to top"],v:"acl-overview", w:"Invisible 'deny any' at the end — if nothing matched, the packet dies. Classic exam trick."},
+{t:"SECURITY",s:"L2 security",d:1,vz:"snoop",q:"DHCP snooping protects against:",o:["Rogue DHCP servers offering bogus leases","Clients requesting too many IPs","Lease exhaustion from multicast","DNS poisoning"],v:"dhcp-snooping-theory", w:"Only trusted ports may send OFFERs; it also builds the binding table that DAI uses to catch ARP poisoning."},
+{t:"SECURITY",s:"Port security",d:1,vz:"portsec",q:"Port-security violation mode that err-disables the port:",o:["shutdown","protect","restrict","reset"],v:"port-security-configuration", w:"shutdown (default) = err-disable; restrict = drop+count+log; protect = drop silently."},
+{t:"AUTOMATION",s:"SDN",d:0,vz:"auto",v:"overview-of-sdn",q:"SDN's fundamental separation:",o:["Control plane from data plane","WAN from LAN","Physical from virtual switching","Users from admin roles"],w:"Central controller (control) programs switches (forwarding) — policy network-wide instead of box-by-box CLI."},
+{t:"AUTOMATION",s:"REST",d:0,vz:"auto",v:"rest-apis",q:"HTTP method for 'update this resource'?",o:["PUT","GET","POST","HEAD"],w:"POST=Create · GET=Read · PUT=Update (whole) · PATCH=Update(part) · DELETE=delete."},
+{t:"AUTOMATION",s:"Tools",d:1,vz:"auto",q:"Which pair best describes Ansible and Terraform?",o:["Ansible = agentless config push over SSH; Terraform = declarative provisioning","Ansible = declarative provisioning; Terraform = agentless config push","Both require agents on every device","Both are Cisco-proprietary"],v:"configuration-management-with-ansible", w:"Ansible pushes desired config (agentless, SSH); Terraform builds/changes infrastructure declaratively."},
+{t:"AUTOMATION",s:"Data",d:0,vz:"auto",q:"JSON's structure rule:",o:["key:value pairs in { }, lists in [ ], strings double-quoted","XML tags mandatory","indentation defines structure","only single-line documents"],w:"APIs speak JSON natively — parsing device state becomes trivial."},
+{t:"WIRELESS",s:"Service sets",d:1,vz:"wifi",q:"BSS vs ESS vs SSID:",o:["BSS = one AP/cell · ESS = multiple APs one SSID · SSID = the network name","BSS = the network name · ESS = one AP · SSID = the AP MAC","All three are the same","BSS is only used on 6 GHz"],v:"service-set-terminology", w:"BSSID is the AP's radio MAC; ESS is the roaming domain of APs sharing one SSID."},
+{t:"WIRELESS",s:"RF channels",d:0,vz:"wifi",q:"2.4 GHz non-overlapping channels:",o:["1, 6, 11","1, 5, 9","2, 7, 12","Any three adjacent"],v:"radio-frequency-rf-basics", w:"Only 3 clean channels in 2.4 GHz — one reason 5/6 GHz exist."},
+{t:"WIRELESS",s:"Standards",d:0,vz:"wifi",q:"802.11ax is marketed as:",o:["Wi-Fi 6","Wi-Fi 5","Wi-Fi 4","Wi-Fi 6E"],v:"selecting-a-wi-fi-standard", w:"n=4 · ac=5 · ax=6 · 6E=ax on 6 GHz."},
+{t:"IPv6",s:"NDP",d:1,vz:"v6",q:"IPv6 replaces ARP with:",o:["NDP (Neighbor Discovery)","DHCPv6","RA-guard","Link-local DNS"],v:"ipv6-solicited-node-multicast", w:"NDP uses ICMPv6 + solicited-node multicast (FF02::1:FFxx:xxxx) — no broadcast exists in IPv6."},
+{t:"IPv6",s:"Formatting",d:1,vz:"v6",q:"Valid IPv6 shortening of 2001:0db8:0000:0000:0000:ff00:0042:8329?",o:["2001:db8::ff00:42:8329","2001::db8::ff00:42:8329","2001:0db8::ff00::42:8329","2001:db8:0:0::ff00:0042:8329:0"],v:"shortening-an-ipv6-address", w:"Drop leading zeros per hextet; :: replaces ONE longest zero-run (only once!)."},
+{t:"IPv6",s:"EUI-64",d:2,vz:"v6",q:"EUI-64 turns MAC AA:BB:CC:DD:EE:FF into interface ID:",o:["A8BB:CCFF:FEDD:EEFF","AABB:CCFF:FEDD:EEFF","AABB:CC:DD:EEFF:FF","AA:BBCC:DDEE:FF"],v:"eui-64", w:"Split in half, insert FFFE in the middle, flip the 7th bit of the first byte (AA→A8)."},
+{t:"IPv6",s:"SLAAC",d:1,vz:"v6",q:"SLAAC means the host:",o:["Builds its own address from the RA prefix","Must call a DHCPv6 server for everything","Uses only link-local forever","Waits for manual config"],v:"dynamic-ipv6-address-assignment", w:"Router Advertisement says 'here's the /64 prefix' — host self-serves (EUI-64 or privacy ext). Flags can add DHCPv6 for options."},
+{t:"NETWORK FUNDAMENTALS",s:"Cabling",d:1,vz:"mgmt",q:"Cabling fault found by a TDR:",o:["Distance-to-break in a copper run","Duplicate MAC addresses","Duplex mismatch statistics","Fiber light loss in dB"],v:"troubleshooting-common-cabling-issues", w:"Time-Domain Reflectometer measures where a break/short is along the cable — OTDR does fiber."},
+{t:"NETWORK FUNDAMENTALS",s:"PoE",d:1,vz:"mgmt",q:"PoE standard delivering up to ~90W:",o:["802.3bt (PoE++)","802.3af","802.3at","802.3az"],v:"power-over-ethernet-poe", w:"af≈15W · at≈30W · bt (PoE++)≈90W for LEDs, PTZ cameras, displays."},
+].map((x,i)=>({...x,id:"s"+i}));
+/* NOTE: source MCQs preserved — one entry reworded only where the original ("Which is correct about""")
+   was ambiguous; correct answer & facts unchanged. */
+
+const LEVELS=[[0,"END DEVICE","🖥️"],[100,"NETWORK TECHNICIAN","🔧"],[250,"NETWORK ENGINEER","🚀"],[450,"NETWORK ADMINISTRATOR","⚙️"],[700,"NETWORK SECURITY ENGINEER","🛡️"],[1000,"SENIOR NETWORK ENGINEER","🏅"],[1400,"NETWORK ARCHITECT","🏛️"]];
+const NS="nstorm1.";
+const load=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(NS+k));return v??d}catch(e){return d}};
+const save=(k,v)=>{try{localStorage.setItem(NS+k,JSON.stringify(v))}catch(e){}
+ // Supabase cloud sync (debounced) — only for 'state' key and if logged in
+ if(k==="state"&&window.SUPA&&window.SUPA.isConnected()&&window.SUPA.getUser()){window.SUPA.scheduleSync(v)}
+};
+let S=Object.assign({xp:0,streak:0,best:0,answered:0,right:0,topics:{},q:{},recent:[],labs:{}},load("state",{}));
+if(!Array.isArray(S.recent))S.recent=[];
+S.recent=S.recent.filter(r=>r&&typeof r==="object"&&(r.t||r.q)).map(r=>({q:r.q||"",t:r.t||"GENERAL",s:r.s||shortQ(r.q),at:r.at||0})).slice(0,8);
+TOPICS.forEach(t=>{if(!S.topics[t])S.topics[t]={m:0,seen:0,right:0}});
+let CUSTOM=load("custom",[]);
+let REAL=[]; // loaded from real_quizzes.json (course PDF source of truth)
+const allQ=()=>BANK.concat(REAL||[],CUSTOM||[]); // seeded bank ALWAYS in the pool
+fetch('real_quizzes.json').then(r=>r.ok?r.json():Promise.reject()).then(d=>{REAL=d;renderHome();}).catch(()=>toast('real_quizzes.json not found — using built-in bank','gd'));
+fetch('labs_game.json').then(r=>r.ok?r.json():Promise.reject()).then(d=>{LABS=d;renderLabs();}).catch(()=>{toast('labs_game.json not found — Labs unavailable','gd');renderLabs();});
+fetch('labs_cli.json').then(r=>r.ok?r.json():Promise.reject()).then(d=>{LABCLI_DATA=d;renderLabs();}).catch(()=>{});
+
+/* ---- Supabase integration hooks ---- */
+// When user logs in, load their cloud progress and merge with local
+window.onSupabaseAuth=async function(user){
+ if(window.SUPA&&window.SUPA.isConnected()){
+  try{
+   const cloudState=await window.SUPA.loadProgress();
+   if(cloudState){
+    // Merge cloud state over local (cloud wins for XP/level, merge quiz stats)
+    S.xp=Math.max(S.xp||0,cloudState.xp||0);
+    S.level=Math.max(S.level||1,cloudState.level||1);
+    S.best=Math.max(S.best||0,cloudState.bestStreak||cloudState.best||0);
+    S.answered=Math.max(S.answered||0,cloudState.answered||0);
+    S.right=Math.max(S.right||0,cloudState.correct||cloudState.right||0);
+    if(cloudState.q)Object.assign(S.q,cloudState.q);
+    if(cloudState.topics)Object.assign(S.topics,cloudState.topics);
+    if(cloudState.labs)Object.assign(S.labs,cloudState.labs);
+    if(cloudState.recent&&Array.isArray(cloudState.recent))S.recent=cloudState.recent;
+    save("state",S);renderHome();renderTop();
+    toast('Cloud progress loaded!','gd');
+   }
+  }catch(e){console.warn('Cloud load failed:',e)}
+ }
+};
+window.onSupabaseLogout=function(){toast('Logged out — progress saved locally','mu')};
+/* ============ VOICE ENGINE ============ */
+let VOICE={on:load("voice",true),rate:load("voiceRate",1.5),voices:[],chosen:null};
+function pickVoice(){VOICE.voices=window.speechSynthesis?speechSynthesis.getVoices():[];
+ const pref=[/en[-_]US/i,/en[-_]GB/i,/^en/i];
+ for(const re of pref){const v=VOICE.voices.find(v=>re.test(v.lang)&&/google|natural|neural|samantha|zira|aria|female/i.test(v.name))||VOICE.voices.find(v=>re.test(v.lang));if(v){VOICE.chosen=v;return}}
+ VOICE.chosen=VOICE.voices.find(v=>/^en/i.test(v.lang))||VOICE.voices[0]||null;}
+if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function speak(text,{btn=null,rate=1}={}){if(!VOICE.on||!window.speechSynthesis||!text)return;
+ speechSynthesis.cancel();
+ if(btn){btn.classList.add("speaking");btn.dataset.act="1";}
+ const clean=String(text).replace(/[«»“”–—]/g," ").replace(/₂/g,"2").replace(/₀/g,"0").replace(/¹/g,"1").replace(/³/g,"3").trim();
+ const u=new SpeechSynthesisUtterance(clean);
+ if(VOICE.chosen)u.voice=VOICE.chosen;u.rate=Math.max(.6,Math.min(2.5,rate*(VOICE.rate||1.5)));u.pitch=1;u.lang=(VOICE.chosen&&VOICE.chosen.lang)||"en-US";
+ u.onend=u.onerror=()=>{if(btn){btn.classList.remove("speaking");}};
+ setTimeout(()=>speechSynthesis.speak(u),60);}
+function stopSpeak(){if(window.speechSynthesis)speechSynthesis.cancel();document.querySelectorAll(".speaking").forEach(b=>b.classList.remove("speaking"));}
+function toggleVoice(){VOICE.on=!VOICE.on;save("voice",VOICE.on);
+ const b=document.getElementById("voiceBtn");b.classList.toggle("von",VOICE.on);
+ b.innerHTML=(VOICE.on?"🔊":"🔇")+" Voice";
+ if(!VOICE.on)stopSpeak();else if(cur)speakFullQ();}
+function voiceBtnSync(){const b=document.getElementById("voiceBtn");b.classList.toggle("von",VOICE.on);b.innerHTML=(VOICE.on?"🔊":"🔇")+" Voice";voiceRateSync(VOICE.rate||1.5,true);}
+function voiceRateSync(v,noSave){VOICE.rate=parseFloat(v)||1.5;save("voiceRate",VOICE.rate);const s=document.getElementById("voiceRate");if(s)s.value=String(VOICE.rate);}
+function speakFullQ(btn){if(!cur)return;
+ const opts=map.map((m,i)=>`${"ABCDEFGH"[i]}. ${m.txt}`).join(".  ");
+ speak(`${cur.t||cur.topic||''}. ${cur.q}.  ${opts}`,{btn:btn||document.getElementById("qspeak"),rate:.98});}
+document.addEventListener("keydown",e=>{
+ if(!document.getElementById("scr-game").classList.contains("active"))return;
+ const k=e.key.toUpperCase();
+ if(k==="R"&&!e.ctrlKey&&!e.altKey&&document.activeElement.tagName!=="TEXTAREA"&&document.activeElement.tagName!=="INPUT"){speakFullQ();e.preventDefault();}
+ if(["A","B","C","D"].includes(k)&&!e.ctrlKey&&!e.altKey){const btns=document.querySelectorAll(".ans");const idx="ABCD".indexOf(k);if(btns[idx]&&!btns[idx].disabled){btns[idx].click();}}
+ if(k==="N"&&document.getElementById("nextBtn").style.display!=="none"){nextQ();}
+ if(k==="H"){useHint();}});
+
+let ses=null,timerH=null,tickT=null;
+
+/* ============ LEVEL / XP ============ */
+const lvIdx=()=>{let i=0;LEVELS.forEach((L,j)=>{if(S.xp>=L[0])i=j});return i};
+const lvInfo=()=>{const i=lvIdx(),cur=LEVELS[i],nxt=LEVELS[i+1]||null;return{i,name:cur[1],ico:cur[2],cur:cur[0],next:nxt?nxt[0]:cur[0]}};
+function addXP(n){const before=lvIdx();S.xp+=n;save("state",S);if(lvIdx()>before){toast(LEVELS[lvIdx()][2]+" LEVEL UP → "+LEVELS[lvIdx()][1]+"!","gd");}}
+function renderTop(){const L=lvInfo();const pct=L.next>L.cur?Math.min(100,(S.xp-L.cur)/(L.next-L.cur)*100):100;
+  document.getElementById("tbLevel").innerHTML=`<b>${L.ico} ${L.name}</b>`;
+  document.getElementById("tbXpFill").style.width=pct+"%";
+  document.getElementById("tbXpTxt").textContent=L.next>L.cur?`${S.xp} / ${L.next} XP`:`${S.xp} XP · MAX`;
+  document.getElementById("tbStreak").textContent="🔥"+S.streak;}
+
+/* ============ TOAST / STREAK POP ============ */
+function toast(t,c){const d=document.createElement("div");d.className="toast "+(c||"");d.textContent=t;document.getElementById("toasts").appendChild(d);setTimeout(()=>d.remove(),2900)}
+function streakPop(n){const map={3:"🔥 3 STREAK!",5:"🔥🔥 5 IN A ROW!",10:"⚡ 10 UNSTOPPABLE!",20:"👑 20 — LEGEND!"};if(!map[n])return;document.getElementById("spopTxt").innerHTML=map[n]+"<div style='font-size:.9rem;-webkit-text-fill-color:var(--mu)'>keep going</div>";const p=document.getElementById("streakPop");p.classList.add("show");setTimeout(()=>p.classList.remove("show"),1400)}
+
+/* ============ MASTERY + SPACED REPETITION ============ */
+const BOXMIN=[3*60e3,20*3600e3,3*864e5,7*864e5,16*864e5];
+function afterAnswer(Q,ok,timeMs){
+ const tk=Q.t||Q.topic||'GENERAL';
+ const T=S.topics[tk]||(S.topics[tk]={m:0,seen:0,right:0});
+  T.seen++; if(ok)T.right++;
+  T.m=Math.max(0,Math.min(100,Math.round(T.m*0.82+(ok?100:0)*0.18)));
+  const st=S.q[Q.id]||(S.q[Q.id]={seen:0,wrong:0,box:0,due:0});
+  st.seen++; st.last=Date.now(); st.ms=Math.round(timeMs);
+  if(ok){st.box=Math.min(4,st.box+1);st.due=Date.now()+BOXMIN[st.box];}
+  else{st.box=0;st.wrong++;st.due=Date.now()+90e3;S.recent=[{q:Q.q,t:(Q.t||Q.topic||"GENERAL"),s:(Q.s||Q.sub||shortQ(Q.q)),at:Date.now()}].concat(S.recent.filter(r=>r.q!==Q.q)).slice(0,8);}
+  S.answered++; if(ok)S.right++;
+  save("state",S);
+}
+function topicOf(q){return q.t||q.topic||"GENERAL"}
+function shortQ(q){return String(q||"").length>46?String(q).slice(0,44)+"…":String(q||"")}
+
+/* ============ ADAPTIVE PICK ============ */
+function pickQ(filter){
+  const now=Date.now(),pool=allQ().filter(filter||(()=>true));
+  if(!pool.length)return null;
+  const recent=ses.hist.map(h=>h.id).slice(-4);
+  const used=ses.hist.map(h=>h.id);
+  // pass 1: never-repeat — questions not yet asked this session
+  let candidates=pool.filter(Q=>!used.includes(Q.id));
+  // pass 2: if pool exhausted (session longer than pool), allow repeats but never the last 4
+  if(!candidates.length)candidates=pool.filter(Q=>!recent.includes(Q.id));
+  if(!candidates.length)candidates=pool.slice();
+  let best=null,bw=-1;
+  candidates.forEach(Q=>{
+    const st=S.q[Q.id]||{box:0,due:0,seen:0},T=S.topics[Q.t]||{m:0};
+    let w=Math.random()*0.5;
+    w+=(100-T.m)/60;                       // weak topics → more
+    if(st.seen===0)w+=3.0;                 // fresh questions first
+    if(st.due&&now>=st.due)w+=2.2;         // due reviews first
+    if(st.due&&now<st.due)w-=1.2;          // not due → rest
+    if(st.wrong>1)w+=st.wrong*0.4;         // repeated mistakes
+    if(ses.lastWrongTopic===Q.t)w+=1.1;    // fail → return to same topic soon
+    w+=(Q.d*0.35);                          // prefer harder as you level
+    if(w>bw){bw=w;best=Q}
+  });
+  return best||pool[Math.floor(Math.random()*pool.length)];
+}
+
+/* ============ VIZ LIBRARY (topic-specific animations) ============ */
+const R=Math.random;
+const VIZ={
+ subnet:{t:"SUBNET BLOCKS",h:()=>`
+  <div class="sblock" style="left:8%;top:24%;width:38%;animation:none">/26 NETWORK</div>
+  <div class="smark" style="left:8%;top:48%">.0 network · .1 first host</div>
+  <div class="smark" style="left:8%;top:62%">.62 last host · .63 broadcast</div>
+  <div class="sblock" style="left:50%;top:24%;width:38%;border-color:#c084fc66">next block</div>
+  <div class="smark" style="left:50%;top:48%">.64 · .65 … .126 · .127</div>
+  <div class="tlabel" style="left:20%;top:80%">2^h − 2 usable hosts per block</div>`},
+ switch:{t:"MAC LEARNING",h:()=>`
+  <div class="node" style="left:2%;top:38%"><i>💻</i>PC-A</div>
+  <div class="node" style="left:41%;top:38%"><i>🔀</i>SW</div>
+  <div class="node dst" style="left:80%;top:38%"><i>🖨️</i>PRN</div>
+  <div class="link" style="left:13%;top:47%;width:29%"></div>
+  <div class="link" style="left:52%;top:47%;width:29%"></div>
+  <div class="pkt gn pk-lr" style="top:44%"></div>
+  <div class="tlabel" style="left:30%;top:24%">flood if unknown → learn source MAC</div>`},
+ vlan:{t:"VLAN LANES",h:()=>`
+  <div class="tlabel" style="left:4%;top:6%;color:#38bdf8">VLAN 10 · SALES</div>
+  <div class="link" style="left:6%;top:30%;width:88%;background:#38bdf855"></div>
+  <div class="node" style="left:2%;top:22%"><i>💻</i>A</div><div class="node" style="left:84%;top:22%"><i>💻</i>B</div>
+  <div class="pkt v10 pk-lr" style="top:27%"></div>
+  <div class="tlabel" style="left:4%;top:56%;color:#34d399">VLAN 20 · ENG</div>
+  <div class="link" style="left:6%;top:80%;width:88%;background:#34d39955"></div>
+  <div class="node" style="left:2%;top:72%"><i>💻</i>C</div><div class="node" style="left:84%;top:72%"><i>💻</i>D</div>
+  <div class="pkt v20 pk-lr2" style="top:77%"></div>`},
+ trunk:{t:"802.1Q TRUNK",h:()=>`
+  <div class="node" style="left:4%;top:34%"><i>🔀</i>SW-A</div>
+  <div class="node" style="left:82%;top:34%"><i>🔀</i>SW-B</div>
+  <div class="trunkbar" style="left:22%;top:44%;width:54%"><span style="font-size:.5rem;color:#7fb7e8;letter-spacing:2px;display:block;text-align:center;line-height:13px">TRUNK ·tag·</span></div>
+  <div class="pkt v10 pk-lr" style="top:41%"></div>
+  <div class="pkt v20 pk-lr2" style="top:41%"></div>
+  <div class="pkt v30 pk-lr" style="top:47%"></div>
+  <div class="tlabel" style="left:30%;top:16%">many VLANs · one link · tagged</div>`},
+ stp:{t:"STP LOOP GUARD",h:()=>`
+  <div class="node root" style="left:40%;top:4%"><i>👑</i>SW1<small>ROOT</small></div>
+  <div class="node" style="left:4%;top:66%"><i>🔀</i>SW2</div>
+  <div class="node dst" style="left:76%;top:66%"><i>🔀</i>SW3</div>
+  <div class="link blocked" style="left:24%;top:20%;width:74px;transform:rotate(58deg)"></div>
+  <div class="link blocked" style="left:52%;top:20%;width:74px;transform:rotate(-58deg)"></div>
+  <div class="link blocked" style="left:22%;top:78%;width:56%;background:repeating-linear-gradient(90deg,#f8717188 0 5px,transparent 5px 9px)"></div>
+  <div class="tlabel" style="left:38%;top:74%;color:#f87171">X BLOCKED</div>
+  <div class="tlabel" style="left:6%;top:40%">fwd</div><div class="tlabel" style="left:86%;top:40%">fwd</div>
+  <div class="pkt gd pk-lr" style="top:76%"></div>`},
+ ospf:{t:"OSPF ADJACENCY",h:()=>`
+  <div class="node" style="left:6%;top:8%"><i>📡</i>R1</div>
+  <div class="node dst" style="left:78%;top:8%"><i>📡</i>R2</div>
+  <div class="node" style="left:6%;top:72%"><i>📡</i>R3</div>
+  <div class="node" style="left:78%;top:72%"><i>📡</i>R4</div>
+  <div class="link" style="left:16%;top:17%;width:66%"></div>
+  <div class="link" style="left:12%;top:22%;height:56%;width:2px"></div>
+  <div class="link" style="left:84%;top:22%;height:56%;width:2px"></div>
+  <div class="link" style="left:16%;top:81%;width:66%"></div>
+  <div class="pkt v10 pk-lr" style="top:14%"></div><div class="pkt v20 pk-ud" style="left:10%"></div>
+  <div class="stepdot" style="left:24%;top:34%"></div><div class="stepdot" style="left:44%;top:34%;animation-delay:.5s"></div><div class="stepdot" style="left:64%;top:34%;animation-delay:1s"></div>
+  <div class="tlabel" style="left:26%;top:44%">HELLO → 2WAY → ExStart → FULL</div>`},
+ dhcp:{t:"DORA SEQUENCE",h:()=>`
+  <div class="node" style="left:6%;top:8%"><i>💻</i>CLIENT</div>
+  <div class="node dst" style="left:78%;top:8%"><i>🖧</i>SERVER</div>
+  <div class="link" style="left:16%;top:17%;width:66%"></div>
+  <div class="tlabel" style="left:18%;top:34%">①DISCOVER</div><div class="pkt gd pk-lr" style="top:14%"></div>
+  <div class="tlabel" style="left:64%;top:44%">②OFFER</div><div class="pkt v20 pk-lr2" style="top:14%"></div>
+  <div class="tlabel" style="left:18%;top:54%">③REQUEST</div><div class="pkt gd pk-lr" style="top:50%"></div>
+  <div class="tlabel" style="left:64%;top:64%">④ACK ✅</div><div class="pkt v20 pk-lr2" style="top:50%"></div>`},
+ dns:{t:"DNS RESOLUTION",h:()=>`
+  <div class="addr" style="left:6%;top:10%">www.example.com</div>
+  <div class="node" style="left:38%;top:34%"><i>🔍</i>RESOLVER</div>
+  <div class="node" style="left:4%;top:76%"><i>🌍</i>ROOT</div>
+  <div class="node" style="left:40%;top:76%"><i>🏷️</i>TLD .com</div>
+  <div class="node dst" style="left:76%;top:76%"><i>📖</i>AUTH</div>
+  <div class="pkt cy pk-lr" style="top:18%;background:#22d3ee;color:#22d3ee"></div>
+  <div class="pkt gn pk-lr2" style="top:64%;left:0"></div>
+  <div class="tlabel" style="left:34%;top:56%">93.184.216.34 ← answer</div>`},
+ nat:{t:"NAT / PAT",h:()=>`
+  <div class="addr" style="left:4%;top:14%">192.168.1.10<small style="color:var(--mu)">:51514</small></div>
+  <div class="node" style="left:40%;top:36%;border-color:var(--gd)"><i>互换</i>NAT<small>overload</small></div>
+  <div class="addr" style="left:66%;top:14%">203.0.113.5<small style="color:var(--mu)">:40001</small></div>
+  <div class="link" style="left:24%;top:22%;width:18%;transform:rotate(28deg)"></div>
+  <div class="link" style="left:56%;top:22%;width:16%;transform:rotate(-28deg)"></div>
+  <div class="node" style="left:42%;top:80%"><i>🌐</i>INTERNET</div>
+  <div class="pkt gd pk-lr" style="top:40%"></div>
+  <div class="tlabel" style="left:30%;top:62%">many privates → one public</div>`},
+ acl:{t:"ACL FILTER",h:()=>`
+  <div class="node" style="left:4%;top:40%"><i>📦</i>PKT</div>
+  <div class="node" style="left:40%;top:40%;border-color:var(--rd)"><i>🚧</i>ACL<small>deny any</small></div>
+  <div class="node dst" style="left:80%;top:40%"><i>✅</i>OUT</div>
+  <div class="link" style="left:13%;top:49%;width:29%"></div><div class="link" style="left:52%;top:49%;width:29%"></div>
+  <div class="pkt gn pk-lr" style="top:46%"></div>
+  <div class="pkt red pk-lr2" style="top:60%;animation-name:pkLRDrop"></div>
+  <style>@keyframes pkLRDrop{0%{left:6%;opacity:0}10%{opacity:1}55%{top:60%;left:44%;opacity:1}70%{left:44%;top:78%;opacity:.9}100%{left:44%;top:90%;opacity:0}}</style>
+  <div class="tlabel" style="left:10%;top:76%">implicit deny drops unmatched</div>`},
+ snoop:{t:"DHCP SNOOPING",h:()=>`
+  <div class="node" style="left:6%;top:6%;border-color:var(--gn)"><i>🖧</i>REAL DHCP<small>✓ trusted</small></div>
+  <div class="node" style="left:72%;top:6%;border-color:var(--rd)"><i>😈</i>ROGUE<small>untrusted</small></div>
+  <div class="node dst" style="left:40%;top:44%"><i>🔀</i>SWITCH<small>snooping ON</small></div>
+  <div class="node" style="left:40%;top:82%"><i>💻</i>CLIENTS</div>
+  <div class="link" style="left:17%;top:20%;width:28%;transform:rotate(55deg)"></div>
+  <div class="link blocked" style="left:56%;top:20%;width:28%;transform:rotate(-55deg)"></div>
+  <div class="link" style="left:49%;top:58%;height:22%;width:2px"></div>
+  <div class="pkt gn pk-ud" style="left:47%"></div>
+  <div class="tlabel" style="left:60%;top:34%;color:#f87171">OFFER ✕ blocked</div>`},
+ portsec:{t:"PORT SECURITY",h:()=>`
+  <div class="node" style="left:6%;top:18%"><i>💻</i>HOST</div>
+  <div class="node dst" style="left:40%;top:44%"><i>🔀</i>SW<small>Fa0/1</small></div>
+  <div class="macrow" style="left:6%;top:60%">AA:BB:CC:DD:EE:FF ✓ sticky-learned</div>
+  <div class="macrow rg" style="left:6%;top:76%">DD:EE:FF:00:11:22 ✕ violation → err-disable</div>
+  <div class="link" style="left:16%;top:27%;width:26%;transform:rotate(35deg)"></div>
+  <div class="pkt gn pk-lr" style="top:40%"></div>`},
+ qos:{t:"QoS PRIORITY",h:()=>`
+  <div class="tlabel" style="left:6%;top:8%;color:#fbbf24">EF · VOICE → priority queue</div>
+  <div class="link" style="left:6%;top:28%;width:60%;height:10px;background:#1c3a5f;border-radius:5px"></div>
+  <div class="pkt gd" style="top:28%;animation:pkLR 1.1s linear infinite"></div>
+  <div class="tlabel" style="left:6%;top:48%">AF41 · VIDEO</div>
+  <div class="link" style="left:6%;top:62%;width:60%;height:10px;background:#163052;border-radius:5px"></div>
+  <div class="pkt v10 pk-lr" style="top:62%"></div>
+  <div class="tlabel" style="left:6%;top:78%">BEST-EFFORT · web</div>
+  <div class="link blocked" style="left:6%;top:90%;width:60%;height:10px;border-radius:5px"></div>`},
+ security:{t:"CIA TRIAD",h:()=>`
+  <div class="shieldic" style="left:14%;top:26%;color:#38bdf8">🛡️<div class="tlabel" style="left:-8px;top:36px">CONFIDENTIALITY</div></div>
+  <div class="shieldic" style="left:44%;top:26%;color:#34d399;animation-delay:.4s">⚖️<div class="tlabel" style="left:6px;top:36px">INTEGRITY</div></div>
+  <div class="shieldic" style="left:74%;top:26%;color:#fbbf24;animation-delay:.8s">⚡<div class="tlabel" style="left:2px;top:36px">AVAILABILITY</div></div>`},
+ wifi:{t:"RF CHANNELS",h:()=>`
+  <div style="position:absolute;left:44%;top:72%;font-size:1.4rem">📡</div>
+  <div class="stepdot" style="left:38%;top:58%;width:14px;height:14px;border-radius:50%;animation:ripple 2s infinite"></div>
+  <div class="stepdot" style="left:32%;top:44%;width:26px;height:26px;background:none;border:2px solid #22d3ee66;animation:ripple 2s .5s infinite"></div>
+  <div class="stepdot" style="left:24%;top:28%;width:42px;height:42px;background:none;border:2px solid #22d3ee44;animation:ripple 2s 1s infinite"></div>
+  <style>@keyframes ripple{0%{transform:scale(.4);opacity:.9}100%{transform:scale(1.3);opacity:0}}</style>
+  <div class="tlabel" style="left:6%;top:10%">2.4GHz clean: <b style="color:var(--cy)">1 · 6 · 11</b></div>`},
+ auto:{t:"AUTOMATION / APIs",h:()=>`
+  <div class="node" style="left:38%;top:8%;border-color:var(--bl)"><i>🧠</i>CONTROLLER</div>
+  <div class="node" style="left:4%;top:70%"><i>🔀</i>SW1</div>
+  <div class="node" style="left:42%;top:70%"><i>🔀</i>SW2</div>
+  <div class="node" style="left:80%;top:70%"><i>🔀</i>SW3</div>
+  <div class="link" style="left:13%;top:36%;width:64%"></div>
+  <div class="pkt v30 pk-ud" style="left:44%"></div>
+  <div class="tlabel" style="left:16%;top:44%;color:#c084fc">{ "intent": "trunk" }</div>
+  <div class="tlabel" style="left:56%;top:44%">POST /api · config push</div>`},
+ v6:{t:"IPv6 FORMAT",h:()=>`
+  <div class="addr" style="left:4%;top:20%">2001:0db8:0000:0000:0000:ff00:0042:8329</div>
+  <div class="addr morph" style="left:22%;top:52%">2001:db8::ff00:42:8329</div>
+  <div class="tlabel" style="left:34%;top:12%">drop leading 0s · ONE :: per address</div>
+  <div class="pkt v30 pk-lr" style="top:78%"></div>`},
+ mgmt:{t:"MANAGEMENT PLANE",h:()=>`
+  <div class="node" style="left:4%;top:40%"><i>📊</i>NMS</div>
+  <div class="node" style="left:42%;top:40%"><i>📡</i>RTR<small>agent</small></div>
+  <div class="node dst" style="left:80%;top:40%"><i>🖥️</i>LOGS</div>
+  <div class="link" style="left:13%;top:49%;width:29%"></div><div class="link" style="left:52%;top:49%;width:29%"></div>
+  <div class="pkt gd pk-lr" style="top:46%"></div>`},
+ routing:{t:"ROUTE SELECTION",h:()=>`
+  <div class="node" style="left:2%;top:40%"><i>💻</i>HOST</div>
+  <div class="node" style="left:40%;top:40%"><i>📡</i>RTR<small>lookup</small></div>
+  <div class="node dst" style="left:80%;top:24%"><i>🌐</i>NET-A /8</div>
+  <div class="node" style="left:80%;top:62%"><i>🌐</i>NET-B /24</div>
+  <div class="link" style="left:13%;top:49%;width:28%"></div>
+  <div class="link" style="left:52%;top:36%;width:26%;transform:rotate(-14deg)"></div>
+  <div class="link blocked" style="left:52%;top:56%;width:26%;transform:rotate(14deg)"></div>
+  <div class="pkt gn pk-lr" style="top:32%"></div>
+  <div class="tlabel" style="left:40%;top:78%">longest prefix wins ✅</div>`},
+ tcp:{t:"TRANSPORT LANES",h:()=>`
+  <div class="tlabel" style="left:4%;top:6%;color:#34d399">TCP · reliable</div>
+  <div class="link" style="left:6%;top:26%;width:88%"></div>
+  <div class="pkt gn pk-lr" style="top:23%"></div><div class="pkt gn pk-lr2" style="top:23%"></div>
+  <div class="tlabel" style="left:24%;top:12%">SYN → SYN/ACK → ACK</div>
+  <div class="tlabel" style="left:4%;top:52%;color:#fb923c">UDP · fast</div>
+  <div class="link" style="left:6%;top:72%;width:88%"></div>
+  <div class="pkt gd pk-lr" style="top:69%"></div>
+  <div class="tlabel" style="left:30%;top:80%">fire &amp; forget</div>`},
+ cabling:{t:"NETWORK CABLING",h:()=>`
+  <div class="node" style="left:4%;top:38%"><i>💻</i>HOST</div>
+  <div class="node dst" style="left:80%;top:38%"><i>🔀</i>SWITCH</div>
+  <div class="link" style="left:14%;top:47%;width:66%;background:repeating-linear-gradient(90deg,#34d39988 0 8px,#0a1122 8px 12px)"></div>
+  <div class="pkt gn pk-lr" style="top:44%"></div>
+  <div class="tlabel" style="left:8%;top:8%;color:#34d399">UTP Cat5e/6 · 100m · RJ-45 · copper</div>
+  <div class="tlabel" style="left:34%;top:64%;color:#fbbf24">Plenum-rated → fire safety · STP shields EMI</div>
+  <div class="tlabel" style="left:22%;top:80%;color:#c084fc">Fiber → SMF long-haul · MMF ≤ 550m · no EMI</div>`},
+ generic:{t:"PACKET FLOW",h:()=>`
+  <div class="node" style="left:4%;top:40%"><i>💻</i>SRC</div>
+  <div class="node" style="left:42%;top:40%"><i>📡</i>RTR</div>
+  <div class="node dst" style="left:80%;top:40%"><i>🌐</i>DST</div>
+  <div class="link" style="left:13%;top:49%;width:29%"></div><div class="link" style="left:52%;top:49%;width:29%"></div>
+  <div class="pkt cy pk-lr" style="top:46%;background:#22d3ee;color:#22d3ee"></div>`},
+ clock:{t:"NTP TIME SYNC",h:()=>`
+  <div class="node" style="left:6%;top:36%;border-color:var(--gd);box-shadow:0 0 14px #fbbf2440"><i>🛰️</i>INTERNET<small>ntp master · stratum 1</small></div>
+  <div class="node dst" style="left:60%;top:36%;border-color:var(--cy)"><i>🕐</i>R1<small>NTP client</small></div>
+  <div class="link" style="left:20%;top:46%;width:38%"></div>
+  <div class="pkt gd pk-lr" style="top:43%"></div>
+  <div class="tlabel" style="left:30%;top:22%">① sync request → ② time reply</div>
+  <div class="tlabel" style="left:16%;top:70%;color:#fbbf24">clock timezone EST -5 · summer-time recurring</div>
+  <div class="tlabel" style="left:24%;top:84%">all router timestamps now agree ✅</div>`},
+ ping:{t:"NEIGHBOR DISCOVERY",h:()=>`
+  <div class="node dst" style="left:40%;top:6%;border-color:var(--cy)"><i>🔀</i>SWITCH</div>
+  <div class="node" style="left:4%;top:68%"><i>📡</i>R1</div>
+  <div class="node" style="left:42%;top:68%"><i>🔀</i>SW2</div>
+  <div class="node" style="left:80%;top:68%"><i>🖧</i>SRV</div>
+  <div class="link" style="left:16%;top:22%;width:34%;transform:rotate(55deg)"></div>
+  <div class="link" style="left:48%;top:22%;width:2px;height:44%;left:46.5%"></div>
+  <div class="link" style="left:58%;top:22%;width:34%;transform:rotate(-55deg)"></div>
+  <div class="pkt v10 pk-ud" style="left:44%"></div>
+  <div class="pkt v20 pk-ud" style="left:8%"></div>
+  <div class="tlabel" style="left:6%;top:6%;color:#22d3ee">CDP · Cisco-proprietary · L2 only</div>
+  <div class="tlabel" style="left:52%;top:88%;color:#c084fc">LLDP · vendor-neutral IEEE 802.1AB</div>
+  <div class="tlabel" style="left:30%;top:40%">advertisements → neighbor table</div>`},
+ api:{t:"CONTROLLER / APIs",h:()=>`
+  <div class="node" style="left:38%;top:6%;border-color:var(--bl);box-shadow:0 0 14px #818cf866"><i>🧠</i>CONTROLLER<small>intent</small></div>
+  <div class="node" style="left:4%;top:66%"><i>🔀</i>SW1</div>
+  <div class="node" style="left:42%;top:66%"><i>📡</i>R1</div>
+  <div class="node" style="left:80%;top:66%"><i>🔀</i>SW2</div>
+  <div class="link" style="left:14%;top:34%;width:66%"></div>
+  <div class="pkt v30 pk-ud" style="left:44%"></div>
+  <div class="tlabel" style="left:10%;top:44%;color:#c084fc">{ "intent": "trunk Gi0/1" }</div>
+  <div class="tlabel" style="left:54%;top:44%;color:#22d3ee">POST /api/v1/interfaces</div>
+  <div class="tlabel" style="left:30%;top:86%">NORTHBOUND intent → SOUTHBOUND config push</div>`}
+};
+/* ---- topic → viz mapping for REAL course quizzes ---- */
+const TOPIC_VZ={
+ "Common Network Components":"routing","Network Cabling":"cabling","Network Architectures & Designs":"api",
+ "Binary Numbering":"subnet","IPv4 Address Characteristics":"subnet","IPv4 Address Assignment & DNS":"dhcp",
+ "Subnetting":"subnet","Neighbor Discovery (CDP/LLDP)":"ping","Switch Fundamentals":"switch","VLANs":"vlan","Trunking":"trunk",
+ "STP":"stp","EtherChannel":"trunk","Static Routing":"routing","Routing Fundamentals":"routing",
+ "OSPFv2":"ospf","FHRPs":"routing","IPv6 Address Types":"v6","IPv6 Format & Communication":"v6",
+ "Wireless Overview":"wifi","Wireless Configuration":"wifi","NAT":"nat","DHCP":"dhcp","DNS":"dns",
+ "NTP":"clock","Network Management":"mgmt","QoS":"qos","Threats & Defense":"security",
+ "L2 Security":"snoop","ACLs":"acl","SDN & APIs":"api","Configuration Mgmt (Ansible/Terraform)":"auto"
+};
+function vzFor(Q){ if(Q&&Q.vz)return Q.vz; // seeded bank keeps its hand-picked viz
+ const t=(Q&&(Q.t||Q.topic)||"")+" "+((Q&&(Q.q||""))+" "+((Q&&(Q.s||Q.sub||"")))).toLowerCase();
+ const topic=(Q&&(Q.t||Q.topic))||"";
+ if(TOPIC_VZ[topic])return TOPIC_VZ[topic];
+ // keyword fallback on full question text
+ if(/cabl|fiber|utp|coax|rg-|copper|cat5|cat6/.test(t))return "cabling";
+ if(/vlans|native vlan|access vlan/.test(t))return "vlan";
+ if(/trunk|802.1q|dtp/.test(t))return "trunk";
+ if(/stp|spanning|root bridge|bpdu|portfast/.test(t))return "stp";
+ if(/ospf|neighbor|adjacency|lsa|area/.test(t))return "ospf";
+ if(/dhcp|dora|lease|apipa|169\.254/.test(t))return "dhcp";
+ if(/dns|a record|fqdn|resolver/.test(t))return "dns";
+ if(/nat|pat|overload|inside (local|global)/.test(t))return "nat";
+ if(/acl|access-list|wildcard|implicit deny/.test(t))return "acl";
+ if(/ipv6|slaac|eui-64|link-local|ff02::|global unicast/.test(t))return "v6";
+ if(/wi-?fi|wireless|802\.11|ssid|channel|wpa/.test(t))return "wifi";
+ if(/snmp|syslog|netflow|ntp|management/.test(t))return "mgmt";
+ if(/qos|dscp|priority|voice traffic|llq/.test(t))return "qos";
+ if(/vpn|encryption|threat|attack|malware|phish|firewall/.test(t))return "security";
+ if(/ansible|terraform|json|rest|api|sdn|controller|automation/.test(t))return "auto";
+ if(/etherchannel|lacp|pagp|channel-group/.test(t))return "trunk";
+ if(/hsrp|vrrp|glbp|virtual gateway/.test(t))return "routing";
+ if(/subnet|mask|\/\d\d?|cidr|host bits|network address/.test(t))return "subnet";
+ if(/mac address|flooding|cam table/.test(t))return "switch";
+ return null;                                   // caller falls back to generic
+}
+/* ---- quiz exhibit images: real topology figure relevant to the question ---- */
+const TOPIC_LAB={
+ "IPv4 Address Assignment & DNS":"Dynamic_Host_Configuration_Protocol_DHCP_Lab",
+ "DHCP":"Dynamic_Host_Configuration_Protocol_DHCP_Lab",
+ "Neighbor Discovery (CDP/LLDP)":"CDP_and_LLDP_Lab",
+ "Switch Fundamentals":"VLAN_Lab","VLANs":"VLAN_Lab","Trunking":"Trunking_Lab",
+ "STP":"Spanning_Tree_Protocol_Lab","EtherChannel":"EtherChannel_Lab","OSPFv2":"OSPF_Lab",
+ "NAT":"Dynamic_NAT_Lab","NTP":"Network_Time_Protocol_NTP_Lab","ACLs":"Standard_Numbered_ACL_Lab",
+ "SWITCHING":"VLAN_Lab","ROUTING & OSPF":"OSPF_Lab","NETWORK SERVICES":"Dynamic_Host_Configuration_Protocol_DHCP_Lab",
+ "SECURITY":"Standard_Numbered_ACL_Lab","NETWORK FUNDAMENTALS":"CDP_and_LLDP_Lab","IP ADDRESSING":"VLAN_Lab"
+};
+function exhibitImg(Q){
+ if(!Q)return null;
+ let stem=null;
+ if(Q.lab)stem=String(Q.lab).replace(/^_*/,"").replace(/\.pdf$/i,"");
+ else if(TOPIC_LAB[Q.t||Q.topic||""])stem=TOPIC_LAB[Q.t||Q.topic];
+ if(!stem)return null;
+ return "labs_img/"+encodeURIComponent(stem)+".png";
+}
+function startLessonQuiz(mod,les){const pool=REAL.filter(q=>q.module==mod&&q.lesson==les);if(!pool.length){toast('No parsed questions for that quiz yet','gd');return}
+ const M={k:'lesson',ico:'📚',n:'Module '+mod+' · Lesson '+les,d:pool[0].topic,filter:q=>q.module==mod&&q.lesson==les,len:pool.length,isLesson:true};
+ ses={M,i:0,hist:[],xpGain:0,right:0,wrong:0,hints:0,t0:Date.now(),lastWrongTopic:null,over:false,bossHP:0,shields:3,topic:pool[0].topic,ends:[]};go('game');nextQ();}
+function renderLessonRail(){const rail=document.getElementById('lessonRail');if(!rail)return;
+ if(!REAL.length){rail.innerHTML='<div style="color:var(--mu);font-size:.82rem;padding:.6rem">Loading course quizzes…</div>';return}
+ const T={'1':'Foundations','2':'IP Addressing','3':'IPv6','4':'Switching','5':'Routing','6':'Wireless','7':'Services','8':'Security','9':'Automation'};
+ rail.innerHTML=Object.keys(T).map(m=>{const ms=[...new Set(REAL.filter(q=>q.module==m).map(q=>q.lesson))];
+  return '<div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.7rem .85rem"><b style="font-size:.8rem">MODULE '+m+' · '+T[m]+'</b><div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.45rem">'+ms.map(l=>{const n=REAL.filter(q=>q.module==m&&q.lesson==l).length;const played=S.q['M'+m+'-L'+l]?'✓ ':'';return '<button class="tb-btn" style="padding:.28rem .6rem;font-size:.7rem" onclick="startLessonQuiz('+m+','+l+')">'+played+'Lesson '+l+' <small style="color:var(--mu)">('+n+')</small></button>'}).join('')+'</div></div>'}).join('');}
+function renderViz(vz,mode){const V=VIZ[vz]||VIZ.generic;const st=document.getElementById("stage");
+ st.className="stage "+(mode||"");st.innerHTML=V.h()+`<div class="bigmark ${mode==="win"?"okm":mode==="fail"?"badm":""}">${mode==="win"?"✅":mode==="fail"?"❌":""}</div>`;
+ document.getElementById("vizTitle").textContent="NETWORK · "+V.t;}
+
+/* ============ GAME ENGINE ============ */
+const $=id=>document.getElementById(id);
+let cur=null,map=[],usedHint=false,qStart=0,left=0;
+const MODES=[
+ {k:"quick",ico:"⚡",n:"Quick Play",d:"10 adaptive questions",filter:()=>true,len:10},
+ {k:"weak",ico:"🎯",n:"Weakness Hunter",d:"attacks your weakest topics",filter:()=>true,len:10,weak:true},
+ {k:"streak",ico:"🔥",n:"Streak Mode",d:"one miss ends the run",filter:()=>true,len:99,streakOnly:true},
+ {k:"sub",ico:"✂️",n:"Subnetting Battle",d:"IP math under pressure",filter:q=>["SUBNETTING","IP ADDRESSING"].includes(q.t),len:10,fast:true},
+ {k:"review",ico:"🔁",n:"Review Mode",d:"your spaced review queue",filter:q=>{const s=S.q[q.id];return s&&(s.due<=Date.now()||s.wrong>0)},len:10},
+ {k:"boss",ico:"👹",n:"Boss Battle",d:"5 hardest Qs · 3 shields",filter:()=>true,len:5,boss:true},
+];
+function startMode(k){const M=MODES.find(m=>m.k===k);ses={M,i:0,hist:[],xpGain:0,right:0,wrong:0,hints:0,t0:Date.now(),lastWrongTopic:null,over:false,bossHP:M.boss?5:0,shields:3,topic:null,ends:[]};
+ if(M.boss){const opts=TOPICS.filter(t=>(S.topics[t]||{m:0}).m>=40);if(!opts.length){toast("Lock boss: raise any topic to 40% mastery first","gd");return}
+  ses.topic=opts.sort((a,b)=>(S.topics[b].m-S.topics[a].m))[Math.floor(R()*Math.min(3,opts.length))];
+  M=Object.assign({},M,{filter:q=>q.t===ses.topic});M.len=availLen(M.filter,M.len);ses.M=M;}
+ else if(M.weak){const weak=[...TOPICS].sort((a,b)=>(S.topics[a].m-S.topics[a].m||0)-(S.topics[b].m-S.topics[a].m||0)).slice(0,3);M=Object.assign({},M,{filter:q=>weak.includes(q.t)});M.len=availLen(M.filter,M.len);ses.M=M;}
+ go("game");nextQ();}
+function availLen(filter,baseLen){const n=allQ().filter(filter).length;return Math.min(baseLen,Math.max(n,1));}
+function topicMission(t){const M=Object.assign({},MODES[0],{filter:q=>q.t===t});M.len=availLen(M.filter,M.len);
+ ses={M,i:0,hist:[],xpGain:0,right:0,wrong:0,hints:0,t0:Date.now(),lastWrongTopic:null,bossHP:0,shields:3,topic:t,ends:[]};go("game");nextQ();}
+function bossFor(t){const M=Object.assign({},MODES.find(m=>m.k==="boss"),{filter:q=>q.t===t});M.len=availLen(M.filter,M.len);
+ ses={M:Object.assign({},MODES.find(m=>m.k==="boss"),{filter:q=>q.t===t}),i:0,hist:[],xpGain:0,right:0,wrong:0,hints:0,t0:Date.now(),lastWrongTopic:null,bossHP:5,shields:3,topic:t,ends:[]};go("game");nextQ();}
+
+function nextQ(){
+ const M=ses.M;
+ if(ses.over||ses.i>=Math.min(M.len,99999)-(M.boss?0:0)&&!M.streakOnly&&ses.i>=M.len){return endSession();}
+ if(M.boss){document.getElementById("bossBar").style.display="block";}
+ if(!M.streakOnly&&ses.i>=M.len)return endSession();
+ const Q=pickQ(M.filter);if(!Q){toast("No questions match — import more MCQs!","gd");return endSession();}
+ cur=Q;usedHint=false;qStart=Date.now();
+ const dQ=(Q.d==null)?1:Q.d;
+ const time=(M.fast?15:[30,25,20][dQ]);left=time;
+ const opts=Q.options||Q.o; const letters=Q.answer; // real quizzes keep original order+letter
+ map=letters?opts.map((txt,i)=>({txt,orig:i}))  /* keep authentic order */ :opts.map((txt,i)=>({txt,orig:i})).sort(()=>R()-.5);
+  const dchip=Q.s?`<span class="chip ${["easy","med","hard"][dQ]}">${Q.s} - ${["EASY","MEDIUM","HARD"][dQ]}</span>`:"";
+const idchip=(Q.id&&String(Q.id).includes("-Q"))?`<span class="chip qn">${Q.id}</span>`:"";
+$("hud").innerHTML=`<span class="chip topic">${Q.t||Q.topic||"QUIZ"}</span>${dchip}${idchip}
+   ${ses.topic&&!M.boss?`<span class="chip qn">MISSION: ${ses.topic}</span>`:""}
+   <span class="sp"></span><span class="streakhud" id="hudStreak">🔥 ${S.streak}</span><span class="chip qn">${ses.i+1}${M.len<99?" / "+M.len:""}</span>`;
+ renderBoss();
+ $("qText").textContent=Q.q;
+ try{if(VOICE.on)speak((Q.t||Q.topic||'')+'. ')}catch(e){}
+ $("answers").innerHTML=map.map((m,i)=>`<button class="ans" data-i="${i}" onclick="answer(${i})"><span class="k">${"ABCD"[i]}</span>${m.txt}</button>`).join("");
+ $("hud").insertAdjacentHTML("beforeend",'<button class="speakbtn" id="qspeak" onclick="speakFullQ(this)" title="Read question aloud (or press R)">🔊 Read</button>');
+ renderViz(vzFor(Q)||"generic","");
+ renderExhibit(Q);
+ $("fb").className="fb";$("nextBtn").style.display="none";
+ $("hintBtn").disabled=false;$("hintLab").textContent="";
+ startTimer(time);
+ setTimeout(()=>{if(VOICE.on&&document.getElementById("scr-game").classList.contains("active"))speakFullQ();},250);
+}
+function isCorrectIdx(Q,idx){ if(Q.answer){return "ABCD".indexOf(Q.answer)===idx;} return idx===0; }
+function correctIdx(Q){ return Q.answer?"ABCD".indexOf(Q.answer):0; }
+function srcBlock(Q){ if(!Q.source)return '';
+ const s=Q.source; const quizUrl='quizzes/'+encodeURIComponent(s.quizFile);
+ const labHtml=Q.lab?'<a class="tb-btn" style="text-decoration:none;display:inline-block;margin-top:.3rem;border-color:var(--gn);color:var(--gn)" target="_blank" rel="noopener" href="labs/'+encodeURIComponent(Q.lab)+'">🧪 Open Lab PDF</a>':'';
+ return '<div class="mis" style="margin-top:.6rem;border:1px dashed #ffffff22;border-radius:9px;padding:.6rem .7rem;background:#0a1122">'
+  +'<div style="font-size:.62rem;letter-spacing:1.5px;color:var(--cy);margin-bottom:.25rem">📚 SOURCE — Kevin Wallace CCNA v1.1</div>'
+  +'<div style="font-size:.75rem;color:var(--mu)">Module '+s.module+' → Lesson '+s.lesson+' → <b style="color:var(--tx)">'+(Q.topic||'')+'</b></div>'
+  +'<a class="tb-btn" style="text-decoration:none;display:inline-block;margin-top:.3rem" target="_blank" rel="noopener" href="'+quizUrl+'">📄 Open Quiz PDF ('+s.pages+'p)</a> '+labHtml+'</div>';}
+function renderBoss(){const M=ses.M;if(!M.boss){return}
+ $("bossBar").innerHTML=`<div class="bt"><span>👹 ${ses.topic} BOSS</span><span>HP ${ses.bossHP}/5</span></div>
+ <div class="bhp"><div class="bhpf" style="width:${ses.bossHP/5*100}%"></div></div>
+ <div class="bsh">${"🛡️".repeat(ses.shields)}${"💀".repeat(3-ses.shields)}</div>`;}
+function startTimer(sec){clearInterval(timerH);const tf=$("tFill");tf.style.width="100%";tf.classList.remove("danger");
+ const t0=Date.now();timerH=setInterval(()=>{const el=(Date.now()-t0)/1000;const pct=Math.max(0,1-el/sec)*100;
+  tf.style.width=pct+"%";tf.classList.toggle("danger",pct<32);
+  if(el>=sec){clearInterval(timerH);answer(-1,null);}},100);}
+function useHint(){if(usedHint||!cur)return;usedHint=true;ses.hints++;S.xp=Math.max(0,S.xp-5);save("state",S);renderTop();
+ const wrongIdx=map.map((m,i)=>i).filter(i=>map[i].orig!==0);const kill=wrongIdx[Math.floor(R()*wrongIdx.length)];
+ document.querySelectorAll(".ans")[kill].classList.add("dim");
+ $("hintBtn").disabled=true;$("hintLab").textContent="one wrong option eliminated · answer with care";}
+function answer(i,btn){
+ if(!cur)return;clearInterval(timerH);
+ const took=Date.now()-qStart;
+ const dFx=(cur.d==null)?1:cur.d; const tFx=cur.t||cur.topic||'GENERAL';
+ const ok=map[i]&&isCorrectIdx(cur,map[i].orig);
+ const btns=document.querySelectorAll(".ans");btns.forEach(b=>b.disabled=true);
+ btns.forEach((b,j)=>{if(isCorrectIdx(cur,map[j].orig))b.classList.add("ok")});
+ if(btn&&!ok)btn.classList.add("bad");
+ afterAnswer(cur,ok,took);
+ ses.hist.push({id:cur.id,t:cur.t,ok,xp:0});
+ ok?ses.right++:ses.wrong++;
+ renderViz(vzFor(cur)|| (cur.id&&String(cur.id).includes("-")?"generic":"generic"),ok?"win":"fail");
+ const fb=$("fb");let xp=0;
+ if(ok){
+   xp=10+(dFx===2?10:dFx===1?5:0)+(usedHint?0:5)+Math.min(15,Math.max(0,Math.round(left)));
+   S.streak++;if(S.streak>S.best)S.best=S.streak;streakPop(S.streak);
+   if(S.streak===3)xp+=10;if(S.streak===5)xp+=20;if(S.streak===10)xp+=50;if(S.streak===20)xp+=50;
+   if(ses.M.boss){ses.bossHP--;renderBoss();}
+   ses.xpGain+=xp;ses.hist[ses.hist.length-1].xp=xp;addXP(xp);
+   fb.className="fb good show";
+   const why=cur.explanation||cur.w||'';
+   fb.innerHTML=`<span class="xpgain">+${xp} XP ⚡</span><h4>✅ CORRECT!</h4><div class="why">${why}</div>
+<div class="mis">${tFx} mastery → <b style="color:var(--cy)">${S.topics[tFx].m}%</b>${S.topics[tFx].m>=85?" ·  MASTERED!":""}</div>`
+   +srcBlock(cur);
+   const ring=document.getElementById("tbStreak");
+ }else{
+   S.streak=0;ses.lastWrongTopic=tFx;
+   if(ses.M.boss){ses.shields--;renderBoss();}
+   const chosen=i>=0?map[i].txt:"⏱ time ran out";
+   const correctTxt=cur.options?cur.options[correctIdx(cur)]:cur.o[correctIdx(cur)];
+   fb.className="fb bad show";
+   fb.innerHTML=`<h4>${i>=0?"❌ Not quite — now you know:":"⏱ TIME OUT — now you know:"}</h4>
+   <div class="why">You picked: <b>${chosen}</b><br>Remember → <b style="color:var(--gn)">${correctTxt}</b><br>${cur.explanation||cur.w||''}</div>
+   <div class="mis">💡 queued for spaced review · ${(cur.t||cur.topic)} mastery → ${S.topics[cur.t||cur.topic].m}%</div>`
+   +srcBlock(cur);
+ }
+ save("state",S);renderTop();
+ if(VOICE.on){stopSpeak();const chosenTx=i>=0&&map[i]?map[i].txt:null;
+  const correctTx=cur.options?cur.options[correctIdx(cur)]:cur.o[correctIdx(cur)];
+  const whyTx=cur.explanation||cur.w||'';
+  setTimeout(()=>speak(ok?`Correct! Plus ${xp} XP. ${whyTx}`:`${i>=0?"Not quite. You picked "+chosenTx+".":"Time ran out."} Remember, the answer is ${correctTx}. ${whyTx}`,{rate:1.02}),350);}
+ const hud=document.getElementById("hudStreak");if(hud){hud.textContent="🔥 "+S.streak;hud.classList.remove("pulse");void hud.offsetWidth;hud.classList.add("pulse");}
+ const M=ses.M;
+ if(M.boss&&(ses.bossHP<=0||ses.shields<=0)){ses.over=true;return setTimeout(endSession,1400);}
+ if(M.streakOnly&&!ok){ses.over=true;return setTimeout(endSession,1400);}
+ ses.i++;
+ if(!M.streakOnly&&ses.i>=M.len){ses.over=true;return setTimeout(endSession,ok?1300:2400);}
+ $("nextBtn").style.display="inline-block";
+}
+function confirmEnd(){if(confirm("End this session and see results?")){ses.over=true;endSession();}}
+function endSession(){
+ clearInterval(timerH);
+ const acc=ses.hist.length?Math.round(ses.right/ses.hist.length*100):0;
+ const byTopic={};ses.hist.forEach(h=>{byTopic[h.t]=byTopic[h.t]||{r:0,n:0};byTopic[h.t].n++;if(h.ok)byTopic[h.t].r++});
+ const bars=Object.entries(byTopic).map(([t,v])=>`<div class="mrow"><div class="top"><b>${t}</b><span>${Math.round(v.r/v.n*100)}%</span></div><div class="mbar"><div class="mfill ${v.r/v.n>=.7?"g":""}" style="width:${Math.round(v.r/v.n*100)}%"></div></div></div>`).join("");
+ const weakest=Object.entries(byTopic).sort((a,b)=>(a[1].r/a[1].n)-(b[1].r/b[1].n))[0];
+ const allWeak=[...TOPICS].filter(t=>S.topics[t].seen>=2).sort((a,b)=>S.topics[a].m-S.topics[b].m)[0];
+ const bossRes=ses.M.boss?(ses.bossHP<=0?`<div class="bosswin">👹 ${ses.topic} BOSS DEFEATED! +150 XP</div>`:`<div class="bosswin" style="color:var(--rd)">💀 SHIELDS DOWN — the ${ses.topic} boss lives. Train and return!</div>`):"";
+ if(ses.M.boss&&ses.bossHP<=0){addXP(150);ses.xpGain+=150;const T=S.topics[ses.topic];T.m=Math.min(100,T.m+5);save("state",S);}
+ $("sumBody").innerHTML=`
+  <h1>${ses.M.boss?(ses.bossHP<=0?"🏆 BOSS DOWN":"💀 BOSS SURVIVED"):acc>=80?"🎯 SESSION COMPLETE":"📚 SESSION COMPLETE"}</h1>${bossRes}
+  <div class="gstats">
+   <div class="gstat"><b>${ses.hist.length}</b><span>Questions</span></div>
+   <div class="gstat gn"><b>${ses.right}</b><span>Correct</span></div>
+   <div class="gstat"><b>${acc}%</b><span>Accuracy</span></div>
+   <div class="gstat gd"><b>+${ses.xpGain}</b><span>XP</span></div>
+   <div class="gstat hot"><b>${S.best||0}🔥</b><span>Best streak</span></div>
+   <div class="gstat"><b>${ses.hints}</b><span>Hints</span></div>
+  </div>
+  <div style="text-align:left">${bars}</div>
+  ${weakest&&weakest[1].r<weakest[1].n?`<div class="rec">🎯 <b>RECOMMENDED NEXT:</b> review <b>${weakest[0]}</b> — it dipped this session (${Math.round(weakest[1].r/weakest[1].n*100)}%).</div>`:
+   allWeak?`<div class="rec">🎯 <b>RECOMMENDED NEXT:</b> "${allWeak}" is your weakest topic overall (${S.topics[allWeak].m}%). One weakness-hunter run will lift the whole profile.</div>`:
+   `<div class="rec">🏅 Clean sweep — try a BOSS battle or raise any topic to 40% to unlock its boss.</div>`}
+  <div class="gohome"><button class="tb-btn" style="border-color:var(--cy);color:var(--cy)" onclick="go('home')">🏠 Dashboard</button>
+  <button class="tb-btn" onclick="startMode('quick')">⚡ Play again</button>
+  <button class="tb-btn" onclick="startMode('review')">🔁 Review misses</button></div>`;
+ go("summary");renderHome();}
+
+/* ============ HOME ============ */
+function go(s){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$("scr-"+s).classList.add("active");window.scrollTo(0,0);if(s!=="game")stopSpeak();}
+function renderTopHome(){const L=lvInfo();$("ringLv").textContent=L.i+1;
+ const off=276.5*(L.next>L.cur?(S.xp-L.cur)/(L.next-L.cur):1);$("homeRing").style.strokeDashoffset=276.5-off;
+ $("stXp").textContent=S.xp;$("stStreak").textContent=S.streak+"🔥";$("stAns").textContent=S.answered;
+ $("stAcc").textContent=S.answered?Math.round(S.right/S.answered*100)+"%":"—";}
+function renderHome(){
+ renderTop();renderTopHome();
+ renderLessonRail();
+ const seen=[...TOPICS].filter(t=>S.topics[t].seen>=2).sort((a,b)=>S.topics[a].m-S.topics[b].m);
+ $("wcWeak").textContent=seen.length?`${seen[0]} — ${S.topics[seen[0]].m}%`:"answer a few questions first";
+ $("wcNext").textContent=seen.length?`push ${seen[0]} to ${Math.min(100,S.topics[seen[0]].m+15)}%`:"play ⚡ Quick Play";
+ $("modeGrid").innerHTML=MODES.map(m=>{
+  const locked=m.k==="boss"&&!TOPICS.some(t=>S.topics[t].m>=40);
+  return`<button class="mode" onclick="startMode('${m.k}')" ${locked?'disabled':''}><span class="mi">${m.ico}</span><b>${m.n}</b><span>${m.d}</span>${locked?`<span class="lock">🔒<br><small>topic ≥40%</small></span>`:""}</button>`}).join("");
+ const allTopics=[...new Set([...TOPICS,...Object.keys(S.topics)])];
+ $("masteryList").innerHTML=allTopics.sort((a,b)=>(S.topics[a]||{m:0}).m-(S.topics[b]||{m:0}).m).map(t=>{const T=S.topics[t]||{m:0,seen:0,right:0};
+  return`<div class="mrow"><div class="top"><b>${t}</b><span>${T.m}% · ${T.seen?T.right+"/"+T.seen:"—"}</span></div>
+  <div class="mbar"><div class="mfill ${T.m>=60?"g":""}" style="width:${T.m}%"></div></div></div>`}).join("");
+ renderLabs();
+ renderSheets();
+ renderLeaderboard();
+ $("recentList").innerHTML=S.recent.length?S.recent.filter(r=>r&&(r.t||r.q)).map(r=>`<span class="rchip">${r.t||"GENERAL"} · ${shortQ(r.s||r.q)}</span>`).join(""):`<span style="color:var(--mu);font-size:.8rem">none yet — misses appear here & auto-enter spaced review</span>`;
+}
+
+/* ============ LEADERBOARD ============ */
+async function renderLeaderboard(){
+ if(!window.SUPA||!window.SUPA.isConnected())return;
+ try{
+  const lb=await window.SUPA.loadLeaderboard();
+  if(!lb||!lb.length)return;
+  const sec=$("lbSection"),list=$("leaderboardList");
+  if(!sec||!list)return;
+  sec.style.display="block";list.style.display="grid";
+  list.innerHTML=lb.map((p,i)=>{
+   const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1);
+   const acc=p.accuracy?p.accuracy+"%":"—";
+   return `<div class="mrow"><div class="top"><b>${medal} ${escapeHtmlLB(p.display_name||"Player")}</b><span>${p.xp||0} XP · L${p.level||1} · ${acc}</span></div><div class="mbar"><div class="mfill g" style="width:${Math.min(100,(p.xp||0)/14)}%"></div></div></div>`;
+  }).join("");
+ }catch(e){}
+}
+function escapeHtmlLB(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+/* ============ STUDY SHEETS ============ */
+const SHEET_DIR="study_sheets/";
+const SHEET_NAMES=["M1L1_Cisco_Catalyst_Center","M1L1_Endpoints_And_Servers","M1L1_Routers","M1L1_Security_Appliances","M1L1_Switches","M1L1_TCP_vs_UDP","M1L1_Virtualized_Devices","M1L1_Wireless_Access_Points","M1L2_Cloud_Deployment_Models","M1L2_SOHO_Architecture","M1L2_Spine_Leaf","M1L2_Three_Tier_vs_Collapsed_Core","M1L2_WAN_Topologies","M1L3_Coax_Cables","M1L3_Ethernet_Standards_Fiber","M1L3_Ethernet_Twisted_Pair","M1L3_Fiber_Connectors","M1L3_Fiber_Optic_Cables","M1L3_PoE","M1L3_Straight_vs_Crossover","M1L3_Troubleshooting_Cabling","M1L3_Twisted_Pair_Cables","M2L1_Binary_Numbering","M2L2_IPv4_Address_Format","M2L2_IPv4_Traffic_Flows","M2L2_NAT","M2L2_Public_vs_Private_IPv4","M2L3_DNS","M2L3_Dynamic_IPv4_DHCP","M2L3_Manual_IPv4_Assignment","M2L4_Calculating_Hosts","M2L4_Calculating_Subnets","M2L4_Need_for_Subnetting","M2L4_Usable_Ranges_IPv4","M3L1_Hexadecimal_Numbering","M3L1_IPv6_Address_Format","M3L1_Shortening_IPv6","M3L2_Dynamic_IPv6","M3L2_EUI_64","M3L2_IPv6_Global_Unicast","M3L2_IPv6_Link_Local","M3L2_IPv6_Loopback","M3L2_IPv6_Unique_Local","M3L2_IPv6_Unspecified","M4L1_Examining_The_Mac_Address_Table","M4L1_Layer2_vs_Multilayer","M4L2_CDP","M4L2_Cdp_Configuration","M4L2_Cisco_Discovery_Protocol_Cdp","M4L2_LLDP","M4L2_LLDP_Config","M4L3_Routed_Switch_Port","M4L3_Router_on_Stick","M4L3_SVI","M4L3_VLAN_Configuration","M4L3_VLAN_Theory","M4L4_Trunking_Configuration","M4L4_Trunking_Modes","M4L4_Trunking_Theory","M4L4_Voice_VLAN_Config","M4L4_Voice_VLAN_Theory","M4L5_BPDU_Filter","M4L5_BPDU_Guard","M4L5_Loop_Guard","M4L5_MSTP_Theory","M4L5_PVST_Plus","M4L5_PortFast","M4L5_Rapid_PVST_Config","M4L5_Rapid_PVST_Plus","M4L5_Root_Guard","M4L5_STP_Convergence_Times","M4L5_STP_Exercise","M4L5_STP_Port_States","M4L6_EtherChannel_Intro","M4L6_EtherChannel_Load_Balancing","M4L6_EtherChannel_Port_Options","M4L6_L2_EtherChannel_Config","M5L1_Administrative_Distance","M5L1_Routing_Process","M5L1_Routing_Protocol_Comparison","M5L1_Routing_Table_Examination","M5L2_Floating_Static_Route","M5L2_Static_Default_Route","M5L2_Static_Network_Route","M5L3_DR_BDR_Election","M5L3_Lsa_Types","M5L3_OSPF_Areas","M5L3_OSPF_Neighbor_Formation","M5L3_Ospfv2_Configuration","M5L3_Ospfv2_Verification","M5L4_GLBP","M5L4_HSRP","M5L4_VRRP","M6L1_RF_Basics","M6L1_Service_Set_Terminology","M6L1_WLAN_Designs","M6L1_Wireless_Interference","M6L2_Channel_Bonding","M6L2_Spatial_Streams","M6L2_Transmission_Methods","M6L2_WLC_Config","M6L2_WiFi_Standard","M6L2_Wlc_Configuration_Via_A_Graphical_Interface","M7L1_Dynamic_Nat_Configuration","M7L1_Port_Address_Translation_Pat_Configuration","M7L1_Static_Nat_Configuration","M7L2_NTP_Theory","M7L2_Ntp_Configuration_And_Verification","M7L3_Configuring_Routers_As_Dhcp_Clients_And_Servers","M7L4_Artificial_Intelligence_Ai_For_Network_Management","M7L4_Configuring_Remote_Access_With_Secure_Shell_Ssh","M7L4_Ftp_And_Tftp","M7L4_Options_For_Network_Management_Access","M7L4_SNMP_Theory","M7L4_SSH_Config","M7L4_Syslog","M7L5_Configuring_Qos","M7L5_Prioritizing_Traffic_Types","M7L5_QoS_Fundamentals","M7L5_Shaping_Policing_And_The_Token_Bucket","M7L5_Traffic_Markings","M8L1_AAA","M8L1_Authentication_Authorization_And_Acounting_Aaa","M8L1_CIA_Triad","M8L1_Denial_Of_Service_Attacks","M8L1_Encryption","M8L1_Multi_Factor_Authentication","M8L1_Other_Common_Attacks","M8L1_Password_Best_Practices","M8L1_Password_Protection_Of_Cisco_Devices","M8L1_Social_Engineering_Attacks","M8L1_Threats_Vs_Vulnerabilities","M8L1_VPNs","M8L1_Wireless_Security","M8L2_ACL_Overview","M8L2_Acl_Considerations","M8L2_Numbered_Extended_ACLs","M8L2_Numbered_Standard_ACLs","M8L3_DHCP_Snooping","M8L3_Dynamic_Arp_Inspection_Dai_Configuration","M8L3_Dynamic_Arp_Inspection_Dai_Theory","M8L3_Port_Security","M9L1_Cisco_Sdn_Controllers","M9L1_JSON","M9L1_REST_APIs","M9L1_SDN_Overview","M9L1_Software_Defined_Architectures","M9L2_Ansible","M9L2_Terraform","M9L2_The_Devops_Lifecycle"];
+const SHEET_MOD_NAMES={'1':'Foundations','2':'IP Addressing','3':'IPv6','4':'Switching','5':'Routing','6':'Wireless','7':'Services','8':'Security','9':'Automation'};
+function sheetLabel(n){return n.replace(/^M\dL\d_/,'').replace(/_/g,' ')}
+function sheetModule(n){return n.match(/^M(\d)L/)[1]}
+function sheetLesson(n){return n.match(/^M(\d)L(\d)/)[2]}
+function renderSheets(){
+ const grid=$("sheetGrid");if(!grid)return;
+ grid.innerHTML=SHEET_NAMES.map((n,i)=>{
+  const mod=sheetModule(n),les=sheetLesson(n);
+  const lbl=sheetLabel(n);
+  return `<button class="mode" style="padding:.7rem .6rem" onclick="openSheet(${i})"><span class="mi">🖼️</span><b style="font-size:.74rem">${lbl}</b><span>M${mod}L${les} · ${SHEET_MOD_NAMES[mod]||''}</span></button>`;
+ }).join('');
+}
+let SHEET_IDX=0;
+function openSheet(i){
+ SHEET_IDX=i;
+ const n=SHEET_NAMES[i];
+ $("sheetTitle").textContent=sheetLabel(n)+'  (M'+sheetModule(n)+'L'+sheetLesson(n)+')';
+ const img=$("sheetImg");
+ img.src=SHEET_DIR+encodeURIComponent(n)+'.png';
+ img.onerror=()=>{img.style.display='none';$("sheetTitle").textContent='Image not found: '+n};
+ img.onload=()=>{img.style.display='block'};
+ // prev/next nav
+ const nav=$("sheetNav");
+ nav.innerHTML=`<button class="tb-btn" onclick="openSheet(${(i-1+SHEET_NAMES.length)%SHEET_NAMES.length})">◀ Prev</button>
+  <span style="color:var(--mu);font-size:.78rem;align-self:center">${i+1} / ${SHEET_NAMES.length}</span>
+  <button class="tb-btn" onclick="openSheet(${(i+1)%SHEET_NAMES.length})">Next ▶</button>`;
+ document.getElementById('sheetModal').classList.add('open');
+}
+
+/* ============ LABS ============ */
+let LABS={}; // key -> {objective, topology, pdf, tasks[], steps[{n,desc,cmds}], pages}
+function labProgress(key){const L=LABS[key];if(!L)return{done:0,total:0,pct:0};
+ const total=L.tasks?L.tasks.length:(L.steps?L.steps.length:0);
+ const st=S.labs&&S.labs[key];
+ const done=st?Math.min(st.done||0,total):0;
+ return{done,total,pct:total?Math.round(done/total*100):0};}
+function renderLabs(){const grid=$("labGrid");if(!grid)return;
+ const keys=Object.keys(LABS);
+ if(!keys.length){grid.innerHTML=`<div style="color:var(--mu);font-size:.82rem;padding:.6rem">Labs unavailable — labs_game.json not found</div>`;return}
+ grid.innerHTML=keys.map(k=>{const L=LABS[k];const P=labProgress(k);
+  const name=k.replace(/_Lab\.pdf$/i,"").replace(/_/g," ");
+  const ico={nat:"🔁",trunk:"🔗",vlan:"⚡"}[L.topology]||"🧪";
+  const playable=labPlayable(k);
+  const badge=(S.labs&&S.labs[k]&&S.labs[k].cliCleared)?"🏆":P.pct>=100?"🏆":P.done>0?"🔵":"⚪";
+  return`<button class="mode" onclick="${playable?`startLabGame('${k}')`:`openLab('${k}')`}">
+  <span class="mi">${ico}</span><b>${badge} ${name}</b>
+  <span>${L.tasks?L.tasks.length:0} tasks · ${playable?"⚔️ CLI battle":"📋 checklist"}${(S.labs&&S.labs[k]&&S.labs[k].cliCleared)?" · CLEARED":""}</span></button>`}).join("");
+}
+function openLab(key){const L=LABS[key];if(!L)return;
+ const P=labProgress(key);
+ const name=key.replace(/_Lab\.pdf$/i,"").replace(/_/g," ");
+ const tasksHtml=(L.tasks||[]).map((t,i)=>{
+  const saved=Array.isArray(S.labs&&S.labs[key]&&S.labs[key].tasks)?S.labs[key].tasks[i]:null;
+  const doneOk=saved===null||saved===undefined?(S.labs&&S.labs[key]?i<S.labs[key].done:false):saved;
+  const step=L.steps&&L.steps[i]?L.steps[i]:null;
+  const sol=step?`<div class="labsol">${String(step.desc).replace(/</g,"&lt;")}</div>`:"";
+  return`<div class="labtask${doneOk?" on":""}">
+  <label><input type="checkbox" ${doneOk?"checked":""} onchange="toggleLabTask('${key}',${i},this.checked)"> <b>${i+1}.</b> ${t}</label>${sol}</div>`}).join("");
+ $("labBody").innerHTML=`
+  <h3>🧪 ${name}</h3>
+  <div style="font-size:.85rem;margin-bottom:.6rem">${L.objective||""}</div>
+  <div style="background:#f5f7fb;border-radius:10px;padding:.5rem;margin-bottom:.7rem;max-height:220px;overflow:hidden;display:flex;align-items:center;justify-content:center">
+   <img src="${labTopoUrl(key)}" alt="topology" style="max-width:100%;max-height:200px;object-fit:contain" onerror="this.parentElement.style.display='none'">
+  </div>
+  <div class="lq">
+   ${labPlayable(key)?`<button class="tb-btn" style="border-color:var(--cy);color:var(--cy);font-weight:900" onclick="startLabGame('${key}')">⚔️ PLAY CLI BATTLE</button>`:""}
+   <a class="tb-btn" style="text-decoration:none;display:inline-block;border-color:var(--gn);color:var(--gn)" target="_blank" rel="noopener" href="labs/${encodeURIComponent(key)}">📄 Open Lab PDF (${L.pages||"?"}p)</a>
+   <button class="tb-btn" onclick="finishLab('${key}')">${P.pct>=100?"🏆 Lab cleared":"Mark all done (+40 XP)"}</button>
+   ${P.done>0?`<button class="tb-btn" onclick="resetLab('${key}')" style="border-color:#f8717155;color:var(--rd)">Reset progress</button>`:""}
+  </div>
+  <div style="margin-top:.8rem">${tasksHtml}</div>`;
+ $("labModal").classList.add("open");
+}
+function labTasks(key){S.labs=S.labs||{};S.labs[key]=S.labs[key]||{done:0};
+ if(!Array.isArray(S.labs[key].tasks)){const n=(LABS[key].tasks||[]).length;S.labs[key].tasks=Array.from({length:n},(_,j)=>j<(S.labs[key].done||0));}
+ return S.labs[key].tasks;}
+function toggleLabTask(key,i,on){const arr=labTasks(key);arr[i]=on;
+ S.labs[key].done=arr.filter(Boolean).length;
+ if(S.labs[key].done>=(LABS[key].tasks||[]).length&&!(S.labs[key].clearedOnce)){S.labs[key].clearedOnce=true;toast("🏆 LAB CLEARED! +40 XP","gd");addXP(40);}
+ else if(S.labs[key].done<(LABS[key].tasks||[]).length){S.labs[key].clearedOnce=false;}
+ save("state",S);renderLabs();renderTop();}
+function finishLab(key){S.labs=S.labs||{};const n=(LABS[key].tasks||[]).length;
+ const first=!(S.labs[key]&&S.labs[key].clearedOnce);
+ S.labs[key]={done:n,tasks:Array(n).fill(true),clearedOnce:true};
+ if(first){toast("🏆 LAB CLEARED! +40 XP","gd");addXP(40);}
+ save("state",S);renderLabs();openLab(key);}
+function resetLab(key){if(S.labs)delete S.labs[key];save("state",S);renderLabs();openLab(key);}
+
+/* ============ CLI LAB BATTLE ============ */
+let LABCLI=null; // {key,name,missions,idx,cmdIdx,hp,term:[]}
+const IOS_CANON=["config","terminal","interface","gigabitethernet","fastethernet","ethernet","vlan",
+ "shutdown","exit","enable","end","brief","neighbors","spanning-tree","port-channel","channel-group",
+ "encapsulation","dot1q","switchport","access","trunk","native","mode","dynamic","desirable","auto",
+ "range","address","network","mask","router","ospf","area","pool","excluded-address","default-router",
+ "dns-server","server","master","timezone","summer-time","recurring","clock","set","show","ip","dhcp",
+ "nat","inside","outside","source","static","list","access-group","permit","deny","host","any",
+ "negotiation","speed","duplex","full","name","no","cdp","lldp","run","copy","star","int"];
+function canonTok(t){
+ t=t.toLowerCase();
+ if(t.length<2)return t;
+ for(const c of IOS_CANON){if(c===t)return c;}
+ // prefix-of canonical word (conf → config, gig/gi → gigabitethernet)
+ if(t.length>=2){const hit=IOS_CANON.find(c=>c.startsWith(t)&&t.length>=2);if(hit)return hit;}
+ return t;
+}
+function normCmd(s){
+ let t=String(s||"").trim().toLowerCase().replace(/\s+/g," ");
+ t=t.replace(/\bconfigure\b/g,"conf");
+ t=t.split(" ").map(canonTok).join(" ");
+ t=t.replace(/gigabitethernet/g,"gi").replace(/fastethernet/g,"fa").replace(/interface/g,"int")
+    .replace(/\b(config|conf) t(erminal)?\b/g,"conf t");
+ return t.replace(/(\w) (\d)/g,"$1$2"); // "gi 0/3"→"gi0/3"
+}
+function labPlayable(key){return LABCLI_DATA[key]&&LABCLI_DATA[key].missions.some(m=>m.commands.length)}
+function startLabGame(key){
+ const data=LABCLI_DATA[key];if(!data){toast("Lab data missing","gd");return}
+ const missions=data.missions.filter(m=>m.commands.length);
+ if(!missions.length){toast("No typed commands in this lab — open the checklist","gd");openLab(key);return}
+ LABCLI={key,name:labName(key),missions,idx:0,cmdIdx:0,hp:3,term:[],hintsUsed:0,cmdsOk:0,cmdsBad:0,t0:Date.now(),over:false};
+ go("cli");cliMissionStart();
+ const topo=$("cliTopoImg");
+ if(topo){topo.src=labTopoUrl(key);topo.onerror=()=>{$("cliTopo").style.display="none"};topo.onload=()=>{$("cliTopo").style.display=""}}
+ $("cliIn").disabled=false;$("cliIn").value="";
+ $("cliIn").focus();
+}
+function labName(key){return key.replace(/_Lab\.pdf$/i,"").replace(/_/g," ")}
+function labTopoUrl(key){return "labs_img/"+encodeURIComponent(key.replace(/\.pdf$/i,""))+".png"}
+function zoomTopo(){document.getElementById("topoZoomImg").src=labTopoUrl(LABCLI?LABCLI.key:"");document.getElementById("topoZoom").classList.add("open")}
+function cliMissionStart(){
+ const M=LABCLI.missions[LABCLI.idx];
+ cliPrint(`\n${"=".repeat(46)}`,"");
+ cliPrint(`MISSION ${LABCLI.idx+1}/${LABCLI.missions.length} — ${cliDevice(M)||"console"}`,"cur");
+ cliPrint(M.task,"echo");
+ cliPrint(`Type the commands. ${M.commands.length} to go. Tab = half hint · 💡 = full (-15 XP)`, "dim");
+ cliSetPrompt(M,0);
+ renderCliSide();
+}
+function cliSetPrompt(M,ci){
+ const pr=(M.prompts&&M.prompts[ci])||(M.device?M.device+">":">");
+ $("cliPrompt").textContent=pr+" ";
+}
+function cliDevice(M){return ((M.device||"")+"").replace(/[>#]$/,"")}
+function cliPrint(line,cls){
+ LABCLI.term.push({line:String(line),cls:cls||""});
+ const t=$("cliTerm");
+ t.innerHTML=LABCLI.term.map(x=>`<div class="${x.cls}">${escapeHtml(x.line)}</div>`).join("");
+ t.scrollTop=t.scrollHeight;
+}
+function escapeHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function renderExhibit(Q){const box=$("exhibitBox");if(!box)return;
+ const url=exhibitImg(Q);
+ if(!url){box.style.display="none";box.innerHTML="";return}
+ box.style.display="block";
+ box.innerHTML=`<h5 style="font-size:.62rem;letter-spacing:2px;color:var(--cy);text-align:center;margin-bottom:.4rem">📎 TOPOLOGY EXHIBIT</h5>
+ <div style="background:#f5f7fb;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:zoom-in;max-height:200px">
+  <img src="${url}" alt="question exhibit" style="width:100%;max-height:200px;object-fit:contain;display:block" onclick="zoomExhibit('${url}')">
+ </div>
+ <div style="font-size:.56rem;color:#54688f;text-align:center;margin-top:.25rem;letter-spacing:1px">click to enlarge</div>`;
+}
+function zoomExhibit(url){const z=$("topoZoom");$("topoZoomImg").src=url;z.classList.add("open")}
+function renderCliSide(){
+ const M=LABCLI.missions[LABCLI.idx];
+ $("cliHp").innerHTML="🛡️".repeat(LABCLI.hp)+"💀".repeat(3-LABCLI.hp);
+ $("cliProg").textContent=`mission ${LABCLI.idx+1}/${LABCLI.missions.length} · cmds ${LABCLI.cmdsOk} ✓ ${LABCLI.cmdsBad} ✗`;
+ $("cliMission").innerHTML=`<h4>🧪 ${LABCLI.name}</h4>
+ <div class="mstep done"><span class="n">➜</span><span>${M.task}</span></div>
+ ${LABCLI.missions.map((m,i)=>`<div class="mstep${i<LABCLI.idx?" done":""}${i===LABCLI.idx?"":""}" style="${i===LABCLI.idx?"color:var(--tx)":"opacity:.5"}"><span class="n">${i+1}.</span><span>${m.task.length>70?m.task.slice(0,68)+"…":m.task}</span></div>`).join("")}`;
+}
+function cliSubmit(val){
+ if(!LABCLI||LABCLI.over)return;
+ if(!String(val||"").trim())return;
+ const M=LABCLI.missions[LABCLI.idx];
+ const want=M.commands[LABCLI.cmdIdx];
+ const pr=$("cliPrompt").textContent.trim();
+ cliPrint(pr+" "+val,"echo");
+ if(normCmd(val)===normCmd(want)){
+  LABCLI.cmdsOk++;
+  cliPrint("✓ accepted","ok");
+  LABCLI.cmdIdx++;
+  if(LABCLI.cmdIdx>=M.commands.length){
+   const xp=15+M.commands.length*3;
+   cliPrint(`🏁 MISSION COMPLETE  +${xp} XP`,"ok");
+   addXP(xp);save("state",S);
+   LABCLI.idx++;LABCLI.cmdIdx=0;
+   if(LABCLI.idx>=LABCLI.missions.length){LABCLI.over=true;setTimeout(cliVictory,600);return}
+   setTimeout(cliMissionStart,450);
+  }else{cliSetPrompt(M,LABCLI.cmdIdx)}
+ }else{
+  LABCLI.cmdsBad++;LABCLI.hp--;
+  cliPrint("% invalid — wrong command for this step","err");
+  if(LABCLI.hp<=0){LABCLI.over=true;setTimeout(cliDefeat,500);return}
+  cliPrint(`🛡️ shields: ${LABCLI.hp} left`,"dim");
+ }
+ renderCliSide();
+}
+function cliHint(reveal=true){
+ if(!LABCLI||LABCLI.over)return;
+ const M=LABCLI.missions[LABCLI.idx];
+ const want=M.commands[LABCLI.cmdIdx];
+ if(reveal){
+  if(S.xp<15){toast("Need 15 XP for a hint","gd");return}
+  S.xp-=15;save("state",S);renderTop();
+  cliPrint(`hint → ${want}`,"cur");
+  LABCLI.hintsUsed++;
+ }
+}
+function cliTabHint(){
+ if(!LABCLI||LABCLI.over)return;
+ const M=LABCLI.missions[LABCLI.idx];
+ const want=M.commands[LABCLI.cmdIdx];
+ const parts=want.split(" ");
+ const partial=parts.slice(0,Math.max(1,Math.ceil(parts.length/2))).join(" ");
+ $("cliIn").value=partial;
+}
+function cliVictory(){
+ const mins=((Date.now()-LABCLI.t0)/60000).toFixed(1);
+ const xp=60+LABCLI.missions.length*8-LABCLI.hintsUsed*5;
+ addXP(Math.max(30,xp));save("state",S);
+ S.labs=S.labs||{};
+ S.labs[LABCLI.key]={done:999,tasks:[],clearedOnce:true,cliCleared:true};
+ save("state",S);renderLabs();
+ $("cliMission").innerHTML=`<h4>🏆 LAB CLEARED!</h4>
+ <div style="font-size:.9rem;line-height:1.7">
+ ⏱ ${mins} min · ✓ ${LABCLI.cmdsOk} commands · ✗ ${LABCLI.cmdsBad} misses · 💡 ${LABCLI.hintsUsed} hints<br>
+ <b style="color:var(--gd)">+${Math.max(30,xp)} XP</b></div>
+ <div class="gohome"><button class="tb-btn" style="border-color:var(--cy);color:var(--cy)" onclick="go('home')">🏠 Base</button>
+ <button class="tb-btn" onclick="startLabGame('${LABCLI.key}')">↻ Replay</button></div>`;
+ cliPrint(`\n🏆 LAB BATTLE COMPLETE! All ${LABCLI.missions.length} missions — great config work!`,"ok");
+ $("cliIn").disabled=true;
+}
+function cliDefeat(){
+ cliPrint(`\n💀 OUT OF SHIELDS — the network is down!`,"err");
+ cliPrint(`You got through ${LABCLI.idx} of ${LABCLI.missions.length} missions.` ,"dim");
+ cliPrint("Study the lab PDF and try again — you keep all XP earned.","dim");
+ $("cliMission").innerHTML=`<h4>💀 DEFEATED</h4><div style="font-size:.9rem">Reached mission ${LABCLI.idx+1}/${LABCLI.missions.length}.</div>
+ <div class="gohome"><button class="tb-btn" style="border-color:var(--cy);color:var(--cy)" onclick="go('home')">🏠 Base</button>
+ <button class="tb-btn" style="border-color:var(--gn);color:var(--gn)" onclick="startLabGame('${LABCLI.key}')">↻ Retry</button>
+ <button class="tb-btn" onclick="openLab('${LABCLI.key}')">📋 Checklist</button></div>`;
+ $("cliIn").disabled=true;
+}
+/* CLI input bindings */
+document.addEventListener("keydown",e=>{
+ if(!$("scr-cli").classList.contains("active")||e.target.id!=="cliIn")return;
+ if(e.key==="Enter"){const v=$("cliIn").value;$("cliIn").value="";cliSubmit(v);e.preventDefault();}
+ if(e.key==="Tab"){cliTabHint();e.preventDefault();}
+});
+let LABCLI_DATA={};
+
+/* ============ IMPORT ============ */
+let parsed=null;
+function openImport(){$("impModal").classList.add("open")}
+function closeImport(){$("impModal").classList.remove("open")}
+function parseImport(){
+ const raw=$("impText").value.trim();if(!raw){$("impPv").textContent="Paste something first.";return}
+ let out=[];
+ try{const j=JSON.parse(raw);const arr=Array.isArray(j)?j:[j];
+  arr.forEach((x,i)=>{if(!x)return;const q=x.q||x.question;if(!q)return;
+   const o=x.options||x.choices||x.o||[];if(o.length<2)return;
+   let a=x.answer??x.correct??x.a;let c= typeof a==="string"?(parseInt(a,10)>=0&&parseInt(a,10)<o.length?+a:"ABCD".indexOf(a.toUpperCase())):a;
+   if(!(c>=0&&c<o.length))c=0;
+   out.push({t:(x.topic||"GENERAL").toUpperCase(),s:(x.sub||x.subtopic||"imported"),d:[0,1,2].includes(x.d)?x.d:1,q,o:[...o],w:x.explanation||x.why||"Review this one — no explanation supplied.",vz:"generic",id:"c"+Date.now()+"_"+i});});
+ }catch(e){
+  const lines=raw.split(/\r?\n/);
+  const csv=lines[0].toLowerCase().includes("question")&&lines[0].includes(",");
+  if(csv){const rows=lines.slice(lines[0].toLowerCase().startsWith("question")?1:0).filter(l=>l.trim());
+   rows.forEach((l,i)=>{const c=splitCSV(l);if(c.length>=6){let a=c[5].trim();let ai=/^[0-3]$/.test(a)?+a:"ABCD".indexOf(a.toUpperCase());
+    if(ai<0)ai=0;const o=[c[1],c[2],c[3],c[4]];
+    const ordered=[o[ai],...o.filter((_,j)=>j!==ai)];
+    out.push({t:(c[7]||"GENERAL").toUpperCase(),s:"imported",d:1,q:c[0],o:ordered,w:c[6]||"Review — no explanation supplied.",vz:"generic",id:"c"+Date.now()+"_"+i});}});
+  }else{ // plain text blocks
+   const blocks=raw.split(/\n\s*\n/);let n=0;
+   blocks.forEach(b=>{const ls=b.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!ls.length)return;
+    const q=ls.find(l=>!/^[A-Da-d][).:\-]|answer|ans|topic/i.test(l));if(!q)return;
+    const opts=ls.filter(l=>/^[A-Da-d][).:\-]\s*/.test(l)).map(l=>l.replace(/^[A-Da-d][).:\-]\s*/,""));
+    const ansL=ls.find(l=>/^(answer|ans|correct)\s*[:\-]?\s*/i.test(l));
+    const topL=ls.find(l=>/^topic\s*[:\-]?\s*/i.test(l));
+    if(opts.length<2)return;
+    let ai=ansL?"ABCD".indexOf((ansL.replace(/^(answer|ans|correct)\s*[:\-]?\s*/i,"").trim()[0]||"").toUpperCase()):-1;
+    if(ai<0||ai>=opts.length)ai=0;
+    const ordered=[opts[ai],...opts.filter((_,j)=>j!==ai)];
+    out.push({t:((topL?topL.replace(/^topic\s*[:\-]?\s*/i,"").trim():"GENERAL")||"GENERAL").toUpperCase(),s:"imported",d:1,q, o:opts.length===4?ordered:pad(ordered),w:ls.filter(l=>/^(why|expl)/i.test(l))[0]?.replace(/^(why|expl\w*)\s*[:\-]?\s*/i,"")||"Review — no explanation supplied.",vz:"generic",id:"c"+Date.now()+"_"+(n++)});});
+  }
+ }
+ parsed=out.filter(x=>x.q&&x.o.length>=2);
+ if(!parsed.length){$("impPv").innerHTML="<b style='color:var(--rd)'>Couldn't detect questions.</b> Supported: JSON array · CSV question,a,b,c,d,answer,explanation,topic · text blocks with A) B) C) D) + 'Answer: B'.";return}
+ TOPICS.forEach(t=>{if(!S.topics[t])S.topics[t]={m:0,seen:0,right:0}});
+ [...new Set(parsed.map(p=>p.t))].forEach(t=>{if(!S.topics[t])S.topics[t]={m:0,seen:0,right:0};});
+ $("impPv").innerHTML=`<b style="color:var(--gn)">✓ ${parsed.length} questions parsed</b> · topics: ${[...new Set(parsed.map(p=>p.t))].join(", ")}<br><br>`+parsed.slice(0,3).map(p=>`<div style="margin-bottom:.4rem"><b>${p.q.slice(0,90)}</b><br>✅ ${p.o[0].slice(0,70)}</div>`).join("");
+ $("impAdd").disabled=false;
+}
+function pad(o){while(o.length<4)o="—";return o}
+function splitCSV(l){const out=[];let cur2="",q=false;for(const ch of l){if(ch==='"'){q=!q;continue}if(ch===","&&!q){out.push(cur2);cur2="";continue}cur2+=ch}out.push(cur2);return out}
+function applyImport(){if(!parsed)return;CUSTOM=parsed.concat(CUSTOM);save("custom",CUSTOM);
+ parsed.forEach(p=>{if(!TOPICS.includes(p.t)&&!S.topics[p.t])S.topics[p.t]={m:0,seen:0,right:0}});
+ save("state",S);toast(`Added ${parsed.length} MCQs — now the source of truth`,"gd");
+ $("impText").value="";$("impPv").textContent="Parsed questions will preview here.";$("impAdd").disabled=true;parsed=null;
+ closeImport();renderHome();}
+function wipe(){if(confirm("Erase ALL game progress + imported questions?")){localStorage.removeItem(NS+"state");localStorage.removeItem(NS+"custom");location.reload()}}
+
+/* ============ INIT ============ */
+voiceBtnSync();
+renderHome();
+</script>
+</body>
+</html>

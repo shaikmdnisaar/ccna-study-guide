@@ -1,0 +1,952 @@
+{
+ "CDP_and_LLDP_Lab.pdf": {
+  "missions": [
+   {
+    "task": "Identify neighboring devices by using the \"show cdp neighbors\" command on SW1.",
+    "device": "SW1#",
+    "commands": [
+     "show cdp neighbors"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   },
+   {
+    "task": "Find detailed information about R1 by using CDP.",
+    "device": "SW1#",
+    "commands": [
+     "show cdp neighbors detail"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   },
+   {
+    "task": "Enable LLDP on SW1.",
+    "device": "SW1#",
+    "commands": [
+     "conf t",
+     "lldp run",
+     "exit"
+    ],
+    "prompts": [
+     "SW1#",
+     "SW1(config)#",
+     "SW1(config)#"
+    ]
+   },
+   {
+    "task": "Identify SW1 by using the \"show lldp neighbors\" command on R1.",
+    "device": "R1#",
+    "commands": [
+     "show lldp neighbors Capability"
+    ],
+    "prompts": [
+     "R1#"
+    ]
+   },
+   {
+    "task": "Keep Gig 0/0 on R1 from receiving and transmitting LLDP information.",
+    "device": "R1#",
+    "commands": [
+     "conf t",
+     "int gig 0/0",
+     "no lldp transmit",
+     "no lldp receive",
+     "end"
+    ],
+    "prompts": [
+     "R1#",
+     "R1(config)#",
+     "R1(config-if)#",
+     "R1(config-if)#",
+     "R1(config-if)#"
+    ]
+   },
+   {
+    "task": "Identify tlv (type length value) information that we can turn on or off on R1.",
+    "device": "R1#",
+    "commands": [
+     "conf t",
+     "end"
+    ],
+    "prompts": [
+     "R1#",
+     "R1(config)#"
+    ]
+   },
+   {
+    "task": "Find detailed information about SW1 by using LLDP.",
+    "device": "R1#",
+    "commands": [
+     "show lldp neighbors detail"
+    ],
+    "prompts": [
+     "R1#"
+    ]
+   }
+  ]
+ },
+ "Dynamic_Host_Configuration_Protocol_DHCP_Lab.pdf": {
+  "missions": [
+   {
+    "task": "Let's begin by configuring the DHCP_SERVER router to be a DHCP server for the 192.168.1.0 /24 subnet.  To do this, we want to create a DHCP pool of assignable addresses in the range of 192.168.1.100 - 192.168.1.199.  In order to create this pool, we need to exclude IP addresses in the ranges of 192.168.1.1 - 192.168.1.99 and 192.168.1.200 - 192.168.1.254.  DHCP_SERVER>en  DHCP_SERVER#conf t Enter configuration commands, one per line.  End with CNTL/Z. DHCP_SERVER(config)#ip dhcp excluded-address 192.168.1.1 192.168.1.99 DHCP_SERVER(config)#ip dhcp excluded-address 192.168.1.200 192.168.1.254",
+    "device": "DHCP_SERVER#",
+    "commands": [
+     "conf t",
+     "ip dhcp excluded-address 192.168.1.1 192.168.1.99",
+     "ip dhcp excluded-address 192.168.1.200 192.168.1.254"
+    ],
+    "prompts": [
+     "DHCP_SERVER#",
+     "DHCP_SERVER(config)#",
+     "DHCP_SERVER(config)#"
+    ]
+   },
+   {
+    "task": "Now, we will create the DHCP pool of addresses that we want to assign, and name the pool \"DEMO\".  After that, set 192.168.1.1 as the IP address of the default gateway and set 8.8.8.8 as the IP address of the DNS server.  Issue all of these commands on the DHCP_SERVER router.    DHCP_SERVER(config)#ip dhcp pool DEMO DHCP_SERVER(dhcp-config)#network 192.168.1.0 255.255.255.0 DHCP_SERVER(dhcp-config)#default-router 192.168.1.1 DHCP_SERVER(dhcp-config)#dns-server 8.8.8.8 DHCP_SERVER(dhcp-config)#end",
+    "device": "DHCP_SERVER",
+    "commands": [
+     "ip dhcp pool DEMO",
+     "network 192.168.1.0 255.255.255.0",
+     "default-router 192.168.1.1",
+     "dns-server 8.8.8.8",
+     "end"
+    ],
+    "prompts": [
+     "DHCP_SERVER(config)#",
+     "DHCP_SERVER(dhcp-config)#",
+     "DHCP_SERVER(dhcp-config)#",
+     "DHCP_SERVER(dhcp-config)#",
+     "DHCP_SERVER(dhcp-config)#"
+    ]
+   },
+   {
+    "task": "On R1, let's tell our Gig 0/1 interface to get its IP address via DHCP.  Also make sure to administratively bring up interface Gig 0/1.  R1>en R1#conf t Enter configuration commands, one per line.  End with CNTL/Z. R1(config)#int gig 0/1 R1(config-if)#ip address dhcp R1(config-if)#no shutdown R1(config-if)#end",
+    "device": "R1#",
+    "commands": [
+     "conf t",
+     "int gig 0/1",
+     "ip address dhcp",
+     "no shutdown",
+     "end"
+    ],
+    "prompts": [
+     "R1#",
+     "R1(config)#",
+     "R1(config-if)#",
+     "R1(config-if)#",
+     "R1(config-if)#"
+    ]
+   },
+   {
+    "task": "On R1, issue the \"show ip int brief\" command to see if we have gained an IP address via DHCP.  R1#show ip int brief Interface                  IP-Address      OK? Method Status                Protocol GigabitEthernet0/0         unassigned      YES TFTP   administratively down down     GigabitEthernet0/1         unassigned      YES DHCP   up                    up       GigabitEthernet0/2         unassigned      YES TFTP   administratively down down     GigabitEthernet0/3         unassigned      YES TFTP   administratively down down      (##R1's discover broadcast to see if there are any dhcp servers out there will be denied because the discover broadcast cannot cross R2's router boundary.  This means that Gig 0/1 will not be assigned an IP address via DHCP.)",
+    "device": "R1#",
+    "commands": [
+     "show ip int brief"
+    ],
+    "prompts": [
+     "R1#"
+    ]
+   },
+   {
+    "task": "In order for R1 to be assigned an IP address via DHCP, we need to set R2's Gig 0/1 interface to be a DHCP Relay Agent.  R2>en R2#conf t Enter configuration commands, one per line.  End with CNTL/Z. R2(config)#int gig 0/1 R2(config-if)#ip helper-address 192.0.2.1 R2(config-if)#end",
+    "device": "R2#",
+    "commands": [
+     "conf t",
+     "int gig 0/1",
+     "ip helper-address 192.0.2.1",
+     "end"
+    ],
+    "prompts": [
+     "R2#",
+     "R2(config)#",
+     "R2(config-if)#",
+     "R2(config-if)#"
+    ]
+   },
+   {
+    "task": "On R1, let's see if our Gig 0/1 interface has received an IP address via DHCP.  R1(config)#int gig 0/1 R1(config-if)#shutdown R1(config-if)#no shutdown R1(config-if)#end R1#show ip int brief Interface                  IP-Address      OK? Method Status                Protocol GigabitEthernet0/0         unassigned      YES TFTP   administratively down down     GigabitEthernet0/1         192.168.1.100   YES DHCP   up                    up       GigabitEthernet0/2         unassigned      YES TFTP   administratively down down     GigabitEthernet0/3         unassigned      YES TFTP   administratively down down",
+    "device": "R1",
+    "commands": [
+     "int gig 0/1",
+     "shutdown",
+     "no shutdown",
+     "end",
+     "show ip int brief"
+    ],
+    "prompts": [
+     "R1(config)#",
+     "R1(config-if)#",
+     "R1(config-if)#",
+     "R1(config-if)#",
+     "R1#"
+    ]
+   }
+  ]
+ },
+ "Dynamic_NAT_Lab.pdf": {
+  "missions": [
+   {
+    "task": "On R1, designate which interface will be the inside NAT interface and which will be the outside NAT interface.",
+    "device": "R1#",
+    "commands": [
+     "conf t",
+     "int gig 0/0",
+     "ip nat inside",
+     "int gig 0/1",
+     "ip nat outside",
+     "exit"
+    ],
+    "prompts": [
+     "R1#",
+     "R1(config)#",
+     "R1(config-if)#",
+     "R1(config-if)#",
+     "R1(config-if)#",
+     "R1(config-if)#"
+    ]
+   },
+   {
+    "task": "Identify the inside local network by use of an ACL.",
+    "device": "R1",
+    "commands": [
+     "access-list 1 permit 10.1.1.0 0.0.0.255"
+    ],
+    "prompts": [
+     "R1(config)#"
+    ]
+   },
+   {
+    "task": "Define the inside global NAT pool.",
+    "device": "R1",
+    "commands": [
+     "ip nat pool POOL 4.4.4.2 4.4.4.3 netmask 255.255.255.0",
+     "ip nat inside source list 1 pool POOL",
+     "end"
+    ],
+    "prompts": [
+     "R1(config)#",
+     "R1(config)#",
+     "R1(config)#"
+    ]
+   },
+   {
+    "task": "Login to PC1 and PC2 (username= cisco, password= cisco) and verify connectivity between both PCs and web server, and verify that the dynamic translations take place on R1.",
+    "device": "",
+    "commands": [],
+    "prompts": []
+   }
+  ]
+ },
+ "EtherChannel_Lab.pdf": {
+  "missions": [
+   {
+    "task": "Bundle connections between SW2 and SW3 into a logical EtherChannel.",
+    "device": "SW2#",
+    "commands": [
+     "conf t",
+     "int range gig 0/2-3",
+     "no negotiation auto",
+     "speed 1000",
+     "duplex full",
+     "channel-group 1 mode desirable",
+     "channel-group 1 mode auto (SW3 is set to auto while SW2 is set to desirable, meaning, SW2 is wanting to initiate the port-channel)"
+    ],
+    "prompts": [
+     "SW2#",
+     "SW2(config)#",
+     "SW2(config-if-range)#",
+     "SW2(config-if-range)#",
+     "SW2(config-if-range)#",
+     "SW2(config-if-range)#",
+     "SW3(config-if-range)#"
+    ]
+   },
+   {
+    "task": "Designate the EtherChannel as a trunk port.",
+    "device": "SW2",
+    "commands": [
+     "int port-channel 1",
+     "switchport trunk encapsulation dot1q",
+     "switchport mode trunk",
+     "end"
+    ],
+    "prompts": [
+     "SW2(config-if-range)#",
+     "SW2(config-if)#",
+     "SW2(config-if)#",
+     "SW2(config-if)#"
+    ]
+   },
+   {
+    "task": "Verify configuration.",
+    "device": "SW2#",
+    "commands": [
+     "show ip int brief",
+     "show int trunk",
+     "show int port-channel 1"
+    ],
+    "prompts": [
+     "SW2#",
+     "SW2#",
+     "SW2#"
+    ]
+   }
+  ]
+ },
+ "Extended_Named_ACL_Lab.pdf": {
+  "missions": [
+   {
+    "task": "Ping the server from both PC1 and PC2 to make sure we can reach the server.",
+    "device": "",
+    "commands": [],
+    "prompts": []
+   },
+   {
+    "task": "Create an extended named access control list and name it BLOCK_PC1_SERVICES on R1.",
+    "device": "R1#",
+    "commands": [
+     "conf t",
+     "ip access-list extended BLOCK_PC1_SERVICES",
+     "("
+    ],
+    "prompts": [
+     "R1#",
+     "R1(config)#",
+     "R1(config-ext-nacl)#"
+    ]
+   },
+   {
+    "task": "Keep PC1 from contacting the server using Telnet.",
+    "device": "",
+    "commands": [],
+    "prompts": []
+   },
+   {
+    "task": "Permit all other traffic to the server.",
+    "device": "R1",
+    "commands": [
+     "permit ip any any"
+    ],
+    "prompts": [
+     "R1(config-ext-nacl)#"
+    ]
+   },
+   {
+    "task": "Apply our access control list, BLOCK_PC1_SERVICES, on the inbound direction of interface Gig 0/1 on R1.",
+    "device": "R1",
+    "commands": [
+     "int gig 0/1",
+     "ip access-group BLOCK_PC1_SERVICES in",
+     "end"
+    ],
+    "prompts": [
+     "R1(config-ext-nacl)#",
+     "R1(config-if)#",
+     "R1(config-if)#"
+    ]
+   },
+   {
+    "task": "Take a look at the ACL that we just created.",
+    "device": "R1#",
+    "commands": [
+     "show access-list"
+    ],
+    "prompts": [
+     "R1#"
+    ]
+   },
+   {
+    "task": "Add a sequence number of 15 to our ACL to keep PC1 from contacting the server using HTTP.",
+    "device": "R1#",
+    "commands": [
+     "conf t",
+     "ip access-list extended BLOCK_PC1_SERVICES",
+     "15 deny tcp host 10.1.1.2 host 203.0.113.1 eq 80",
+     "end"
+    ],
+    "prompts": [
+     "R1#",
+     "R1(config)#",
+     "R1(config-ext-nacl)#",
+     "R1(config-ext-nacl)#"
+    ]
+   },
+   {
+    "task": "Take another look at the ACL that we just created to see if our new addition is there.",
+    "device": "R1#",
+    "commands": [
+     "show access-list"
+    ],
+    "prompts": [
+     "R1#"
+    ]
+   },
+   {
+    "task": "Telnet to the server by using the port numbers of HTTPS, HTTP, and Telnet and see if we are able to connect to the server on PC1.",
+    "device": "",
+    "commands": [],
+    "prompts": []
+   },
+   {
+    "task": "Telnet to the server by using the port numbers of HTTPS, HTTP, and Telnet and see if we are able to connect to the server on PC2.",
+    "device": "",
+    "commands": [],
+    "prompts": []
+   }
+  ]
+ },
+ "Extended_Numbered_ACL_Lab.pdf": {
+  "missions": [
+   {
+    "task": "Ping the server from both PC1 and PC2 to make sure we can reach the server.",
+    "device": "",
+    "commands": [],
+    "prompts": []
+   },
+   {
+    "task": "PC1 should not be allowed to contact the server using Telnet.",
+    "device": "R1#",
+    "commands": [
+     "conf t"
+    ],
+    "prompts": [
+     "R1#"
+    ]
+   },
+   {
+    "task": "Allow PC1 and PC2 to connect to the server using all other ports by specifying the subnet of both PC's.",
+    "device": "R1",
+    "commands": [
+     "access-list 100 permit ip 10.1.1.0 0.0.0.255 any"
+    ],
+    "prompts": [
+     "R1(config)#"
+    ]
+   },
+   {
+    "task": "Apply the ACL going into Gig 0/1.",
+    "device": "R1",
+    "commands": [
+     "int gig 0/1",
+     "ip access-group 100 in",
+     "end"
+    ],
+    "prompts": [
+     "R1(config)#",
+     "R1(config-if)#",
+     "R1(config-if)#"
+    ]
+   },
+   {
+    "task": "Take a look at the ACL that we just created.",
+    "device": "R1#",
+    "commands": [
+     "show access-list"
+    ],
+    "prompts": [
+     "R1#"
+    ]
+   },
+   {
+    "task": "Telnet to the server by using the port numbers of HTTPS, HTTP, and Telnet and see if we are able to connect to the server on PC1. Confirm that PC1 is not able to Telnet to the server.",
+    "device": "",
+    "commands": [],
+    "prompts": []
+   },
+   {
+    "task": "Telnet to the server by using the port numbers of HTTPS, HTTP, and Telnet and see if we are able to connect to the server on PC2. Confirm that PC2 is still able to telnet to the server.",
+    "device": "",
+    "commands": [],
+    "prompts": []
+   }
+  ]
+ },
+ "Network_Time_Protocol_NTP_Lab.pdf": {
+  "missions": [
+   {
+    "task": "1. On our INTERNET router, let's set our time to 12pm, our date to June 28, 2024, and our time zone to UTC with an offset of zero. 2. Let's set up our INTERNET router as the \"ntp master\" with a stratum value of 3. 3. Let's set up R1 as an \"ntp server\" and point it towards the 1.1.1.1 loopback interface of our INTERNET router. We are going to set up this router as if it is in the EST timezone, which would be \"EST -5\". 4. Let's set our R1 router to a recurring daylight savings time by using the \"clock summer-time EDT recurring\" command. 5. Let's verify if R1's time is synchronized with its timesource, which is our INTERNET router, by using the \"show clock\" command and the \"show ntp status\" command. 6. On R1, after the 15 minutes of waiting for R1 to fully converge with the INTERNET router, let's check our clock and NTP status and see what our time and stratum value is now. 7. On R1, let's use the \"show ntp associations\" command to verify that we are associated with our INTERNET router as our timesource.",
+    "device": "INTERNET#",
+    "commands": [
+     "clock set 12:00:00 June 28 2024",
+     "conf t",
+     "clock timezone UTC 0"
+    ],
+    "prompts": [
+     "INTERNET#",
+     "INTERNET#",
+     "INTERNET(config)#"
+    ]
+   }
+  ]
+ },
+ "OSPF_Lab.pdf": {
+  "missions": [
+   {
+    "task": "Basic configuration with 2 Areas Background Information: Routers R1, R2, and R3 have already been configured with appropriate IP addressing. However, no IP routing protocols have been configured. The network needs to have OSPF configured as the IP routing protocol. The network should be divided into two OSPF areas, as shown in the figure.",
+    "device": "R1#",
+    "commands": [
+     "conf t",
+     "router ospf 1",
+     "network 192.0.2.0 0.0.0.255 area 1",
+     "network 10.1.1.0 0.0.0.255 area 1",
+     "end"
+    ],
+    "prompts": [
+     "R1#",
+     "R1(config)#",
+     "R1(config-router)#",
+     "R1(config-router)#",
+     "R1(config-router)#"
+    ]
+   },
+   {
+    "task": "Configure router R1 to have both of its interfaces participate in an OSPF routing process. Accomplish this task using two \"network\" commands.",
+    "device": "R2#",
+    "commands": [
+     "conf t",
+     "router ospf 1",
+     "network 10.1.1.0 0.0.0.255 area 1",
+     "int gig 0/1",
+     "ip ospf 1 area 0",
+     "end"
+    ],
+    "prompts": [
+     "R2#",
+     "R2(config)#",
+     "R2(config-router)#",
+     "R2(config-router)#",
+     "R2(config-if)#",
+     "R2(config-if)#"
+    ]
+   },
+   {
+    "task": "Configure router R2 to have both of its interfaces participate in an OSPF routing process. Accomplish this task using one \"network\" command, and one \"ip ospf [process_id] area [area_number]\" command.",
+    "device": "R3#",
+    "commands": [
+     "conf t",
+     "router ospf 1",
+     "network 0.0.0.0 255.255.255.255 area 0",
+     "end"
+    ],
+    "prompts": [
+     "R3#",
+     "R3(config)#",
+     "R3(config-router)#",
+     "R3(config-router)#"
+    ]
+   },
+   {
+    "task": "Configure router R3 to have both of its interfaces participate in an OSPF routing process. Accomplish this task using only one \"network\" command.",
+    "device": "R1#",
+    "commands": [
+     "show ip route Codes:",
+     "show ip ospf database",
+     "Checksum Link count 172.16.1.1",
+     "Checksum",
+     "Checksum 172.16.1.1",
+     "Checksum 10.1.1.0"
+    ],
+    "prompts": [
+     "R1#",
+     "R1#",
+     "Seq#",
+     "Seq#",
+     "Seq#",
+     "Seq#"
+    ]
+   },
+   {
+    "task": "Verify your configuration with the \"show ip route\" and \"show ip ospf database\" commands, plus any other verification commands you would like to use.",
+    "device": "",
+    "commands": [],
+    "prompts": []
+   }
+  ]
+ },
+ "Port_Address_Translation_PAT_Lab.pdf": {
+  "missions": [
+   {
+    "task": "On R1, designate which interface will be the inside NAT interface and which will be the outside NAT interface.",
+    "device": "R1#",
+    "commands": [
+     "conf t",
+     "int gig 0/0",
+     "ip nat inside",
+     "int gig 0/1",
+     "ip nat outside",
+     "exit"
+    ],
+    "prompts": [
+     "R1#",
+     "R1(config)#",
+     "R1(config-if)#",
+     "R1(config-if)#",
+     "R1(config-if)#",
+     "R1(config-if)#"
+    ]
+   },
+   {
+    "task": "Identify the inside local network by use of an ACL.",
+    "device": "R1",
+    "commands": [
+     "access-list 1 permit 10.1.1.0 0.0.0.255"
+    ],
+    "prompts": [
+     "R1(config)#"
+    ]
+   },
+   {
+    "task": "Specify that every IP address matching the ACL should be translated into a single IP address on the outside interface.",
+    "device": "R1",
+    "commands": [
+     "ip nat inside source list 1 int gig 0/1 overload",
+     "end"
+    ],
+    "prompts": [
+     "R1(config)#",
+     "R1(config)#"
+    ]
+   },
+   {
+    "task": "Login to PC1 and PC2 (username= cisco, password= cisco) and test HTTP connectivity from both PCs and verify the translation on R1.",
+    "device": "R1#",
+    "commands": [
+     "show ip nat translation"
+    ],
+    "prompts": [
+     "R1#"
+    ]
+   }
+  ]
+ },
+ "Spanning_Tree_Protocol_Lab.pdf": {
+  "missions": [
+   {
+    "task": "Which switch is the root bridge?   SW1>enable SW1#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              Cost        4              Port        3 (GigabitEthernet0/2)              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.001d.b96c              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  SW2>enable SW2#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              Cost        4              Port        3 (GigabitEthernet0/2)              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.0019.51aa              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  SW3>enable SW3#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              This bridge is the root              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.0002.96d2              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec",
+    "device": "SW1#",
+    "commands": [
+     "show spanning-tree"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   },
+   {
+    "task": "Which ports are the root ports?  SW1#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              Cost        4              Port        3 (GigabitEthernet0/2)              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.001d.b96c              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Altn BLK 4         128.2    P2p  Gi0/2               Root FWD 4         128.3    P2p   SW2#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              Cost        4              Port        3 (GigabitEthernet0/2)              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.0019.51aa              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Desg FWD 4         128.2    P2p  Gi0/2               Root FWD 4         128.3    P2p  Gi0/3               Altn BLK 4         128.4    P2p   SW3#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              This bridge is the root              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.0002.96d2              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Desg FWD 4         128.2    P2p  Gi0/2               Desg FWD 4         128.3    P2p  Gi0/3               Desg FWD 4         128.4    P2p",
+    "device": "SW1#",
+    "commands": [
+     "show spanning-tree"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   },
+   {
+    "task": "Which ports are the designated ports?  SW1#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              Cost        4              Port        3 (GigabitEthernet0/2)              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.001d.b96c              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Altn BLK 4         128.2    P2p  Gi0/2               Root FWD 4         128.3    P2p   SW2#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              Cost        4              Port        3 (GigabitEthernet0/2)              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.0019.51aa              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Desg FWD 4         128.2    P2p  Gi0/2               Root FWD 4         128.3    P2p  Gi0/3               Altn BLK 4         128.4    P2p   SW3#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              This bridge is the root              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.0002.96d2              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Desg FWD 4         128.2    P2p  Gi0/2               Desg FWD 4         128.3    P2p  Gi0/3               Desg FWD 4         128.4    P2p",
+    "device": "SW1#",
+    "commands": [
+     "show spanning-tree"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   },
+   {
+    "task": "Which ports are the blocking ports?  SW1#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              Cost        4              Port        3 (GigabitEthernet0/2)              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.001d.b96c              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Altn BLK 4         128.2    P2p  Gi0/2               Root FWD 4         128.3    P2p   SW2#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              Cost        4              Port        3 (GigabitEthernet0/2)              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.0019.51aa              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Desg FWD 4         128.2    P2p  Gi0/2               Root FWD 4         128.3    P2p  Gi0/3               Altn BLK 4         128.4    P2p   SW3#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              This bridge is the root              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.0002.96d2              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Desg FWD 4         128.2    P2p  Gi0/2               Desg FWD 4         128.3    P2p  Gi0/3               Desg FWD 4         128.4    P2p",
+    "device": "SW1#",
+    "commands": [
+     "show spanning-tree"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   }
+  ]
+ },
+ "Standard_Numbered_ACL_Lab.pdf": {
+  "missions": [
+   {
+    "task": "Ping the server from both PC1 and PC2 to make sure we can reach the server.",
+    "device": "",
+    "commands": [],
+    "prompts": []
+   },
+   {
+    "task": "Permit all IP traffic from PC1 to the Server.",
+    "device": "R1#",
+    "commands": [
+     "conf t",
+     "access-list 1 permit host 10.1.1.2"
+    ],
+    "prompts": [
+     "R1#",
+     "R1(config)#"
+    ]
+   },
+   {
+    "task": "Deny all IP traffic from PC2 to the Server.",
+    "device": "R1#",
+    "commands": [
+     "conf t",
+     "access-list 1 deny host 10.1.1.3",
+     "int gig 0/1",
+     "ip access-group 1 in",
+     "end",
+     "show access-list"
+    ],
+    "prompts": [
+     "R1#",
+     "R1(config)#",
+     "R1(config)#",
+     "R1(config-if)#",
+     "R1(config-if)#",
+     "R1#"
+    ]
+   },
+   {
+    "task": "Ping the server from PC1 to make sure we can still reach the server. Ping the server from PC2 and make sure our traffic from PC2 gets denied.",
+    "device": "",
+    "commands": [],
+    "prompts": []
+   }
+  ]
+ },
+ "Static_NAT_Lab.pdf": {
+  "missions": [
+   {
+    "task": "On R1, designate which interface will be the inside NAT interface and which will be the outside NAT interface.",
+    "device": "R1#",
+    "commands": [
+     "conf t",
+     "int gig 0/0",
+     "ip nat inside",
+     "int gig 0/1",
+     "ip nat outside",
+     "exit"
+    ],
+    "prompts": [
+     "R1#",
+     "R1(config)#",
+     "R1(config-if)#",
+     "R1(config-if)#",
+     "R1(config-if)#",
+     "R1(config-if)#"
+    ]
+   },
+   {
+    "task": "Add a static NAT statement to map the inside local address to the inside global address.",
+    "device": "R1",
+    "commands": [
+     "ip nat inside source static 10.1.1.100 4.4.4.2",
+     "end"
+    ],
+    "prompts": [
+     "R1(config)#",
+     "R1(config)#"
+    ]
+   },
+   {
+    "task": "Login to PC1 (username= cisco, password= cisco) and verify connectivity to the Web Server at 3.3.3.3, and verify that the static translation takes place on R1.",
+    "device": "R1#",
+    "commands": [
+     "show ip nat translations"
+    ],
+    "prompts": [
+     "R1#"
+    ]
+   }
+  ]
+ },
+ "Trunking_Lab.pdf": {
+  "missions": [
+   {
+    "task": "On switch SW1, enter interface-range configuration mode for interfaces Gig 0/1-Gig 0/2, and configure IEEE 802.1Q as the trunking encapsulation for those ports.",
+    "device": "SW1#",
+    "commands": [
+     "conf t",
+     "int range Gig 0/1-2",
+     "switchport trunk encapsulation dot1q"
+    ],
+    "prompts": [
+     "SW1#",
+     "SW1(config)#",
+     "SW1(config-if-range)#"
+    ]
+   },
+   {
+    "task": "Still in interface-range configuration mode, configure the trunking mode for \"dynamic desirable.\"",
+    "device": "SW1",
+    "commands": [
+     "switchport mode dynamic desirable",
+     "end"
+    ],
+    "prompts": [
+     "SW1(config-if-range)#",
+     "SW1(config-if-range)#"
+    ]
+   },
+   {
+    "task": "On switch SW2, configure interface Gig 0/1 for IEEE 802.1Q trunking encapsulation and a trunking mode of \"dynamic auto.\"",
+    "device": "SW2#",
+    "commands": [
+     "conf t",
+     "int gig 0/1",
+     "switchport trunk encapsulation dot1q",
+     "switchport mode dynamic auto",
+     "end"
+    ],
+    "prompts": [
+     "SW2#",
+     "SW2(config)#",
+     "SW2(config-if)#",
+     "SW2(config-if)#",
+     "SW2(config-if)#"
+    ]
+   },
+   {
+    "task": "On switch SW3, configure interface Gig 0/1 for IEEE 802.1Q trunking encapsulation and a trunking mode of \"trunk.\"",
+    "device": "SW3#",
+    "commands": [
+     "conf t",
+     "int gig 0/1",
+     "switchport trunk encapsulation dot1q",
+     "switchport mode trunk",
+     "end"
+    ],
+    "prompts": [
+     "SW3#",
+     "SW3(config)#",
+     "SW3(config-if)#",
+     "SW3(config-if)#",
+     "SW3(config-if)#"
+    ]
+   },
+   {
+    "task": "On switch SW1, verify interfaces Gig 0/1 and Gig 0/2 are trunking.",
+    "device": "SW1#",
+    "commands": [
+     "show interfaces trunk"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   }
+  ]
+ },
+ "VLAN_Lab.pdf": {
+  "missions": [
+   {
+    "task": "View the VLANs that already exist on switch SW1.",
+    "device": "SW1#",
+    "commands": [
+     "show vlan brief"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   },
+   {
+    "task": "Use the \"show cdp neighbors\" command to see which ports on switch SW1 connect to other switches.",
+    "device": "SW1#",
+    "commands": [
+     "show cdp neighbors"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   },
+   {
+    "task": "Create a VLAN numbered \"100\" and named \"ENGINEERING\".",
+    "device": "SW1#",
+    "commands": [
+     "conf t",
+     "vlan 100",
+     "name ENGINEERING",
+     "exit"
+    ],
+    "prompts": [
+     "SW1#",
+     "SW1(config)#",
+     "SW1(config-vlan)#",
+     "SW1(config-vlan)#"
+    ]
+   },
+   {
+    "task": "Add interface Gig 0/3 to VLAN 100",
+    "device": "SW1",
+    "commands": [
+     "int gig 0/3",
+     "switchport access vlan 100",
+     "end"
+    ],
+    "prompts": [
+     "SW1(config)#",
+     "SW1(config-if)#",
+     "SW1(config-if)#"
+    ]
+   },
+   {
+    "task": "Confirm interface Gig 0/3 resides in VLAN 100.",
+    "device": "SW1#",
+    "commands": [
+     "show vlan brief"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   },
+   {
+    "task": "Delete VLAN 100.",
+    "device": "SW1#",
+    "commands": [
+     "conf t",
+     "no vlan 100",
+     "end"
+    ],
+    "prompts": [
+     "SW1#",
+     "SW1(config)#",
+     "SW1(config)#"
+    ]
+   },
+   {
+    "task": "Determine in which VLAN interface Gig 0/3 now resides.",
+    "device": "SW1#",
+    "commands": [
+     "show vlan brief"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   },
+   {
+    "task": "Assign interface Gig 0/3 back to VLAN 1.",
+    "device": "SW1#",
+    "commands": [
+     "conf t",
+     "int gig 0/3",
+     "switchport access vlan 1",
+     "end"
+    ],
+    "prompts": [
+     "SW1#",
+     "SW1(config)#",
+     "SW1(config-if)#",
+     "SW1(config-if)#"
+    ]
+   },
+   {
+    "task": "Confirm interface Gig 0/3 now resides in VLAN 1.",
+    "device": "SW1#",
+    "commands": [
+     "show vlan brief"
+    ],
+    "prompts": [
+     "SW1#"
+    ]
+   }
+  ]
+ }
+}
