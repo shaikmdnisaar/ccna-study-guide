@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discovery Quest — CDP & LLDP</title>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#131a33; --panel2:#1a2244; --line:#2a3566;
+    --txt:#e8ecff; --dim:#8e97c4; --acc:#4fd1c5; --acc2:#f6ad55; --good:#48bb78; --bad:#fc8181; --gold:#f6e05e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1200px 600px at 70% -10%,#1b2450 0%,var(--bg) 60%);color:var(--txt);
+       font-family:'Cascadia Code',Consolas,monospace;min-height:100vh;padding:18px}
+  .wrap{max-width:900px;margin:0 auto}
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  h1{font-size:1.35rem;letter-spacing:.5px}
+  h1 .a{color:var(--acc)} h1 .b{color:var(--acc2)}
+  .hud{display:flex;gap:10px;flex-wrap:wrap}
+  .pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:.8rem}
+  .pill b{color:var(--acc)}
+  #progressbar{height:8px;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:18px}
+  #progressfill{height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .5s}
+  .map{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .lvl{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;position:relative;transition:transform .15s,border-color .15s}
+  .lvl:hover{transform:translateY(-3px);border-color:var(--acc)}
+  .lvl.locked{opacity:.45;cursor:not-allowed} .lvl.locked:hover{transform:none;border-color:var(--line)}
+  .lvl .n{font-size:.7rem;color:var(--dim);letter-spacing:2px}
+  .lvl .t{font-size:1.05rem;margin:6px 0 4px;color:var(--acc)}
+  .lvl .d{font-size:.75rem;color:var(--dim);line-height:1.5;min-height:56px}
+  .lvl .st{font-size:.7rem;margin-top:8px}
+  .lvl.done .st{color:var(--good)} .lvl.next .st{color:var(--gold)} .lvl.locked .st{color:var(--dim)}
+  .lvl.boss{border-color:#7f4fd1} .lvl.boss .t{color:#b794f4}
+  .badge{position:absolute;top:10px;right:12px;font-size:1rem}
+  /* level view */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
+  .card h3{color:var(--acc2);font-size:.95rem;margin-bottom:10px;letter-spacing:1px}
+  .card p,.card li{font-size:.86rem;line-height:1.65;color:var(--txt)}
+  .card ul{padding-left:20px;margin-top:6px}
+  .card .dim{color:var(--dim)}
+  pre{background:#0a0f22;border:1px solid var(--line);border-radius:8px;padding:12px;font-size:.78rem;line-height:1.5;overflow-x:auto;margin:10px 0;white-space:pre}
+  .cmd-pre::before{content:"SW1# ";color:var(--acc)}
+  .q{font-size:.9rem;margin:8px 0 10px}
+  .opts{display:grid;gap:8px}
+  .opt{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;font-size:.82rem;line-height:1.45;transition:border-color .12s}
+  .opt:hover{border-color:var(--acc)}
+  .opt.correct{border-color:var(--good);background:#10331f}
+  .opt.wrong{border-color:var(--bad);background:#3a1414}
+  .cmdrow{display:flex;gap:8px;margin-top:8px}
+  #cmdin{flex:1;background:#0a0f22;border:1px solid var(--line);border-radius:8px;color:var(--acc);
+         padding:10px 12px;font-family:inherit;font-size:.85rem;outline:none}
+  #cmdin:focus{border-color:var(--acc)}
+  button{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;
+         padding:10px 16px;font-family:inherit;font-size:.82rem;cursor:pointer}
+  button:hover{border-color:var(--acc)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .fb{margin-top:10px;font-size:.8rem;line-height:1.55;border-left:3px solid var(--acc);padding:8px 12px;background:var(--panel2);border-radius:0 8px 8px 0;display:none}
+  .fb.bad{border-color:var(--bad)} .fb.good{border-color:var(--good)}
+  .rowbtns{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .live{border:1px dashed var(--gold);background:#241f33;border-radius:12px;padding:14px 16px;margin:14px 0;font-size:.82rem;line-height:1.6}
+  .live b{color:var(--gold)}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .topbar .l{color:var(--dim);font-size:.75rem;cursor:pointer}
+  .topbar .l:hover{color:var(--acc)}
+  .toast{position:fixed;bottom:22px;right:22px;background:var(--good);color:#04240f;padding:10px 18px;border-radius:8px;
+         font-size:.85rem;font-weight:bold;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50}
+  .xpbar{font-size:.7rem;color:var(--dim);margin-top:4px}
+  @media(max-width:640px){h1{font-size:1.05rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>⚡ DISCOVERY <span class="a">QUEST</span> — <span class="b">CDP &amp; LLDP</span></h1>
+    <div class="hud">
+      <div class="pill">XP <b id="xp">0</b></div>
+      <div class="pill">RANK <b id="rank">Novice</b></div>
+      <div class="pill">🏅 <span id="badges">0</span>/6</div>
+    </div>
+  </header>
+  <div id="progressbar"><div id="progressfill"></div></div>
+  <div id="view"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= STATE ================= */
+const KEY='cdpquest1';
+let S=JSON.parse(localStorage.getItem(KEY)||'null')||{xp:0,done:{},best:{}};
+function save(){localStorage.setItem(KEY,JSON.stringify(S));renderHUD();}
+const RANKS=[[0,'Novice'],[60,'Apprentice'],[140,'Investigator'],[240,'Protocol Adept'],[360,'Discovery Master'],[460,'🏅 LAB BOSS SLAYER']];
+function rankOf(xp){let r=RANKS[0][1];for(const[t,n]of RANKS)if(xp>=t)r=n;return r;}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1800);}
+function award(n){S.xp+=n;save();toast('+'+n+' XP');}
+
+/* ================= SIM OUTPUTS (mirror the real CML lab) ================= */
+const CDP_NBR =
+`Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone,
+                  D - Remote Power, C - CVTA, M - Two-port Mac Relay
+
+Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
+R1               Gig 0/1            164        R S I      IOSv      Gig 0/1
+
+Total cdp entries displayed : 1`;
+
+const CDP_DET =
+`-------------------------
+Device ID: R1
+Entry address(es):
+  IP address: 10.1.1.1
+Platform: Cisco IOSv,  Capabilities: Router Switch IGMP
+Interface: GigabitEthernet0/1,  Port ID (outgoing port): GigabitEthernet0/1
+Holdtime : 151 sec
+Version :
+Cisco IOS Software, vios Software (vios-ADVENTERPRISEK9-M), Version 15.2
+advertisement version: 2
+Duplex: full`;
+
+const LLDP_NBR =
+`Device ID           Local Intf     Hold-time  Capability     Port ID
+R1                  Gi0/1          113        R              Gi0/1
+
+Total entries displayed: 1`;
+
+const LLDP_OFF =
+`% LLDP is not enabled`;
+
+/* ================= LEVELS ================= */
+const LEVELS=[
+{ id:1, name:'OBSERVE', sub:'Why discovery protocols exist', icon:'👁️',
+  desc:'What CDP is, what it does out of the box, and why it sees neighbors even with NO IP config.',
+  live:'Open the CML tab → SW1 console → type <b>show cdp neighbors</b> — even with zero configuration, the table already works. That&rsquo;s your proof that CDP is ON by default.',
+  steps:[
+   {t:'teach',title:'THE INVISIBLE HANDSHAKE',body:`<p>Every Cisco device sends out tiny Layer-2 hello messages about itself — <b>CDP</b> (Cisco Discovery Protocol). It&rsquo;s how a switch "knows" a router is plugged into Gi0/1.</p>
+   <ul><li><b>Cisco-proprietary</b> — only Cisco devices speak it</li>
+   <li><b>Layer 2 only</b> — needs NO IP addresses to work</li>
+   <li><b>On by default</b>, advertising every <b>60s</b>, entries held <b>180s</b></li>
+   <li>One huge exam + real-world use: find the <b>management IP of an unknown neighbor</b></li></ul>`},
+   {t:'quiz',q:'CDP is running. SW1 has NO IP address configured anywhere. Will SW1 still see its neighbor?',opts:['No — CDP needs IP to communicate','Yes — CDP is Layer 2, IP is irrelevant','Only if the neighbor has an IP'],a:1,explain:'CDP frames use a special SNAP encapsulation at Layer 2. No IP anywhere = discovery still works. This is exactly why it survives misconfigured addressing.'},
+   {t:'quiz',q:'A CDP entry\'s Holdtme shows 180 and slowly counts DOWN. What happens at 0?',opts:['The neighbor reboots','The entry is removed — no fresh advertisement arrived for 180s','The link goes down'],a:1,explain:'Default: advertise every 60s, hold 3× that = 180s. Seeing Holdtme actually reach ~0 means you stopped receiving hellos — dead or flapping neighbor.'},
+   {t:'quiz',q:'Default CDP timers on IOS?',opts:['30s advertise / 90s hold','60s advertise / 180s hold','90s advertise / 270s hold'],a:1,explain:'60/180. (LLDP is 30/120 — level 4.)'}
+  ]},
+
+{ id:2, name:'READ', sub:'Decode the neighbor table', icon:'📖',
+  desc:'Every column of show cdp neighbors — the single most useful "map" command.',
+  live:'CML tab → SW1 → <b>show cdp neighbors</b>. Verify: Device ID = R1, Local Intf = Gi0/1, Port ID = Gi0/1. Your table should match this game\'s sim.',
+  steps:[
+   {t:'teach',title:'ANATOMY OF THE TABLE',body:`<p>Six columns, six facts about your network:</p>
+   <ul><li><b>Device ID</b> — neighbor&rsquo;s hostname</li>
+   <li><b>Local Intrfce</b> — <i>YOUR</i> port facing it</li>
+   <li><b>Holdtme</b> — seconds until entry expires (180 max)</li>
+   <li><b>Capability</b> — R=Router S=Switch H=Host I=IGMP P=Phone…</li>
+   <li><b>Platform</b> — hardware (IOSv here)</li>
+   <li><b>Port ID</b> — <i>THEIR</i> port facing you</li></ul>
+   <p>Local Intrfce + Port ID = the two ends of one cable. That pair builds your topology map.</p>`},
+   {t:'read',out:CDP_NBR,q:'Which port on SW1 connects to R1?',opts:['GigabitEthernet0/0','Gig 0/1','The Port ID column','Cannot tell from this output'],a:1,explain:'"Local Intrfce" is always YOUR side. Port ID is THEIR side. So the cable is SW1 Gi0/1 ↔ R1 Gi0/1.'},
+   {t:'read',out:CDP_NBR,q:'Capability "R S I" tells you R1…',opts:['is a Router that also does switching and runs IGMP','runs Routing Information Protocol','has 3 interfaces up'],a:0,explain:'R=Router, S=Switch(bridging capable), I=IGMP. IOSv advertises all three. This is how you spot "what kind of box" without logging into it.'},
+   {t:'cmd',q:'Type the ONE command that produced this table. (abbreviations allowed)',accept:['show cdp neighbors','sh cdp neighbors','show cdp ne','sh cdp ne','show cdp neighbors detail? NO'],out:CDP_NBR,hint:'show cdp neighbors',explain:'show cdp neighbors — the topology map.'}
+  ]},
+
+{ id:3, name:'INTERROGATE', sub:'The deep scan', icon:'🔍',
+  desc:'show cdp neighbors detail — pull IP, IOS version, duplex. The recon command.',
+  live:'CML tab → SW1 → <b>show cdp neighbors detail</b> → confirm R1\'s IP 10.1.1.1 appears under Entry address(es).',
+  steps:[
+   {t:'teach',title:'NEIGHBOR DNA',body:`<p>The plain table says "someone is here". <b>detail</b> says <i>who they are</i>:</p>
+   <ul><li><b>IP address</b> — the neighbor&rsquo;s address (your ticket in, if routing allows)</li>
+   <li><b>Platform + Capabilities</b> — role of the device</li>
+   <li><b>Version</b> — exact IOS image string</li>
+   <li><b>Duplex</b> — mismatch detective</li></ul>
+   <p>Real-world: you inherit a network with NO documentation. CDP detail gives you every neighbor IP + port in minutes.</p>`},
+   {t:'cmd',q:'Run the detail scan. (abbreviations allowed)',accept:['show cdp neighbors detail','sh cdp neighbors detail','show cdp ne de','sh cdp ne de','show cdp neighbors de'],out:CDP_DET,hint:'show cdp neighbors detail',explain:'detail per neighbor: IP, platform, version, duplex.'},
+   {t:'read',out:CDP_DET,q:'What IP address did you just learn belongs to R1?',opts:['10.1.1.254','10.1.1.1','192.168.1.1','None — CDP carries no IP info'],a:1,explain:'Entry address(es): 10.1.1.1 — exactly the IP baked into the lab\'s day-0 config. CDP found it, no documentation needed.'},
+   {t:'quiz',q:'Users report slow transfers between segments. CDP detail shows Duplex: half on a link you expected full. Diagnosis?',opts:['CDP is broken','Duplex mismatch — check both ends\' duplex settings','The holdtime is too low'],a:1,explain:'CDP detail is a legit duplex-mismatch detective tool: mismatches cause late collisions and crawling throughput.'},
+   {t:'quiz',q:'A non-Cisco switch is attached. Will it appear in show cdp neighbors detail?',opts:['Yes, CDP is universal','No — CDP is Cisco-proprietary. Need LLDP for that'],a:1,explain:'CDP = Cisco-only. Cross-vendor discovery is exactly why LLDP exists → next level.'}
+  ]},
+
+{ id:4, name:'AWAKEN', sub:'LLDP — the open standard', icon:'🌐',
+  desc:'IEEE 802.1AB: multi-vendor discovery. OFF by default on IOS — you turn it on.',
+  live:'CML tab → do it for real: SW1 console → <b>configure terminal</b> → <b>lldp run</b> → end. Then on R1 too. Wait ~30s, SW1 → <b>show lldp neighbors</b>.',
+  steps:[
+   {t:'teach',title:'THE OPEN COUNTERPART',body:`<p><b>LLDP</b> (Link Layer Discovery Protocol, IEEE 802.1AB) = CDP&rsquo;s vendor-neutral twin.</p>
+   <ul><li>Works across ALL vendors — Cisco, Juniper, Arista, servers, phones…</li>
+   <li><b>OFF by default</b> on IOS → one command wakes it up globally: <b>lldp run</b></li>
+   <li>Timers: advertise <b>30s</b>, hold <b>120s</b> (vs CDP 60/180)</li>
+   <li>Both sides must run it — you only see neighbors that SEND LLDP</li></ul>`},
+   {t:'cmd',q:'Enable LLDP globally on SW1.',accept:['configure terminal','conf t','configure t'],expectMode:'exec',out:'Enter configuration commands, one per line.  End with CNTL/Z.\nSW1(config)#',hint:'conf t',explain:'Entering global config — next line does the wake-up.'},
+   {t:'cmd',q:'Now the one-liner that enables LLDP globally: (you are in SW1(config)#)',accept:['lldp run'],out:'SW1(config)# lldp run\nSW1(config)#',hint:'lldp run',explain:'lldp run = global LLDP. One line, whole box. (R1 needs it too — that\'s your LIVE mission.)'},
+   {t:'read',out:LLDP_NBR,q:'Hold-time 113 on the LLDP entry — what default pair produced this?',opts:['60s advertise / 180s hold','30s advertise / 120s hold','10s / 30s'],a:1,explain:'LLDP re-advertises every 30s; entries live 120s. Seeing ~113 just means the last hello was ~7s ago.'},
+   {t:'quiz',q:'You ran lldp run on SW1 only. LLDP table on SW1 is empty. Most likely reason?',opts:['LLDP is broken','R1 isn\'t sending LLDP yet — enable lldp run on BOTH devices','Need to set an IP first'],a:1,explain:'Discovery is two-way traffic: you only LIST what others SEND. Both ends must run it.'}
+  ]},
+
+{ id:5, name:'CONTROL', sub:'Surgical disabling & security', icon:'⚔️',
+  desc:'no cdp enable per interface • lldp transmit/receive independence • info-leak defense.',
+  live:'CML tab → SW1 → interface Gi0/1 → <b>no cdp enable</b> → wait 180s (or just trust) → <b>show cdp neighbors</b>… R1 vanishes. Put it back with cdp enable. Feels like magic — it\'s just timers.',
+  steps:[
+   {t:'teach',title:'KNIFE-WORK',body:`<p>Three levels of off-switch — know which is which:</p>
+   <ul><li><b>no cdp run</b> (global) — kills CDP on the entire device</li>
+   <li><b>no cdp enable</b> (interface) — kills CDP on ONE port (edge ports!)</li>
+   <li><b>no lldp transmit</b> / <b>no lldp receive</b> (interface) — one-way control: stop SENDING, keep LISTENING (or vice-versa)</li></ul>
+   <p><b>Security:</b> CDP/LLDP tell strangers your platform, IOS, ports, IPs. Best practice at the network edge: disable both toward untrusted ports. Attackers love free recon.</p>`},
+   {t:'quiz',q:'Security policy: a wall port must stop ADVERTISING CDP, but the port is on a core switch serving 40 other CDP-speaking ports. Correct move?',opts:['no cdp run (global)','no cdp enable on that ONE interface','shutdown the port'],a:1,explain:'Interface-level no cdp enable = scalpel. Global no cdp run = sledgehammer — would blind the whole switch.'},
+   {t:'cmd',q:'On interface Gi0/1, turn OFF CDP advertisements. Two commands needed — first enter interface config mode: ',accept:['interface gigabitethernet0/1','int gig0/1','int gig 0/1','interface gig 0/1','int gi0/1','interface gi0/1','interface gigabitethernet 0/1','int gigabitethernet0/1'],out:'SW1(config)# interface gigabitethernet0/1\nSW1(config-if)#',hint:'int gig0/1',explain:'Interface submode. IOS accepts heavy abbreviation: int gig0/1 works.'},
+   {t:'cmd',q:'(in SW1(config-if)#) — the disable command:',accept:['no cdp enable'],out:'SW1(config-if)# no cdp enable\nSW1(config-if)#',hint:'no cdp enable',explain:'R1\'s entry lingers until holdtime expires (up to 180s), then vanishes. Timers, not magic.'},
+   {t:'quiz',q:'no lldp transmit on the SW1→R1 link. What does R1\'s show lldp neighbors show after 120s?',opts:['SW1 still listed','SW1 gone — no more hellos from SW1; holdtime expires','Both entries vanish everywhere'],a:1,explain:'transmit-only kill: SW1 stops SENDING. SW1 still HEARS R1 (its own table keeps R1). One-way independence is the key LLDP nuance.'}
+  ]},
+
+{ id:6, name:'BOSS', sub:'DIAGNOSE the dead table', icon:'👑', boss:true,
+  desc:'Rapid-fire troubleshooting: someone broke discovery. Five strikes. No hints.',
+  live:'Afterward, prove it live: CML → SW1 → int Gi0/1 → no cdp enable. Then see how long R1 lingers in the table — watch the Holdtme count down. That wait IS the holdtime lesson.',
+  steps:[
+   {t:'teach',title:'🔥 BOSS: NO HINTS 🔥',body:`<p>Scenario: <b>"show cdp neighbors on SW1 suddenly shows NOTHING."</b> Five rapid-fire calls. No hint button. Wrong answer = −5 XP.</p>`},
+   {t:'read',out:CDP_NBR,q:'STRIKE 1 — First check before touching config?',opts:['show ip interface brief','show cdp / interface status — is the link even up and CDP running?','reload the switch'],a:1,explain:'Layer 1/2 first: interface up/up + cdp run. A shut port makes perfectly-configured CDP invisible.'},
+   {t:'quiz',q:'STRIKE 2 — show cdp neighbors detail reveals the neighbor IP. Fastest next move to reach it?',opts:['Console into the neighbor blindly','telnet/ssh to the IP CDP just handed you','Physically trace the cable'],a:1,explain:'The IP from CDP detail was the entire point: CDP was handcrafted for exactly this reconnaissance shortcut.'},
+   {t:'quiz',q:'STRIKE 3 — Mixed-vendor rack. CDP fine on Cisco-Cisco links, nothing from the new Juniper box. Why?',opts:['Juniper is incompatible with the cabling','CDP is proprietary — enable LLDP to discover non-Cisco','The Juniper needs an IP'],a:1,explain:'This exact scenario is why every shop runs both: CDP for Cisco depth, LLDP for coverage.'},
+   {t:'quiz',q:'STRIKE 4 — no lldp receive on SW1\'s port. SW1\'s LLDP table empties. What did we lose?',opts:['The ability to SEND LLDP','The ability to HEAR LLDP on that port — sending still works','All CDP too'],a:1,explain:'receive-kills-listening only. R1 still sees SW1\'s hellos: R1 lists SW1, SW1 lists nothing.'},
+   {t:'quiz',q:'STRIKE 5 — Policy: edge switch ports facing user desks must not reveal device info. One config pair per edge port?',opts:['no cdp enable + no lldp transmit no lldp receive','shutdown + no cdp run','Nothing — CDP is harmless'],a:0,explain:'Kill CDP + both LLDP directions on THAT port while keeping core-facing ports fully chatty. Recon denied.'}
+  ]}
+];
+
+/* ================= ENGINE ================= */
+let cur=null, stepIdx=0, bossWrong=0;
+const V=document.getElementById('view');
+
+function renderHUD(){
+  document.getElementById('xp').textContent=S.xp;
+  document.getElementById('rank').textContent=rankOf(S.xp);
+  document.getElementById('badges').textContent=Object.keys(S.done).length;
+  const pct=Math.min(100, Object.keys(S.done).length/LEVELS.length*100);
+  document.getElementById('progressfill').style.width=pct+'%';
+}
+
+function levelState(id){
+  const unlocked = id===1 || S.done[id-1];
+  return {unlocked, done:!!S.done[id]};
+}
+
+function showMap(){
+  cur=null; V.innerHTML='';
+  const map=document.createElement('div'); map.className='map';
+  LEVELS.forEach(L=>{
+    const {unlocked,done}=levelState(L.id);
+    const el=document.createElement('div');
+    el.className='lvl '+(L.boss?'boss ':'')+(done?'done':unlocked?'next':'locked');
+    el.innerHTML=`<div class="badge">${done?'✅':unlocked?(L.boss?'👑':'▶'):'🔒'}</div>
+      <div class="n">LEVEL ${L.id}${L.boss?' • BOSS':''}</div>
+      <div class="t">${L.icon} ${L.name}</div>
+      <div class="d">${L.desc}</div>
+      <div class="st">${done?'CLEARED — replay anytime':unlocked?'READY':'clear level '+(L.id-1)+' to unlock'}</div>`;
+    if(unlocked) el.onclick=()=>openLevel(L.id);
+    map.appendChild(el);
+  });
+  const wrap=document.createElement('div'); wrap.className='card';
+  wrap.innerHTML=`<h3>TOPOLOGY — SAME AS YOUR LIVE CML LAB</h3>
+   <pre>[SW1 IOSvL2] Gi0/1 &lt;--------&gt; Gi0/1 [R1 IOSv]  (10.1.1.1/24)</pre>
+   <p class="dim">Each cleared level unlocks a LIVE MISSION below it — run those in the real CML console (browser tab: <b>CCNA Lab 01 - CDP and LLDP</b>). Sim teaches the pattern; the lab makes it muscle memory.</p>`;
+  V.appendChild(map); V.appendChild(wrap);
+  renderHUD();
+}
+
+function openLevel(id){
+  cur=LEVELS.find(l=>l.id===id); stepIdx=0; bossWrong=0;
+  V.innerHTML=`<div class="topbar"><span class="l" onclick="showMap()">← level map</span>
+    <span class="l">LEVEL ${cur.id}: ${cur.name}</span></div><div id="steps"></div>`;
+  renderStep();
+}
+
+function renderStep(){
+  const st=cur.steps[stepIdx];
+  const box=document.getElementById('steps'); box.innerHTML='';
+  const total=cur.steps.length;
+  const c=document.createElement('div'); c.className='card';
+  const stepTag=`<div class="topbar"><span class="l">step ${stepIdx+1}/${total}</span></div>`;
+
+  if(st.t==='teach'){
+    c.innerHTML=stepTag+`<h3>${st.title}</h3>${st.body}
+      <div class="rowbtns"><button id="next">UNDERSTOOD →</button></div>`;
+    box.appendChild(c);
+    c.querySelector('#next').onclick=()=>{stepIdx++;renderStep();};
+    return;
+  }
+
+  if(st.t==='quiz'||st.t==='read'){
+    let html=stepTag;
+    if(st.out) html+=`<pre>${st.out}</pre>`;
+    html+=`<div class="q">${st.q}</div><div class="opts">`+
+      st.opts.map((o,i)=>`<div class="opt" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</div>`).join('')+`</div>
+      <div class="fb" id="fb"></div><div class="rowbtns"><button id="next" style="display:none">NEXT →</button></div>`;
+    c.innerHTML=html; box.appendChild(c);
+    const fb=c.querySelector('#fb'), nextB=c.querySelector('#next');
+    let answered=false;
+    c.querySelectorAll('.opt').forEach(el=>{
+      el.onclick=()=>{
+        if(answered)return; answered=true;
+        const i=+el.dataset.i, ok=i===st.a;
+        c.querySelectorAll('.opt')[st.a].classList.add('correct');
+        if(!ok){el.classList.add('wrong'); if(cur.boss){S.xp=Math.max(0,S.xp-5);save();toast('−5 XP');}}
+        else award(15);
+        fb.className='fb '+(ok?'good':'bad');
+        fb.style.display='block';
+        fb.innerHTML=(ok?'✅ <b>CORRECT.</b> ':'❌ <b>Not quite.</b> ')+st.explain;
+        setTimeout(()=>{nextB.style.display='inline-block';nextB.focus();},400);
+      };
+    });
+    nextB.onclick=()=>{stepIdx++;renderStep();};
+    return;
+  }
+
+  if(st.t==='cmd'){
+    c.innerHTML=stepTag+`<div class="q">${st.q}</div>
+      <div class="cmdrow"><input id="cmdin" placeholder="type the IOS command…" autocomplete="off"><button id="go">ENTER</button></div>
+      <pre id="cmdout" style="display:none"></pre>
+      <div class="fb" id="fb"></div>
+      <div class="rowbtns"><button id="hint" style="display:none">💡 HINT −5 XP</button>
+      <button id="next" style="display:none">NEXT →</button></div>`;
+    box.appendChild(c);
+    const inp=c.querySelector('#cmdin'), fb=c.querySelector('#fb'),
+          out=c.querySelector('#cmdout'), nextB=c.querySelector('#next'), hintB=c.querySelector('#hint');
+    let tries=0, solved=false;
+    function norm(s){return s.toLowerCase().trim().replace(/\s+/g,' ').replace(/-.*$/,'');}
+    function go(){
+      if(solved)return;
+      const v=norm(inp.value);
+      if(!v)return;
+      tries++;
+      const accept=st.accept.filter(a=>!String(a).includes(' NO'));
+      if(accept.some(a=>norm(a)===v)){
+        solved=true; award(15);
+        out.className='cmd-pre'; out.style.display='block'; out.textContent=st.out;
+        fb.className='fb good'; fb.style.display='block'; fb.innerHTML='✅ <b>EXACTLY.</b> '+st.explain;
+        hintB.style.display='none';
+        setTimeout(()=>{nextB.style.display='inline-block';nextB.focus();},400);
+      } else {
+        fb.className='fb bad'; fb.style.display='block';
+        fb.innerHTML='❌ IOS blinked at that. Check spelling/mode. '+(st.expectMode?'You may need to enter config mode first.':'');
+        if(tries>=2 && !cur.boss) hintB.style.display='inline-block';
+      }
+    }
+    c.querySelector('#go').onclick=go;
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+    inp.focus();
+    hintB.onclick=()=>{S.xp=Math.max(0,S.xp-5);save();toast('−5 XP');fb.className='fb';fb.style.display='block';fb.innerHTML='💡 try: <b>'+st.hint+'</b>';};
+    nextB.onclick=()=>{stepIdx++;renderStep();};
+  }
+}
+
+function finishLevel(){
+  const firstClear=!S.done[cur.id];
+  if(firstClear){S.done[cur.id]=true;award(25);}
+  V.innerHTML=`<div class="topbar"><span class="l" onclick="showMap()">← level map</span></div>
+  <div class="card"><h3>${firstClear?'🏆 LEVEL '+cur.id+' CLEARED':'🔁 REPLAY COMPLETE'}</h3>
+   <p>${cur.name} locked in. ${firstClear?'+25 clear bonus.':''}</p></div>
+  <div class="live"><b>🎯 LIVE MISSION — DO IT IN CML NOW</b><br>${cur.live}</div>
+  <div class="card"><div class="rowbtns">
+     <button onclick="openLevel(${cur.id})">🔁 replay level</button>
+     <button onclick="showMap()">🗺 level map →</button>
+  </div></div>`;
+  renderHUD();
+  if(cur.id<LEVELS.length){} else {toast('👑 BOSS DOWN');}
+}
+
+/* patch renderStep to know when level ends */
+const _renderStep=renderStep;
+renderStep=function(){
+  if(stepIdx>=cur.steps.length){finishLevel();return;}
+  _renderStep();
+};
+
+showMap();
+</script>
+</body>
+</html>
