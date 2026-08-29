@@ -283,10 +283,10 @@ function renderHUD(){
 }
 
 function unlockedQ(q){
-  if(q.diff===1) return true;
+  const minDiff = Math.min(...QUESTS.map(x=>x.diff));
+  if(q.diff <= minDiff) return true;            // entry tier always open
   const done=QUESTS.filter(x=>starsOf(x)>0);
-  // need (diff-1) completed quests of lower difficulty
-  return done.filter(x=>x.diff<q.diff).length >= (q.diff-1);
+  return done.filter(x=>x.diff<q.diff).length >= (q.diff-minDiff);
 }
 
 function showMap(){
