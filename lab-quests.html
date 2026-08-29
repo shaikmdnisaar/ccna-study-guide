@@ -73,6 +73,9 @@
   .console .ok{color:var(--good)}
   .console .sys{color:var(--dim)}
   .console .narr{color:var(--gold)}
+  .realout{margin:10px 0;border:1px solid #2f5d50;border-radius:10px;background:#081410;overflow:hidden}
+  .realout .ro-h{font-size:.62rem;letter-spacing:1px;color:#68d391;padding:6px 10px;background:#0d2418}
+  .realout pre{margin:0;padding:10px 12px;font-size:.72rem;line-height:1.5;color:#c6f6d5;white-space:pre-wrap;max-height:300px;overflow-y:auto}
   .cmdrow{display:flex;gap:8px;margin-top:8px}
   #cmd{flex:1;background:#05080f;border:1px solid var(--line);border-radius:8px;color:var(--acc);
        padding:9px 12px;font-family:inherit;font-size:.82rem;outline:none}
@@ -403,17 +406,24 @@ function renderMission(){
       <span class="status dim">cmd ${Math.min(cmdIdx+1,m.cmds.length)}/${m.cmds.length}</span></div>
     <p style="font-size:.82rem;line-height:1.55">${m.task}</p>
     ${topoHTML(cur, 'WHERE YOU ARE')}
+    ${(cur.extraImgs||[]).map((p,i)=>`<div class="topo" onclick="this.classList.toggle('zoomed')" title="click to zoom"><img src="${p}" loading="lazy" style="max-height:240px" onerror="this.parentElement.style.display='none'"><div class="cap">EXTRA DIAGRAM ${i+1} — challenge topology (click to zoom)</div></div>`).join('')}
+
+    <div class="realout"><div class="ro-h">🖥 WHAT YOU'RE BUILDING TOWARD — real output from this mission appears here after you complete it</div><pre id="preview-out" style="color:#8e97c4">complete the mission to reveal what the real device shows…</pre></div>
     <div class="modes">
       <div class="mode${mode==='show'?' on':''}" data-m="show" onclick="setMode('show')"><b>👀 SHOW ME</b><small>read &amp; hear it (+5)</small></div>
       <div class="mode${mode==='build'?' on':''}" data-m="build" onclick="setMode('build')"><b>🧩 BUILD</b><small>tap words in order (+12)</small></div>
       <div class="mode${mode==='type'?' on':''}" data-m="type" onclick="setMode('type')"><b>⌨️ TYPE</b><small>expert recall (+20)</small></div>
     </div>
     <div class="console" id="con"></div>
+    <div id="realoutbox"></div>
     <div id="modearea"></div>
     <div class="fbk" id="fbk"></div>
    </div>`;
   conEl=document.getElementById('con');
   conEl.innerHTML=`<span class="sys">*** SIM CONSOLE — ${m.device} ***</span>\n`;
+  const pout=document.getElementById('preview-out');
+  if(pout && m.out){ pout.textContent=m.out.substring(0,600)+(m.out.length>600?'…':''); pout.parentElement.querySelector('.ro-h').textContent='🖥 REAL DEVICE OUTPUT — from the Kevin Wallace lab (what you should expect)'; }
+  else if(pout){ pout.parentElement.style.display='none'; }
   speak(teachLine(cur,mIdx));
   renderMode();
 }
@@ -441,6 +451,8 @@ function renderMode(){
     document.getElementById('hear').onclick=()=>speak(want.replace(/\s+/g,', '));
     document.getElementById('ranit').onclick=()=>{
       conEl.innerHTML+=`<span class="in">${m.device}&gt; ${want}</span>\n<span class="ok">[OK]</span>\n`;conEl.scrollTop=1e6;
+      const ro=document.getElementById('realoutbox');
+      if(ro){ro.innerHTML=showRealOutput(m);}
       SFX.good();award(5);advance();
     };
     return;
@@ -485,6 +497,13 @@ function renderMode(){
   document.getElementById('go').onclick=go;
   inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
   document.getElementById('hint').onclick=()=>{S.xp=Math.max(0,S.xp-5);save();fb.className='fbk';fb.style.display='block';fb.innerHTML='💡 starts: <b>'+want.split(' ').slice(0,2).join(' ')+' …</b>';};
+}
+
+/** show the REAL console evidence from the lab PDF after the full mission's commands are done */
+function showRealOutput(m){
+  if(!m.out) return '';
+  const esc = m.out.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `<div class="realout"><div class="ro-h">🖥 REAL DEVICE OUTPUT — what you'll see when you run this (from the Kevin Wallace lab)</div><pre>${esc}</pre></div>`;
 }
 
 function advance(){

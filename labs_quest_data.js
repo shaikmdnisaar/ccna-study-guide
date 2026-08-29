@@ -15,14 +15,16 @@ const QUESTS = [
     "device": "SW1",
     "cmds": [
      "show cdp neighbors"
-    ]
+    ],
+    "out": "SW1#show cdp neighbors\nCapability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge\n                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone,\n                  D - Remote, C - CVTA, M - Two-port Mac Relay\nDevice ID        Local Intrfce     Holdtme    Capability  Platform  Port ID\nR1               Gig 0/1           163              R B             Gig 0/1\nTotal cdp entries displayed : 1"
    },
    {
     "task": "Find detailed information about R1 by using CDP.",
     "device": "SW1",
     "cmds": [
      "show cdp neighbors detail"
-    ]
+    ],
+    "out": "SW1#show cdp neighbors detail\n-------------------------\nDevice ID: R1\nEntry address(es):\n  IP address: 10.1.1.1\nPlatform: Cisco ,  Capabilities: Router Source-Route-Bridge\nInterface: GigabitEthernet0/1,  Port ID (outgoing port): GigabitEthernet0/1\nHoldtime : 159 sec\nVersion :\nCisco IOS Software, IOSv Software (VIOS-ADVENTERPRISEK9-M), Version\n15.9(3)M4, RELEASE SOFTWARE (fc3)\nTechnical Support: http://www.cisco.com/techsupport\nCopyright (c) 1986-2021 by Cisco Systems, Inc.\nCompiled Wed 04-Aug-21 08:13 by mcpre\nadvertisement version: 2\nManagement address(es):\n  IP address: 10.1.1.1\nTotal cdp entries displayed : 1"
    },
    {
     "task": "Enable LLDP on SW1.",
@@ -30,14 +32,16 @@ const QUESTS = [
     "cmds": [
      "conf t",
      "lldp run"
-    ]
+    ],
+    "out": "SW1#conf t\nEnter configuration commands, one per line.  End with CNTL/Z.\nSW1(config)#lldp run\nSW1(config)#exit"
    },
    {
     "task": "Identify SW1 by using the \"show lldp neighbors\" command on R1.",
     "device": "R1",
     "cmds": [
      "show lldp neighbors Capability"
-    ]
+    ],
+    "out": "R1#show lldp neighbors\nCapability codes:\n    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device\n    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other\nDevice ID           Local Intf     Hold-time  Capability      Port ID\nSW1                 Gi0/1          120        R               Gi0/1\nTotal entries displayed: 1"
    },
    {
     "task": "Keep Gig 0/0 on R1 from receiving and transmitting LLDP information.",
@@ -47,21 +51,24 @@ const QUESTS = [
      "int gig 0/0",
      "no lldp transmit",
      "no lldp receive"
-    ]
+    ],
+    "out": "R1#conf t\nEnter configuration commands, one per line.  End with CNTL/Z.\nR1(config)#int gig 0/0\nR1(config-if)#no lldp transmit\nR1(config-if)#no lldp receive\nR1(config-if)#end"
    },
    {
     "task": "Identify tlv (type length value) information that we can turn on or off on R1.",
     "device": "R1",
     "cmds": [
      "conf t"
-    ]
+    ],
+    "out": "R1#conf t\nEnter configuration commands, one per line.  End with CNTL/Z.\nR1(config)#no lldp ?\n  holdtime    Specify the holdtime (in sec) to be sent in packets\n  reinit      Delay (in sec) for LLDP initialization on any interface\n  run         Enable LLDP\n  timer       Specify the rate at which LLDP packets are sent (in sec)\n  tlv-select  Selection of LLDP TLVs to send\nR1(config)#no lldp tlv-select ?\n  mac-phy-cfg          IEEE 802.3 MAC/Phy Configuration/status TLV\n  management-address   Management Address TLV\n  port-description     Port Description TLV\n  port-vlan            Port VLAN ID TLV\n  power-management     IEEE 802.3 DTE Power via MDI TLV\n  system-capabilities  System Capabilities TLV\n  system-description   System Description TLV\n  system-name          System Name TLV\nR1(config)#end"
    },
    {
     "task": "Find detailed information about SW1 by using LLDP.",
     "device": "R1",
     "cmds": [
      "show lldp neighbors detail"
-    ]
+    ],
+    "out": "R1#show lldp neighbors detail\n------------------------------------------------\nLocal Intf: Gi0/1\nChassis id: 5254.0014.abde\nPort id: Gi0/1\nPort Description: GigabitEthernet0/1\nSystem Name: SW1\nSystem Description:\nCisco IOS Software, vios_l2 Software (vios_l2-ADVENTERPRISEK9-M),\nExperimental Version 15.2(20200924:215240) [sweickge-sep24-2020-l2iol-release\n135]\nCopyright (c) 1986-2020 by Cisco Systems, Inc.\nCompiled Tue 29-Sep-20 11:53 by sweickge\nTime remaining: 112 seconds\nSystem Capabilities: B,R\nEnabled Capabilities: R\nManagement Addresses - not advertised\nAuto Negotiation - not supported\nPhysical media capabilities - not advertised\nMedia Attachment Unit type - not advertised\nVlan ID: - not advertised\nTotal entries displayed: 1"
    }
   ],
   "quiz": [
@@ -131,14 +138,16 @@ const QUESTS = [
     "device": "SW1",
     "cmds": [
      "show vlan brief"
-    ]
+    ],
+    "out": "SW1>enable\nSW1#show vlan brief\nVLAN Name                             Status    Ports\n---- -------------------------------- --------- -----------------------------\n--\n1    default                          active    Gi0/0, Gi0/1, Gi0/2, Gi0/3\n1002 fddi-default                     act/unsup\n1003 token-ring-default               act/unsup\n1004 fddinet-default                  act/unsup\n1005 trnet-default                    act/unsup"
    },
    {
     "task": "Use the \"show cdp neighbors\" command to see which ports on switch SW1 connect to other switches.",
     "device": "SW1",
     "cmds": [
      "show cdp neighbors"
-    ]
+    ],
+    "out": "other switches.\nSW1#show cdp neighbors\nCapability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge\n                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone,\n                  D - Remote, C - CVTA, M - Two-port Mac Relay\nDevice ID        Local Intrfce     Holdtme    Capability  Platform  Port ID\nSW2              Gig 0/1           135             R S I            Gig 0/1\nSW3              Gig 0/2           125             R S I            Gig 0/1"
    },
    {
     "task": "Create a VLAN numbered \"100\" and named \"ENGINEERING\".",
@@ -147,7 +156,8 @@ const QUESTS = [
      "conf t",
      "vlan 100",
      "name ENGINEERING"
-    ]
+    ],
+    "out": "SW1#conf t\nSW1(config)#vlan 100\nSW1(config-vlan)#name ENGINEERING\nSW1(config-vlan)#exit"
    },
    {
     "task": "Add interface Gig 0/3 to VLAN 100",
@@ -155,14 +165,16 @@ const QUESTS = [
     "cmds": [
      "int gig 0/3",
      "switchport access vlan 100"
-    ]
+    ],
+    "out": "SW1(config)#int gig 0/3\nSW1(config-if)#switchport access vlan 100\nSW1(config-if)#end"
    },
    {
     "task": "Confirm interface Gig 0/3 resides in VLAN 100.",
     "device": "SW1",
     "cmds": [
      "show vlan brief"
-    ]
+    ],
+    "out": "Copyright 2024, Kevin Wallace Training, LLC\nSW1#show vlan brief\nVLAN Name                             Status    Ports\n---- -------------------------------- --------- -----------------------------\n--\n1    default                          active    Gi0/0, Gi0/1, Gi0/2\n100  ENGINEERING                      active    Gi0/3\n1002 fddi-default                     act/unsup\n1003 token-ring-default               act/unsup\n1004 fddinet-default                  act/unsup\n1005 trnet-default                    act/unsup"
    },
    {
     "task": "Delete VLAN 100.",
@@ -170,14 +182,16 @@ const QUESTS = [
     "cmds": [
      "conf t",
      "no vlan 100"
-    ]
+    ],
+    "out": "SW1#conf t\nSW1(config)#no vlan 100\nSW1(config)#end"
    },
    {
     "task": "Determine in which VLAN interface Gig 0/3 now resides.",
     "device": "SW1",
     "cmds": [
      "show vlan brief"
-    ]
+    ],
+    "out": "SW1#show vlan brief\nVLAN Name                             Status    Ports\n---- -------------------------------- --------- -----------------------------\n--\n1    default                          active    Gi0/0, Gi0/1, Gi0/2\n1002 fddi-default                     act/unsup\n1003 token-ring-default               act/unsup\n1004 fddinet-default                  act/unsup\n1005 trnet-default                    act/unsup\nNote that interface Gig 0/3 no longer belongs to a VLAN."
    },
    {
     "task": "Assign interface Gig 0/3 back to VLAN 1.",
@@ -186,14 +200,16 @@ const QUESTS = [
      "conf t",
      "int gig 0/3",
      "switchport access vlan 1"
-    ]
+    ],
+    "out": "SW1#conf t\nSW1(config)#int gig 0/3\nSW1(config-if)#switchport access vlan 1\nSW1(config-if)#end"
    },
    {
     "task": "Confirm interface Gig 0/3 now resides in VLAN 1.",
     "device": "SW1",
     "cmds": [
      "show vlan brief"
-    ]
+    ],
+    "out": "SW1#show vlan brief\nVLAN Name                             Status    Ports\n---- -------------------------------- --------- -----------------------------\n--\n1    default                          active    Gi0/0, Gi0/1, Gi0/2, Gi0/3\n1002 fddi-default                     act/unsup\n1003 token-ring-default               act/unsup\nCopyright 2024, Kevin Wallace Training, LLC\n1004 fddinet-default                  act/unsup\n1005 trnet-default                    act/unsup"
    }
   ],
   "quiz": [
@@ -277,14 +293,16 @@ const QUESTS = [
      "conf t",
      "int range Gig 0/1-2",
      "switchport trunk encapsulation dot1q"
-    ]
+    ],
+    "out": "and configure IEEE 802.1Q as the trunking encapsulation for those ports.\nSW1>enable\nSW1#conf t\nSW1(config)#int range Gig 0/1-2\nSW1(config-if-range)#switchport trunk encapsulation ?\n  dot1q      Interface uses only 802.1q trunking encapsulation when trunking\n  isl        Interface uses only ISL trunking encapsulation when trunking\n  negotiate  Device will negotiate trunking encapsulation with peer on\n             Interface\nSW1(config-if-range)#switchport trunk encapsulation dot1q"
    },
    {
     "task": "Still in interface-range configuration mode, configure the trunking mode for \"dynamic desirable.\"",
     "device": "SW1",
     "cmds": [
      "switchport mode dynamic desirable"
-    ]
+    ],
+    "out": "desirable.\u201d\nSW1(config-if-range)#switchport mode ?\n  access        Set trunking mode to ACCESS unconditionally\n  dot1q-tunnel  set trunking mode to TUNNEL unconditionally\n  dynamic       Set trunking mode to dynamically negotiate access or trunk mode\n  private-vlan  Set private-vlan mode\n  trunk         Set trunking mode to TRUNK unconditionally\nSW1(config-if-range)#switchport mode dynamic ?\n  auto       Set trunking mode dynamic negotiation parameter to AUTO\n  desirable  Set trunking mode dynamic negotiation parameter to DESIRABLE\nSW1(config-if-range)#switchport mode dynamic desirable\nSW1(config-if-range)#end"
    },
    {
     "task": "On switch SW2, configure interface Gig 0/1 for IEEE 802.1Q trunking encapsulation and a trunking mode of \"dynamic auto.\"",
@@ -294,7 +312,8 @@ const QUESTS = [
      "int gig 0/1",
      "switchport trunk encapsulation dot1q",
      "switchport mode dynamic auto"
-    ]
+    ],
+    "out": "a trunking mode of \u201cdynamic auto.\u201d\nSW2>en\nSW2#conf t\nSW2(config)#int gig 0/1\nSW2(config-if)#switchport trunk encapsulation ?\n  dot1q      Interface uses only 802.1q trunking encapsulation when trunking\n  isl        Interface uses only ISL trunking encapsulation when trunking\n  negotiate  Device will negotiate trunking encapsulation with peer on\n             interface\nSW2(config-if)#switchport trunk encapsulation dot1q\nSW2(config-if)#switchport mode ?\n  access        Set trunking mode to ACCESS unconditionally\n  dot1q-tunnel  set trunking mode to TUNNEL unconditionally\n  dynamic       Set trunking mode to dynamically negotiate access or trunk mode\n  private-vlan  Set private-vlan mode\n  trunk         Set trunking mode to TRUNK unconditionally\nCopyright 2024, Kevin Wallace Training, LLC\nSW2(config-if)#switchport mode dynamic ?\n  auto       Set trunking mode dynamic negotiation parameter to AUTO\n  desirable  Set trunking mode dynamic negotiation parameter to DESIRABLE\nSW2(config-if)#switchport mode dynamic auto\nSW2(config-if)#end"
    },
    {
     "task": "On switch SW3, configure interface Gig 0/1 for IEEE 802.1Q trunking encapsulation and a trunking mode of \"trunk.\"",
@@ -304,14 +323,16 @@ const QUESTS = [
      "int gig 0/1",
      "switchport trunk encapsulation dot1q",
      "switchport mode trunk"
-    ]
+    ],
+    "out": "a trunking mode of \u201ctrunk.\u201d\nSW3>en\nSW3#conf t\nSW3(config)#int gig 0/1\nSW3(config-if)#switchport trunk encapsulation ?\n  dot1q      Interface uses only 802.1q trunking encapsulation when trunking\n  isl        Interface uses only ISL trunking encapsulation when trunking\n  negotiate  Device will negotiate trunking encapsulation with peer on\n             interface\nSW3(config-if)#switchport trunk encapsulation dot1q\nSW3(config-if)#switchport mode ?\n  access        Set trunking mode to ACCESS unconditionally\n  dot1q-tunnel  set trunking mode to TUNNEL unconditionally\n  dynamic       Set trunking mode to dynamically negotiate access or trunk mode\n  private-vlan  Set private-vlan mode\n  trunk         Set trunking mode to TRUNK unconditionally\nSW3(config-if)#switchport mode trunk\nSW3(config-if)#end"
    },
    {
     "task": "On switch SW1, verify interfaces Gig 0/1 and Gig 0/2 are trunking.",
     "device": "SW1",
     "cmds": [
      "show interfaces trunk"
-    ]
+    ],
+    "out": "SW1#show interfaces trunk\nPort        Mode             Encapsulation  Status        Native vlan\nGi0/1       desirable        802.1q         trunking      1\nGi0/2       desirable        802.1q         trunking      1\nPort        Vlans allowed on trunk\nGi0/1       1-4094\nGi0/2       1-4094\nPort        Vlans allowed and active in management domain\nGi0/1       1\nGi0/2       1\nPort        Vlans in spanning tree forwarding state and not pruned\nGi0/1       1\nGi0/2       1"
    }
   ],
   "quiz": [
@@ -407,7 +428,8 @@ const QUESTS = [
     "device": "SW1",
     "cmds": [
      "show spanning-tree"
-    ]
+    ],
+    "out": "SW1#show spanning-tree\nVLAN0001\n  Spanning tree enabled protocol ieee\n  Root ID    Priority    32769\n             Address     5254.0002.96d2\n             Cost        4\n             Port        3 (GigabitEthernet0/2)\n             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec\n  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)\n             Address     5254.001d.b96c\n             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec\n             Aging Time  300 sec\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi0/1               Altn BLK 4         128.2    P2p\nGi0/2               Root FWD 4         128.3    P2p\nSW2#show spanning-tree\nVLAN0001\n  Spanning tree enabled protocol ieee\n  Root ID    Priority    32769\n             Address     5254.0002.96d2\n             Cost        4\n             Port        3 (GigabitEthernet0/2)\n             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec\n  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)\n             Address     5254.0019.51aa\n             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec\n             Aging Time  300 sec\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi0/1               Desg FWD 4         128.2    P2p\nGi0/2               Root FWD 4         128.3    P2p\nGi0/3               Altn BLK 4         128.4    P2p\nSW3#show spanning-tree\nVLAN0001\n  Spanning tree enabled protocol ieee\n  Root ID    Priority    32769\n             Address     5254.0002.96d2\n             This bridge is the root\n             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec\n  Bridge ID  Priority    32769  (priority "
    },
    {
     "task": "Which ports are the blocking ports?  SW1#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              Cost        4              Port        3 (GigabitEthernet0/2)              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.001d.b96c              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Altn BLK 4         128.2    P2p  Gi0/2               Root FWD 4         128.3    P2p   SW2#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              Cost        4              Port        3 (GigabitEthernet0/2)              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.0019.51aa              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Desg FWD 4         128.2    P2p  Gi0/2               Root FWD 4         128.3    P2p  Gi0/3               Altn BLK 4         128.4    P2p   SW3#show spanning-tree  VLAN0001   Spanning tree enabled protocol ieee   Root ID    Priority    32769              Address     5254.0002.96d2              This bridge is the root              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec    Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)              Address     5254.0002.96d2              Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec              Aging Time  300 sec  Interface           Role Sts Cost      Prio.Nbr Type ------------------- ---- --- --------- -------- -------------------------------- Gi0/1               Desg FWD 4         128.2    P2p  Gi0/2               Desg FWD 4         128.3    P2p  Gi0/3               Desg FWD 4         128.4    P2p",
@@ -550,6 +572,10 @@ const QUESTS = [
     "why": "The `show spanning-tree summary` command is the appropriate command to verify the STP mode on a Cisco switch. This command provides a concise summary of the STP status, including the current STP mode, which would reflect Rapid PVST after successful configuration. This command is especially useful for quickly confirming the opera>onal status and root bridge designation for various VLANs.",
     "topic": "STP"
    }
+  ],
+  "extraImgs": [
+   "labs_img_all/Spanning_Tree_Protocol_Lab_p6_0.png",
+   "labs_img_all/Spanning_Tree_Protocol_Lab_p6_1.png"
   ]
  },
  {
@@ -574,7 +600,8 @@ const QUESTS = [
      "duplex full",
      "channel-group 1 mode desirable",
      "channel-group 1 mode auto (SW3 is set to auto while SW2 is set to desirable, meaning, SW2 is wanting to initiate the port-channel)"
-    ]
+    ],
+    "out": "speed and duplex much match on each end of an EtherChannel. The \u201cno negotiation\nauto\u201d command allows you to statically configure speed and duplex. While this might not be\nnecessary on your gear, it\u2019s included here to demonstrate how you can statically set those\nparameters if you need to.\nSW2>enable\nSW2#conf t\nCopyright 2024, Kevin Wallace Training, LLC\nSW2(config)#int range gig 0/2-3\nSW2(config-if-range)#no negotiation auto\nSW2(config-if-range)#speed 1000\nSW2(config-if-range)#duplex full\nSW2(config-if-range)#channel-group 1 mode ?\n  active     Enable LACP unconditionally\n  auto       Enable PAgP only if a PAgP device is detected\n  desirable  Enable PAgP unconditionally\n  on         Enable Etherchannel only\n  passive    Enable LACP only if a LACP device is detected\nSW2(config-if-range)#channel-group 1 mode desirable\nSW3>enable\nSW3#conf t\nSW3(config)#int range gig 0/2-3\nSW3(config-if-range)#no negotiation auto\nSW3(config-if-range)#speed 1000\nSW3(config-if-range)#duplex full\nSW3(config-if-range)#channel-group 1 mode ?\n  active     Enable LACP unconditionally\n  auto       Enable PAgP only if a PAgP device is detected\n  desirable  Enable PAgP unconditionally\n  on         Enable Etherchannel only\n  passive    Enable LACP only if a LACP device is detected\nSW3(config-if-range)#channel-group 1 mode auto\n(SW3 is set to auto while SW2 is set to desirable, meaning, SW2\nis wanting to initiate the port-channel)"
    },
    {
     "task": "Designate the EtherChannel as a trunk port.",
@@ -583,7 +610,8 @@ const QUESTS = [
      "int port-channel 1",
      "switchport trunk encapsulation dot1q",
      "switchport mode trunk"
-    ]
+    ],
+    "out": "SW2(config-if-range)#int port-channel 1\nSW2(config-if)#switchport trunk encapsulation dot1q\nSW2(config-if)#switchport mode trunk\nSW2(config-if)#end\nSW3(config-if-range)#int port-channel 1\nSW3(config-if)#switchport trunk encapsulation dot1q\nSW3(config-if)#switchport mode trunk\nSW3(config-if)#end"
    },
    {
     "task": "Verify configuration.",
@@ -592,7 +620,8 @@ const QUESTS = [
      "show ip int brief",
      "show int trunk",
      "show int port-channel 1"
-    ]
+    ],
+    "out": "SW2#show ip int brief\nInterface              IP-Address      OK? Method Status                Protocol\nGigabitEthernet0/0     unassigned      YES unset  administratively down down\nGigabitEthernet0/1     unassigned      YES unset  up                    up\nGigabitEthernet0/2     unassigned      YES unset  up                    up\nGigabitEthernet0/3     unassigned      YES unset  up                    up\nPort-channel1          unassigned      YES unset  up                    up\nCopyright 2024, Kevin Wallace Training, LLC\nSW2#show int trunk\nPort        Mode             Encapsulation  Status        Native vlan\nPo1         on               802.1q         trunking      1\nPort        Vlans allowed on trunk\nPo1         1-4094\nPort        Vlans allowed and active in management domain\nPo1         1\nPort        Vlans in spanning tree forwarding state and not pruned\nPo1         1\nSW2#show int port-channel 1\nPort-channel1 is up, line protocol is up (connected)\n  Hardware is EtherChannel, address is 5254.0005.02e2 (bia 5254.0005.02e2)\n  MTU 1500 bytes, BW 2000000 Kbit/sec, DLY 10 usec,\n     reliability 255/255, txload 1/255, rxload 1/255\n  Encapsulation ARPA, loopback not set\n  Keepalive set (10 sec)\n  ARP type: ARPA, ARP Timeout 04:00:00\n  Last input 00:00:01, output never, output hang never\n  Last clearing of \"show interface\" counters never\n  Input queue: 0/2000/0/0 (size/max/drops/flushes); Total output drops: 0\n  Queueing strategy: fifo\n  Output queue: 0/40 (size/max)\n  5 minute input rate 0 bits/sec, 0 packets/sec\n  5 minute output rate 0 bits/sec, 0 packets/sec\n     795 packets input, 46910 bytes, 0 no buffer\n     Received 0 broadcasts (0 multicasts)\n     0 runts, 0 giants, 0 throttles\n     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored\n     0 input packets with dribble co"
    }
   ],
   "quiz": [
@@ -678,21 +707,24 @@ const QUESTS = [
      "ip nat inside",
      "int gig 0/1",
      "ip nat outside"
-    ]
+    ],
+    "out": "outside NAT interface.\nR1>en\nR1#conf t\nR1(config)#int gig 0/0\nR1(config-if)#ip nat inside\nR1(config-if)#int gig 0/1\nR1(config-if)#ip nat outside\nR1(config-if)#exit\nCopyright 2024, Kevin Wallace Training, LLC"
    },
    {
     "task": "Add a static NAT statement to map the inside local address to the inside global address.",
     "device": "R1",
     "cmds": [
      "ip nat inside source static 10.1.1.100 4.4.4.2"
-    ]
+    ],
+    "out": "R1(config)#ip nat inside source static 10.1.1.100 4.4.4.2\nR1(config)#end"
    },
    {
     "task": "Login to PC1 (username= cisco, password= cisco) and verify connectivity to the Web Server at 3.3.3.3, and verify that the static translation takes place on R1.",
     "device": "R1",
     "cmds": [
      "show ip nat translations"
-    ]
+    ],
+    "out": "Server at 3.3.3.3, and verify that the static translation takes place on R1.\ninserthostname-here login: cisco\nPassword: cisco\ninserthostname-here:~$ ping 3.3.3.3\nPING 3.3.3.3 (3.3.3.3): 56 data bytes\n64 bytes from 3.3.3.3: seq=0 ttl=42 time=2.357 ms\n64 bytes from 3.3.3.3: seq=1 ttl=42 time=1.405 ms\n64 bytes from 3.3.3.3: seq=2 ttl=42 time=1.676 ms\n64 bytes from 3.3.3.3: seq=3 ttl=42 time=1.497 ms\n64 bytes from 3.3.3.3: seq=4 ttl=42 time=1.656 ms\n64 bytes from 3.3.3.3: seq=5 ttl=42 time=1.603 ms\n64 bytes from 3.3.3.3: seq=6 ttl=42 time=1.500 ms\n64 bytes from 3.3.3.3: seq=7 ttl=42 time=1.244 ms\n^C\n--- 3.3.3.3 ping statistics ---\n8 packets transmitted, 8 packets received, 0% packet loss\nround-trip min/avg/max = 1.244/1.617/2.357 ms\ninserthostname-here:~$\n(##commands are to be entered into PC1)\nR1#show ip nat translations\nPro Inside global      Inside local       Outside local      Outside global\nicmp 4.4.4.2:3         10.1.1.100:3       3.3.3.3:3          3.3.3.3:3\n--- 4.4.4.2            10.1.1.100         ---                ---\n(##Private IP address of PC1)\n(##Publicly routable IP address of PC1)"
    }
   ],
   "quiz": [
@@ -754,14 +786,16 @@ const QUESTS = [
      "ip nat inside",
      "int gig 0/1",
      "ip nat outside"
-    ]
+    ],
+    "out": "outside NAT interface.\nR1>en\nR1#conf t\nR1(config)#int gig 0/0\nR1(config-if)#ip nat inside\nR1(config-if)#int gig 0/1\nR1(config-if)#ip nat outside\nR1(config-if)#exit"
    },
    {
     "task": "Identify the inside local network by use of an ACL.",
     "device": "R1",
     "cmds": [
      "access-list 1 permit 10.1.1.0 0.0.0.255"
-    ]
+    ],
+    "out": "R1(config)#access-list 1 permit 10.1.1.0 0.0.0.255"
    },
    {
     "task": "Define the inside global NAT pool.",
@@ -769,7 +803,8 @@ const QUESTS = [
     "cmds": [
      "ip nat pool POOL 4.4.4.2 4.4.4.3 netmask 255.255.255.0",
      "ip nat inside source list 1 pool POOL"
-    ]
+    ],
+    "out": "R1(config)#ip nat pool POOL 4.4.4.2 4.4.4.3 netmask 255.255.255.0\nR1(config)#ip nat inside source list 1 pool POOL\nR1(config)#end"
    }
   ],
   "quiz": [
@@ -826,28 +861,32 @@ const QUESTS = [
      "ip nat inside",
      "int gig 0/1",
      "ip nat outside"
-    ]
+    ],
+    "out": "outside NAT interface.\nR1>en\nR1#conf t\nR1(config)#int gig 0/0\nR1(config-if)#ip nat inside\nR1(config-if)#int gig 0/1\nR1(config-if)#ip nat outside\nR1(config-if)#exit"
    },
    {
     "task": "Identify the inside local network by use of an ACL.",
     "device": "R1",
     "cmds": [
      "access-list 1 permit 10.1.1.0 0.0.0.255"
-    ]
+    ],
+    "out": "R1(config)#access-list 1 permit 10.1.1.0 0.0.0.255"
    },
    {
     "task": "Specify that every IP address matching the ACL should be translated into a single IP address on the outside interface.",
     "device": "R1",
     "cmds": [
      "ip nat inside source list 1 int gig 0/1 overload"
-    ]
+    ],
+    "out": "address on the outside interface.\nR1(config)#ip nat inside source list 1 int gig 0/1 overload\nR1(config)#end\nPort Address Translation (PAT)"
    },
    {
     "task": "Login to PC1 and PC2 (username= cisco, password= cisco) and test HTTP connectivity from both PCs and verify the translation on R1.",
     "device": "R1",
     "cmds": [
      "show ip nat translation"
-    ]
+    ],
+    "out": "from both PCs and verify the translation on R1.\nPC1\ninserthostname-here login: cisco\nPassword: cisco\ninserthostname-here:~$ telnet 3.3.3.3 80\nConnected to 3.3.3.3\nPC2\ninserthostname-here login: cisco\nPassword: cisco\ninserthostname-here:~$ telnet 3.3.3.3 80\nConnected to 3.3.3.3\nR1#show ip nat translation\nPro Inside global      Inside local       Outside local      Outside global\ntcp 4.4.4.4:41348      10.1.1.101:41348   3.3.3.3:80         3.3.3.3:80\ntcp 4.4.4.4:60718      10.1.1.102:60718   3.3.3.3:80         3.3.3.3:80\n(##Inside local address of PC1 and PC2 with port numbers)\n(##Inside global address of PC1 and PC2 with port numbers)\n(Note: Port numbers will differ in lab)"
    }
   ],
   "quiz": [
@@ -902,7 +941,8 @@ const QUESTS = [
     "cmds": [
      "conf t",
      "access-list 1 permit host 10.1.1.2"
-    ]
+    ],
+    "out": "PC1\ninserthostname-here login: cisco\nPassword: cisco\ninserthostname-here:~$ ping 203.0.113.1\nPING 203.0.113.1 (203.0.113.1): 56 data bytes\n64 bytes from 203.0.113.1: seq=0 ttl=42 time=2.763 ms\n64 bytes from 203.0.113.1: seq=1 ttl=42 time=2.643 ms\n64 bytes from 203.0.113.1: seq=2 ttl=42 time=2.889 ms\n64 bytes from 203.0.113.1: seq=3 ttl=42 time=2.801 ms\n^C\n--- 203.0.113.1 ping statistics ---\n4 packets transmitted, 4 packets received, 0% packet loss\nround-trip min/avg/max = 2.643/2.774/2.889 ms\nPC2\ninserthostname-here login: cisco\nPassword: cisco\ninserthostname-here:~$ ping 203.0.113.1\nPING 203.0.113.1 (203.0.113.1): 56 data bytes\n64 bytes from 203.0.113.1: seq=0 ttl=42 time=4.631 ms\n64 bytes from 203.0.113.1: seq=1 ttl=42 time=2.483 ms\n64 bytes from 203.0.113.1: seq=2 ttl=42 time=2.738 ms\n^C\n--- 203.0.113.1 ping statistics ---\n3 packets transmitted, 3 packets received, 0% packet loss\nround-trip min/avg/max = 2.483/3.284/4.631 ms\nStandard Numbered ACL Lab"
    },
    {
     "task": "Deny all IP traffic from PC2 to the Server.",
@@ -913,7 +953,8 @@ const QUESTS = [
      "int gig 0/1",
      "ip access-group 1 in",
      "show access-list"
-    ]
+    ],
+    "out": "R1#conf t\nEnter configuration commands, one per line.  End with CNTL/Z.\nR1(config)#access-list ?\n  <1-99>            IP standard access list\n  <100-199>         IP extended access list\n  <1100-1199>       Extended 48-bit MAC address access list\n  <1300-1999>       IP standard access list (expanded range)\n  <200-299>         Protocol type-code access list\n  <2000-2699>       IP extended access list (expanded range)\n  <2700-2799>       MPLS access list\n  <300-399>         DECnet access list\n  <700-799>         48-bit MAC address access list\n  compiled          Enable IP access-list compilation\n  dynamic-extended  Extend the dynamic ACL absolute timer\n  rate-limit        Simple rate-limit specific access list\nR1(config)#access-list 1 ?\n  deny    Specify packets to reject\n  permit  Specify packets to forward\n  remark  Access list entry comment\nR1(config)#access-list 1 permit host 10.1.1.2"
    }
   ],
   "quiz": [
@@ -1007,14 +1048,16 @@ const QUESTS = [
     "device": "R1",
     "cmds": [
      "conf t"
-    ]
+    ],
+    "out": "PC1\nPC1 login: cisco\nPassword: cisco\nPC1:~$ ping 203.0.113.1\nPING 203.0.113.1 (203.0.113.1): 56 data bytes\n64 bytes from 203.0.113.1: seq=0 ttl=42 time=25.585 ms\n64 bytes from 203.0.113.1: seq=1 ttl=42 time=12.622 ms\n64 bytes from 203.0.113.1: seq=2 ttl=42 time=10.649 ms\n64 bytes from 203.0.113.1: seq=3 ttl=42 time=10.265 ms\n^C\n--- 203.0.113.1 ping statistics ---\n4 packets transmitted, 4 packets received, 0% packet loss\nround-trip min/avg/max = 10.265/14.780/25.585 ms\nPC2\nPC2 login: cisco\nPassword: cisco\nPC2:~$ ping 203.0.113.1\nCopyright 2024, Kevin Wallace Training, LLC\nPING 203.0.113.1 (203.0.113.1): 56 data bytes\n64 bytes from 203.0.113.1: seq=1 ttl=42 time=12.431 ms\n64 bytes from 203.0.113.1: seq=2 ttl=42 time=10.929 ms\n64 bytes from 203.0.113.1: seq=3 ttl=42 time=10.526 ms\n64 bytes from 203.0.113.1: seq=4 ttl=42 time=11.563 ms\n^C\n--- 203.0.113.1 ping statistics ---\n5 packets transmitted, 4 packets received, 20% packet loss\nround-trip min/avg/max = 10.526/11.362/12.431 ms"
    },
    {
     "task": "Allow PC1 and PC2 to connect to the server using all other ports by specifying the subnet of both PC's.",
     "device": "R1",
     "cmds": [
      "access-list 100 permit ip 10.1.1.0 0.0.0.255 any"
-    ]
+    ],
+    "out": "R1>en\nR1#conf t\nEnter configuration commands, one per line.  End with CNTL/Z.\nR1(config)#access-list 100 deny ?\n  <0-255>       An IP protocol number\n  ahp           Authentication Header Protocol\n  eigrp         Cisco's EIGRP routing protocol\n  esp           Encapsulation Security Payload\n  gre           Cisco's GRE tunneling\n  icmp          Internet Control Message Protocol\n  igmp          Internet Gateway Message Protocol\n  ip            Any Internet Protocol\n  ipinip        IP in IP tunneling\n  nos           KA9Q NOS compatible IP over IP tunneling\n  object-group  Service object group\n  ospf          OSPF routing protocol\n  pcp           Payload Compression Protocol\n  pim           Protocol Independent Multicast\n  sctp          Stream Control Transmission Protocol\n  tcp           Transmission Control Protocol\n  udp           User Datagram Protocol\nR1(config)#access-list 100 deny tcp host 10.1.1.2 host 203.0.113.1 eq ?\n  <0-65535>    Port number\n  bgp          Border Gateway Protocol (179)\n  chargen      Character generator (19)\n  cmd          Remote commands (rcmd, 514)\n  daytime      Daytime (13)\n  discard      Discard (9)\n  domain       Domain Name Service (53)\n  drip         Dynamic Routing Information Protocol (3949)\n  echo         Echo (7)\n  exec         Exec (rsh, 512)\n  finger       Finger (79)\n  ftp          File Transfer Protocol (21)\n  ftp-data     FTP data connections (20)\n  gopher       Gopher (70)\n  hostname     NIC hostname server (101)\n  ident        Ident Protocol (113)\n  irc          Internet Relay Chat (194)\n  klogin       Kerberos login (543)\nCopyright 2024, Kevin Wallace Training, LLC\n  kshell       Kerberos shell (544)\n  login        Login (rlogin, 513)\n  lpd          Printer service (515)\n  nntp         Network News Transport Protocol (119)\n  o"
    },
    {
     "task": "Apply the ACL going into Gig 0/1.",
@@ -1022,14 +1065,16 @@ const QUESTS = [
     "cmds": [
      "int gig 0/1",
      "ip access-group 100 in"
-    ]
+    ],
+    "out": "subnet of both PC\u2019s.\nR1(config)#access-list 100 permit ip 10.1.1.0 0.0.0.255 any"
    },
    {
     "task": "Take a look at the ACL that we just created.",
     "device": "R1",
     "cmds": [
      "show access-list"
-    ]
+    ],
+    "out": "R1(config)#int gig 0/1\nR1(config-if)#ip access-group 100 in\nR1(config-if)#end"
    }
   ],
   "quiz": [
@@ -1084,14 +1129,16 @@ const QUESTS = [
      "conf t",
      "ip access-list extended BLOCK_PC1_SERVICES",
      "("
-    ]
+    ],
+    "out": "PC1\nPC1 login: cisco\nPassword: cisco\nPC1:~$ ping 203.0.113.1\nPING 203.0.113.1 (203.0.113.1): 56 data bytes\n64 bytes from 203.0.113.1: seq=5 ttl=42 time=98.571 ms\n64 bytes from 203.0.113.1: seq=6 ttl=42 time=22.357 ms\n64 bytes from 203.0.113.1: seq=7 ttl=42 time=142.706 ms\n64 bytes from 203.0.113.1: seq=8 ttl=42 time=63.266 ms\n^C\n--- 203.0.113.1 ping statistics ---\n9 packets transmitted, 4 packets received, 55% packet loss\nround-trip min/avg/max = 22.357/81.725/142.706 ms\nCopyright 2024, Kevin Wallace Training, LLC\nPC2\nPC2 login: cisco\nPassword: cisco\nPC2:~$ ping 203.0.113.1\nPING 203.0.113.1 (203.0.113.1): 56 data bytes\n64 bytes from 203.0.113.1: seq=1 ttl=42 time=12.136 ms\n64 bytes from 203.0.113.1: seq=2 ttl=42 time=11.563 ms\n64 bytes from 203.0.113.1: seq=3 ttl=42 time=11.592 ms\n64 bytes from 203.0.113.1: seq=4 ttl=42 time=10.863 ms\n^C\n--- 203.0.113.1 ping statistics ---\n5 packets transmitted, 4 packets received, 20% packet loss\nround-trip min/avg/max = 10.863/11.538/12.136 ms"
    },
    {
     "task": "Permit all other traffic to the server.",
     "device": "R1",
     "cmds": [
      "permit ip any any"
-    ]
+    ],
+    "out": "R1>en\nR1#conf t\nR1(config)#ip access-list ?\n  extended    Extended Access List\n  helper      Access List acts on helper-address\n  log-update  Control access list log updates\n  logging     Control access list logging\n  resequence  Resequence Access List\n  standard    Standard Access List\nR1(config)#ip access-list extended BLOCK_PC1_SERVICES\nR1(config-ext-nacl)#\n(## See how we are now in Extended Named ACL configuration\nmode.)"
    },
    {
     "task": "Apply our access control list, BLOCK_PC1_SERVICES, on the inbound direction of interface Gig 0/1 on R1.",
@@ -1099,14 +1146,16 @@ const QUESTS = [
     "cmds": [
      "int gig 0/1",
      "ip access-group BLOCK_PC1_SERVICES in"
-    ]
+    ],
+    "out": "R1(config-ext-nacl)#?\nExt Access List configuration commands:\n  <1-2147483647>  Sequence Number\n  default         Set a command to its defaults\n  deny            Specify packets to reject\n  dynamic         Specify a DYNAMIC list of PERMITs or DENYs\n  evaluate        Evaluate an access list\n  exit            Exit from access-list configuration mode\n  no              Negate a command or set its defaults\nCopyright 2024, Kevin Wallace Training, LLC\n  permit          Specify packets to forward\n  remark          Access list entry comment\nR1(config-ext-nacl)#deny tcp host 10.1.1.2 host 203.0.113.1 eq 23"
    },
    {
     "task": "Take a look at the ACL that we just created.",
     "device": "R1",
     "cmds": [
      "show access-list"
-    ]
+    ],
+    "out": "R1(config-ext-nacl)#permit ip any any"
    },
    {
     "task": "Add a sequence number of 15 to our ACL to keep PC1 from contacting the server using HTTP.",
@@ -1115,14 +1164,16 @@ const QUESTS = [
      "conf t",
      "ip access-list extended BLOCK_PC1_SERVICES",
      "15 deny tcp host 10.1.1.2 host 203.0.113.1 eq 80"
-    ]
+    ],
+    "out": "interface Gig 0/1 on R1.\nR1(config-ext-nacl)#int gig 0/1\nR1(config-if)#ip access-group BLOCK_PC1_SERVICES in\nR1(config-if)#end"
    },
    {
     "task": "Take another look at the ACL that we just created to see if our new addition is there.",
     "device": "R1",
     "cmds": [
      "show access-list"
-    ]
+    ],
+    "out": "R1#show access-list\nExtended IP access list BLOCK_PC1_SERVICES\n    10 deny tcp host 10.1.1.2 host 203.0.113.1 eq telnet\n    20 permit ip any any (39 matches)"
    }
   ],
   "quiz": [
@@ -1188,7 +1239,8 @@ const QUESTS = [
      "network 10.1.1.0 0.0.0.255 area 1",
      "int gig 0/1",
      "ip ospf 1 area 0"
-    ]
+    ],
+    "out": "Accomplish this task using two \"network\" commands.\nR1>ena\nR1#conf t\nR1(config)#router ospf 1\nR1(config-router)#network 192.0.2.0 0.0.0.255 area 1\nR1(config-router)#network 10.1.1.0 0.0.0.255 area 1\nR1(config-router)#end"
    },
    {
     "task": "Configure router R2 to have both of its interfaces participate in an OSPF routing process. Accomplish this task using one \"network\" command, and one \"ip ospf [process_id] area [area_number]\" command.",
@@ -1197,7 +1249,8 @@ const QUESTS = [
      "conf t",
      "router ospf 1",
      "network 0.0.0.0 255.255.255.255 area 0"
-    ]
+    ],
+    "out": "Accomplish this task using one \"network\" command, and one \"ip ospf [process_id] area\n[area_number]\" command.\nR2>ena\nR2#conf t\nR2(config)#router ospf 1\nR2(config-router)#network 10.1.1.0 0.0.0.255 area 1\nR2(config-router)#int gig 0/1\nR2(config-if)#ip ospf 1 area 0\nR2(config-if)#end\nCopyright 2024, Kevin Wallace Training, LLC"
    },
    {
     "task": "Configure router R3 to have both of its interfaces participate in an OSPF routing process. Accomplish this task using only one \"network\" command.",
@@ -1209,7 +1262,8 @@ const QUESTS = [
      "Checksum",
      "Checksum 172.16.1.1",
      "Checksum 10.1.1.0"
-    ]
+    ],
+    "out": "Accomplish this task using only one \"network\" command.\nR3>en\nR3#conf t\nR3(config)#router ospf 1\nR3(config-router)#network 0.0.0.0 255.255.255.255 area 0\nR3(config-router)#end"
    }
   ],
   "quiz": [
@@ -1449,7 +1503,8 @@ const QUESTS = [
      "conf t",
      "ip dhcp excluded-address 192.168.1.1 192.168.1.99",
      "ip dhcp excluded-address 192.168.1.200 192.168.1.254"
-    ]
+    ],
+    "out": "192.168.1.0 /24 subnet.  To do this, we want to create a DHCP pool of assignable addresses in\nthe range of 192.168.1.100 - 192.168.1.199.  In order to create this pool, we need to exclude IP\naddresses in the ranges of 192.168.1.1 - 192.168.1.99 and 192.168.1.200 - 192.168.1.254.\nDHCP_SERVER>en\nDHCP_SERVER#conf t\nEnter configuration commands, one per line.  End with CNTL/Z.\nDHCP_SERVER(config)#ip dhcp excluded-address 192.168.1.1 192.168.1.99\nDHCP_SERVER(config)#ip dhcp excluded-address 192.168.1.200 192.168.1.254"
    },
    {
     "task": "Now, we will create the DHCP pool of addresses that we want to assign, and name the pool \"DEMO\".  After that, set 192.168.1.1 as the IP address of the default gateway and set 8.8.8.8 as the IP address of the DNS server.  Issue all of these commands on the DHCP_SERVER router.    DHCP_SERVER(config)#ip dhcp pool DEMO DHCP_SERVER(dhcp-config)#network 192.168.1.0 255.255.255.0 DHCP_SERVER(dhcp-config)#default-router 192.168.1.1 DHCP_SERVER(dhcp-config)#dns-server 8.8.8.8 DHCP_SERVER(dhcp-config)#end",
@@ -1459,7 +1514,8 @@ const QUESTS = [
      "network 192.168.1.0 255.255.255.0",
      "default-router 192.168.1.1",
      "dns-server 8.8.8.8"
-    ]
+    ],
+    "out": "pool \u201cDEMO\u201d.  After that, set 192.168.1.1 as the IP address of the default gateway and set\n8.8.8.8 as the IP address of the DNS server.  Issue all of these commands on the DHCP_SERVER\nrouter.\nDHCP_SERVER(config)#ip dhcp pool DEMO\nDHCP_SERVER(dhcp-config)#network 192.168.1.0 255.255.255.0\nDHCP_SERVER(dhcp-config)#default-router 192.168.1.1\nDHCP_SERVER(dhcp-config)#dns-server 8.8.8.8\nDHCP_SERVER(dhcp-config)#end\nCopyright 2024, Kevin Wallace Training"
    },
    {
     "task": "On R1, let's tell our Gig 0/1 interface to get its IP address via DHCP.  Also make sure to administratively bring up interface Gig 0/1.  R1>en R1#conf t Enter configuration commands, one per line.  End with CNTL/Z. R1(config)#int gig 0/1 R1(config-if)#ip address dhcp R1(config-if)#no shutdown R1(config-if)#end",
@@ -1469,14 +1525,16 @@ const QUESTS = [
      "int gig 0/1",
      "ip address dhcp",
      "no shutdown"
-    ]
+    ],
+    "out": "administratively bring up interface Gig 0/1.\nR1>en\nR1#conf t\nEnter configuration commands, one per line.  End with CNTL/Z.\nR1(config)#int gig 0/1\nR1(config-if)#ip address dhcp\nR1(config-if)#no shutdown\nR1(config-if)#end"
    },
    {
     "task": "On R1, issue the \"show ip int brief\" command to see if we have gained an IP address via DHCP.  R1#show ip int brief Interface                  IP-Address      OK? Method Status                Protocol GigabitEthernet0/0         unassigned      YES TFTP   administratively down down     GigabitEthernet0/1         unassigned      YES DHCP   up                    up       GigabitEthernet0/2         unassigned      YES TFTP   administratively down down     GigabitEthernet0/3         unassigned      YES TFTP   administratively down down      (##R1's discover broadcast to see if there are any dhcp servers out there will be denied because the discover broadcast cannot cross R2's router boundary.  This means that Gig 0/1 will not be assigned an IP address via DHCP.)",
     "device": "R1",
     "cmds": [
      "show ip int brief"
-    ]
+    ],
+    "out": "DHCP.\nR1#show ip int brief\nInterface                  IP-Address      OK? Method Status                Protocol\nGigabitEthernet0/0         unassigned      YES TFTP   administratively down down\nGigabitEthernet0/1         unassigned      YES DHCP   up                    up\nGigabitEthernet0/2         unassigned      YES TFTP   administratively down down\nGigabitEthernet0/3         unassigned      YES TFTP   administratively down down\n(##R1\u2019s discover broadcast to see if there are any dhcp servers\nout there will be denied because the discover broadcast cannot\ncross R2\u2019s router boundary.  This means that Gig 0/1 will not be\nassigned an IP address via DHCP.)"
    },
    {
     "task": "In order for R1 to be assigned an IP address via DHCP, we need to set R2's Gig 0/1 interface to be a DHCP Relay Agent.  R2>en R2#conf t Enter configuration commands, one per line.  End with CNTL/Z. R2(config)#int gig 0/1 R2(config-if)#ip helper-address 192.0.2.1 R2(config-if)#end",
@@ -1485,7 +1543,8 @@ const QUESTS = [
      "conf t",
      "int gig 0/1",
      "ip helper-address 192.0.2.1"
-    ]
+    ],
+    "out": "interface to be a DHCP Relay Agent.\nR2>en\nR2#conf t\nEnter configuration commands, one per line.  End with CNTL/Z.\nR2(config)#int gig 0/1\nR2(config-if)#ip helper-address 192.0.2.1\nR2(config-if)#end"
    },
    {
     "task": "On R1, let's see if our Gig 0/1 interface has received an IP address via DHCP.  R1(config)#int gig 0/1 R1(config-if)#shutdown R1(config-if)#no shutdown R1(config-if)#end R1#show ip int brief Interface                  IP-Address      OK? Method Status                Protocol GigabitEthernet0/0         unassigned      YES TFTP   administratively down down     GigabitEthernet0/1         192.168.1.100   YES DHCP   up                    up       GigabitEthernet0/2         unassigned      YES TFTP   administratively down down     GigabitEthernet0/3         unassigned      YES TFTP   administratively down down",
@@ -1495,7 +1554,8 @@ const QUESTS = [
      "shutdown",
      "no shutdown",
      "show ip int brief"
-    ]
+    ],
+    "out": "R1(config)#int gig 0/1\nR1(config-if)#shutdown\nR1(config-if)#no shutdown\nR1(config-if)#end\nR1#show ip int brief\nInterface                  IP-Address      OK? Method Status                Protocol\nGigabitEthernet0/0         unassigned      YES TFTP   administratively down down\nGigabitEthernet0/1         192.168.1.100   YES DHCP   up                    up\nGigabitEthernet0/2         unassigned      YES TFTP   administratively down down\nGigabitEthernet0/3         unassigned      YES TFTP   administratively down down\nCopyright 2024, Kevin Wallace Training\n(##To force interface Gig 0/1 to send out a discover broadcast,\nwe need to bounce it.  What that means is, we need to shutdown\nthe interface and then turn the interface back on to force it to\nsend out a discover broadcast.)\n(##Notice how we now have an IP address assigned to our\ninterface via DHCP.)"
    }
   ],
   "quiz": [
