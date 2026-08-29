@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCOR Quiz Quests — CCNP Security 350-701</title>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#131a33; --panel2:#1a2244; --line:#2a3566;
+    --txt:#e8ecff; --dim:#8e97c4; --acc:#4fd1c5; --acc2:#f6ad55; --good:#48bb78; --bad:#fc8181; --gold:#f6e05e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1400px 700px at 75% -10%,#1b2450 0%,var(--bg) 55%);color:var(--txt);
+       font-family:'Cascadia Code',Consolas,monospace;min-height:100vh;padding:16px}
+  .wrap{max-width:1020px;margin:0 auto}
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  h1{font-size:1.25rem}
+  h1 .a{color:var(--acc)} h1 .b{color:var(--acc2)}
+  .hud{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:.78rem}
+  .pill b{color:var(--acc)}
+  #pbar{height:8px;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:14px}
+  #pfill{height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .5s}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+  .card h3{color:var(--acc2);font-size:.92rem;margin-bottom:8px;letter-spacing:1px}
+  .card p{font-size:.84rem;line-height:1.6}
+  .dim{color:var(--dim)} .gold{color:var(--gold)}
+  /* world map */
+  #map{position:relative;min-height:1200px;background:
+      radial-gradient(closest-side at 30% 30%, rgba(79,209,197,.07), transparent),
+      var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;padding:6px}
+  .modzone{position:relative;margin:14px 6px;padding:6px 4px}
+  .modzone > .mhead{display:flex;align-items:center;gap:10px;font-size:.74rem;letter-spacing:2px;color:var(--dim);margin:0 4px 2px}
+  .modzone > .mhead b{letter-spacing:1px}
+  .modzone .mline{flex:1;height:1px;opacity:.35}
+  .modzone.m4 > .mhead b{color:#4fd1c5} .modzone.m4 .mline{background:linear-gradient(90deg,#4fd1c5,transparent)}
+  .modzone.m5 > .mhead b{color:#f6ad55} .modzone.m5 .mline{background:linear-gradient(90deg,#f6ad55,transparent)}
+  .modzone.m7 > .mhead b{color:#f6e05e} .modzone.m7 .mline{background:linear-gradient(90deg,#f6e05e,transparent)}
+  .modzone.m8 > .mhead b{color:#fc8181} .modzone.m8 .mline{background:linear-gradient(90deg,#fc8181,transparent)}
+  .modzone .mstat{font-size:.66rem;color:var(--dim)}
+  .modzone .mzone{position:relative;height:220px}
+  .towerzone{position:relative;margin:16px 6px 6px;padding:6px 4px}
+  .towerzone > .mhead{display:flex;align-items:center;gap:10px;font-size:.76rem;letter-spacing:2px;color:#b794f4;margin:0 4px 2px}
+  .towerzone > .mhead b{color:#d6bcfa}
+  .towerzone .mline{flex:1;height:1px;background:linear-gradient(90deg,#7f4fd1,transparent)}
+  .towerzone .tzone{position:relative;height:170px}
+  .towerzone .tsub{font-size:.64rem;color:var(--dim);text-align:center}
+  .examnode{position:absolute;transform:translate(-50%,-50%);text-align:center;cursor:pointer;z-index:2;width:110px;user-select:none}
+  .examnode .ic{font-size:1.7rem;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+  .examnode .nm{font-size:.6rem;color:#d6bcfa;margin-top:2px}
+  .examnode.locked{opacity:.4}
+  .examnode .st{font-size:.75rem;position:absolute;top:-8px;right:2px}
+  .node{position:absolute;transform:translate(-50%,-50%);text-align:center;cursor:pointer;z-index:2;width:86px;user-select:none}
+  .node .ic{font-size:1.7rem;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+  .node .nm{font-size:.6rem;color:var(--dim);margin-top:2px;line-height:1.2}
+  .node.done .nm{color:var(--good)}
+  .node.locked{opacity:.38;cursor:not-allowed}
+  .node:not(.locked):hover .ic{transform:scale(1.25)}
+  .node .st{font-size:.75rem;position:absolute;top:-8px;right:2px}
+  .path{position:absolute;height:2px;background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 12px);z-index:1}
+  /* quest view */
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .topbar .l{color:var(--dim);font-size:.75rem;cursor:pointer}
+  .topbar .l:hover{color:var(--acc)}
+  .mission{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--panel2);margin-bottom:10px}
+  .mission .mh{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:6px}
+  .mission .mh b{color:var(--acc)}
+  .mission .status{font-size:.7rem}
+  .console{background:#05080f;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:.78rem;
+           min-height:150px;max-height:260px;overflow-y:auto;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+  .console .in{color:var(--acc)}
+  .console .err{color:var(--bad)}
+  .console .ok{color:var(--good)}
+  .console .sys{color:var(--dim)}
+  .console .narr{color:var(--gold)}
+  .realout{margin:10px 0;border:1px solid #2f5d50;border-radius:10px;background:#081410;overflow:hidden}
+  .realout .ro-h{font-size:.62rem;letter-spacing:1px;color:#68d391;padding:6px 10px;background:#0d2418}
+  .realout pre{margin:0;padding:10px 12px;font-size:.72rem;line-height:1.5;color:#c6f6d5;white-space:pre-wrap;max-height:300px;overflow-y:auto}
+  .cmdrow{display:flex;gap:8px;margin-top:8px}
+  #cmd{flex:1;background:#05080f;border:1px solid var(--line);border-radius:8px;color:var(--acc);
+       padding:9px 12px;font-family:inherit;font-size:.82rem;outline:none}
+  #cmd:focus{border-color:var(--acc)}
+  button{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;
+         padding:9px 15px;font-family:inherit;font-size:.8rem;cursor:pointer}
+  button:hover{border-color:var(--acc)} button:disabled{opacity:.4;cursor:not-allowed}
+  .rowbtns{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .diff{color:var(--gold);font-size:.7rem;letter-spacing:2px}
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--good);color:#04240f;padding:9px 16px;border-radius:8px;
+         font-size:.82rem;font-weight:bold;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50}
+  .audio{position:fixed;top:14px;right:14px;display:flex;gap:6px;z-index:40}
+  .audio button{padding:5px 9px;font-size:.7rem;border-radius:6px}
+  .fbk{margin-top:8px;font-size:.78rem;line-height:1.5;border-left:3px solid var(--acc);padding:8px 11px;background:var(--panel2);border-radius:0 8px 8px 0;display:none}
+  .fbk.bad{border-color:var(--bad)} .fbk.good{border-color:var(--good)}
+  .modes{display:flex;gap:6px;margin:10px 0 4px;flex-wrap:wrap}
+  .mode{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.72rem;cursor:pointer;text-align:center;color:var(--dim)}
+  .mode b{display:block;font-size:.8rem;margin-bottom:2px}
+  .mode.on{border-color:var(--acc);color:var(--txt)} .mode.on b{color:var(--acc)}
+  .mode small{font-size:.6rem}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;min-height:44px}
+  .chip{background:#05080f;border:1px solid var(--acc);color:var(--acc);border-radius:6px;padding:7px 12px;font-size:.82rem;cursor:pointer;font-family:inherit}
+  .chip:hover{background:var(--panel2)}
+  .chip.used{opacity:.25;pointer-events:none}
+  .chip.wrong{animation:shake .3s;border-color:var(--bad);color:var(--bad)}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .slot{min-height:40px;border:1px dashed var(--line);border-radius:8px;padding:7px 12px;margin-bottom:6px;font-size:.82rem;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .slot .t{background:var(--panel2);border:1px solid var(--good);border-radius:6px;padding:4px 9px;color:var(--good)}
+  .cmdrow2{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .saycmd{font-size:.88rem;color:var(--gold);background:#05080f;border:1px solid var(--line);border-radius:8px;padding:9px 14px;display:inline-block}
+  .why{font-size:.75rem;color:var(--dim);line-height:1.6;margin-top:8px}
+  .bookbtn{position:fixed;bottom:18px;left:18px;z-index:40;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.75rem}
+  .modal{position:fixed;inset:0;background:rgba(3,6,15,.93);z-index:90;display:flex;align-items:center;justify-content:center;padding:20px}
+  .modal .inner{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;padding:20px}
+  .modal h3{color:var(--acc2);margin-bottom:10px;font-size:.95rem}
+  .bkrow{border-bottom:1px solid var(--line);padding:9px 2px}
+  .bkrow .c{color:var(--acc);font-size:.84rem}
+  .bkrow .w{font-size:.72rem;color:var(--dim);margin-top:3px;line-height:1.5}
+  .modes{display:flex;gap:6px;margin:10px 0 4px;flex-wrap:wrap}
+  .mode{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.72rem;cursor:pointer;text-align:center;color:var(--dim)}
+  .mode b{display:block;font-size:.8rem;margin-bottom:2px}
+  .mode.on{border-color:var(--acc);color:var(--txt)} .mode.on b{color:var(--acc)}
+  .mode small{font-size:.6rem}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;min-height:44px}
+  .chip{background:#05080f;border:1px solid var(--acc);color:var(--acc);border-radius:6px;padding:7px 12px;font-size:.82rem;cursor:pointer;font-family:inherit}
+  .chip:hover{background:var(--panel2)}
+  .chip.used{opacity:.25;pointer-events:none}
+  .chip.wrong{animation:shake .3s;border-color:var(--bad);color:var(--bad)}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .slot{min-height:40px;border:1px dashed var(--line);border-radius:8px;padding:7px 12px;margin-bottom:6px;font-size:.82rem;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .slot .t{background:var(--panel2);border:1px solid var(--good);border-radius:6px;padding:4px 9px;color:var(--good)}
+  .cmdrow2{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .saycmd{font-size:.88rem;color:var(--gold);background:#05080f;border:1px solid var(--line);border-radius:8px;padding:9px 14px;display:inline-block}
+  .why{font-size:.75rem;color:var(--dim);line-height:1.6;margin-top:8px}
+  .bookbtn{position:fixed;bottom:18px;left:18px;z-index:40;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.75rem}
+  .modal{position:fixed;inset:0;background:rgba(3,6,15,.93);z-index:90;display:flex;align-items:center;justify-content:center;padding:20px}
+  .modal .inner{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;padding:20px}
+  .modal h3{color:var(--acc2);margin-bottom:10px;font-size:.95rem}
+  .bkrow{border-bottom:1px solid var(--line);padding:9px 2px}
+  .bkrow .c{color:var(--acc);font-size:.84rem}
+  .bkrow .w{font-size:.72rem;color:var(--dim);margin-top:3px;line-height:1.5}
+  .modes{display:flex;gap:6px;margin:10px 0 8px;flex-wrap:wrap}
+  .mode{flex:1;min-width:110px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.72rem;cursor:pointer;text-align:center;color:var(--dim)}
+  .mode b{display:block;font-size:.8rem;margin-bottom:2px}
+  .mode.on{border-color:var(--acc);color:var(--txt)} .mode.on b{color:var(--acc)}
+  .mode small{font-size:.6rem}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;min-height:44px}
+  .chip{background:#05080f;border:1px solid var(--acc);color:var(--acc);border-radius:6px;padding:7px 12px;font-size:.82rem;cursor:pointer;font-family:inherit}
+  .chip:hover{background:var(--panel2)}
+  .chip.used{opacity:.25;pointer-events:none}
+  .chip.wrong{animation:shake .3s;border-color:var(--bad);color:var(--bad)}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .slot{min-height:40px;border:1px dashed var(--line);border-radius:8px;padding:7px 12px;margin-bottom:8px;font-size:.82rem;display:flex;flex-wrap:wrap;gap:6px;align-items:center;color:var(--good)}
+  .slot .t{background:var(--panel2);border:1px solid var(--good);border-radius:6px;padding:4px 9px}
+  .cmdrow2{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .saycmd{font-size:.88rem;color:var(--gold);background:#05080f;border:1px solid var(--line);border-radius:8px;padding:9px 14px;display:inline-block}
+  .why{font-size:.75rem;color:var(--dim);line-height:1.6;margin-top:8px}
+  .bookbtn{position:fixed;bottom:18px;left:18px;z-index:40;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.75rem}
+  .modal{position:fixed;inset:0;background:rgba(3,6,15,.93);z-index:90;display:flex;align-items:center;justify-content:center;padding:20px}
+  .modal .inner{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;padding:20px}
+  .modal h3{color:var(--acc2);margin-bottom:10px;font-size:.95rem}
+  .bkrow{border-bottom:1px solid var(--line);padding:9px 2px}
+  .bkrow .c{color:var(--acc);font-size:.84rem}
+  .bkrow .w{font-size:.72rem;color:var(--dim);margin-top:3px;line-height:1.5}
+  .topo{margin:10px 0;border:1px solid var(--line);border-radius:10px;background:#05080f;padding:8px;text-align:center}
+  .topo img{max-width:100%;max-height:340px;border-radius:6px;display:block;margin:0 auto}
+  .topo .cap{font-size:.65rem;color:var(--dim);margin-top:6px;letter-spacing:1px}
+  .topo.zoomed{position:fixed;inset:0;z-index:100;background:rgba(3,6,15,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0;border:none;border-radius:0;cursor:zoom-out;padding:20px}
+  .topo.zoomed img{max-height:88vh;max-width:94vw}
+  .topo.zoomed .cap{font-size:.8rem}
+  .legend{display:flex;gap:14px;font-size:.68rem;color:var(--dim);margin:6px 2px 0}
+  .topicbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .tchip{font-size:.62rem;border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--dim);cursor:pointer}
+  .tchip.on{border-color:var(--acc);color:var(--acc)}
+  @media(max-width:700px){#map{height:460px}.node{width:70px}.node .ic{font-size:1.3rem}}
+</style>
+</head>
+<body>
+<div class="audio">
+  <button id="muteSfx" title="sound effects">🔊 SFX</button>
+  <button id="muteVox" title="voice narration">🎙 VOICE</button>
+</div>
+<div class="wrap">
+  <header>
+    <h1>🏛️ CCNP <span class="a">SCOR</span> <span class="b">LAB QUESTS</span> <span class="dim" style="font-size:.7rem">— real lesson quizzes — 94 questions across 6 modules</span></h1>
+    <div class="hud">
+      <div class="pill">XP <b id="xp">0</b></div>
+      <div class="pill">⭐ <span id="stars">0</span>/<span id="tstars">0</span></div>
+      <div class="pill">RANK <b id="rank">Rookie</b></div>
+    </div>
+  </header>
+  <div id="pbar"><div id="pfill"></div></div>
+  <div id="view"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="scor_quest_data.js"></script>
+<script>
+const QUESTS = SCOR_QUESTS;
+const EXAMS = [];
+const MODULE_REGIONS = SCOR_MODULES.map(m => ({ mod: m.mod, name: m.name }));
+</script>
+<script>
+/* ================= AUDIO ENGINE (WebAudio, zero files) ================= */
+const AU={sfx:true, vox:true, ctx:null};
+function ac(){ if(!AU.ctx) AU.ctx=new (window.AudioContext||window.webkitAudioContext)(); return AU.ctx; }
+function tone(freq,dur=.09,type='square',vol=.16,when=0,slide=0){
+  if(!AU.sfx) return;
+  try{
+    const c=ac(), o=c.createOscillator(), g=c.createGain(), t=c.currentTime+when;
+    o.type=type; o.frequency.setValueAtTime(freq,t);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,freq+slide),t+dur);
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+.02);
+  }catch(e){}
+}
+const SFX={
+  click:()=>tone(660,.05,'square',.08),
+  good:()=>{tone(523,.08);tone(659,.08,'square',.14,.08);tone(784,.12,'square',.14,.16);},
+  bad:()=>{tone(220,.12,'sawtooth',.12);tone(160,.16,'sawtooth',.12,.1);},
+  xp:()=>tone(880,.07,'triangle',.12,0,220),
+  levelup:()=>{[523,659,784,1047].forEach((f,i)=>tone(f,.1,'square',.13,i*.09));},
+  boss:()=>{[392,311,392,466].forEach((f,i)=>tone(f,.14,'sawtooth',.12,i*.12));},
+  star:()=>{[784,988,1175].forEach((f,i)=>tone(f,.09,'triangle',.13,i*.07));},
+  boot:()=>{tone(130,.25,'sine',.15);tone(196,.2,'sine',.12,.1);}
+};
+function speak(text){
+  if(!AU.vox || !window.speechSynthesis) return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text.replace(/[#>*_]/g,' '));
+    u.rate=1.02; u.pitch=1.0; u.volume=.9;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+document.getElementById('muteSfx').onclick=e=>{AU.sfx=!AU.sfx;e.target.textContent=AU.sfx?'🔊 SFX':'🔇 SFX';};
+document.getElementById('muteVox').onclick=e=>{AU.vox=!AU.vox;if(!AU.vox)speechSynthesis.cancel();e.target.textContent=AU.vox?'🎙 VOICE':'🔇 VOICE';};
+
+/* ================= STATE ================= */
+const KEY='labquests1';
+let S=JSON.parse(localStorage.getItem(KEY)||'null')||{xp:0,stars:{},missions:{}};
+function save(){localStorage.setItem(KEY,JSON.stringify(S));renderHUD();}
+const RANKS=[[0,'Rookie'],[150,'Operative'],[400,'Engineer'],[800,'Architect'],[1400,'Network Hero'],[2200,'🏆 LEGEND']];
+function rankOf(x){let r=RANKS[0][1];for(const[t,n]of RANKS)if(x>=t)r=n;return r;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1700);}
+function award(n){S.xp+=n;save();SFX.xp();toast('+'+n+' XP');}
+function starsOf(q){return S.stars[q.id]||0}
+function totalStars(){return Object.values(S.stars).reduce((a,b)=>a+b,0)}
+
+/* ================= IOS SIM ================= */
+function canonTok(t){
+  t=t.toLowerCase();
+  const M={gigabitethernet:'gig',gigabite:'gig',gigabit:'gig',fastethernet:'fa',ethernet:'e',
+           show:'sh',shutdown:'shut',configure:'conf',terminal:'t',interface:'int',
+           vlan:'vl',gigabitethernet0:'gig0'};
+  return M[t]||t;
+}
+function normCmd(c){
+  return c.toLowerCase().split(/[\s\/]+/).filter(Boolean).map(canonTok).join(' ');
+}
+function cmdMatches(user, want){
+  return normCmd(user)===normCmd(want);
+}
+
+/* ================= TEACH LINES per topic (narration) ================= */
+function teachLine(q, mi){
+  const t=q.topic;
+  const byTopic={
+    'Neighbor Discovery':'Discovery protocols map what is physically attached. Run the show commands, read every column.',
+    'Switching':'VLANs and trunks segment broadcast domains at Layer 2. Watch which mode you are in — config vs interface.',
+    'Address Translation':'NAT translates private to public. Static is 1-to-1, dynamic uses a pool, PAT multiplexes ports.',
+    'Security':'ACLs filter traffic. Standard matches source only; extended matches source, destination, protocol, port.',
+    'Routing':'OSPF builds a link-state map: neighbors exchange LSAs, SPF computes best paths. Match network statements carefully.',
+    'Services':'NTP synchronizes time, DHCP leases addresses. Logs without synced time are fiction.'
+  };
+  return `${q.name}. Mission ${mi+1}. ${byTopic[t]||''}`;
+}
+
+/* ================= VIEWS ================= */
+const V=document.getElementById('view');
+let filter='all';
+
+function renderHUD(){
+  document.getElementById('xp').textContent=S.xp;
+  document.getElementById('rank').textContent=rankOf(S.xp);
+  document.getElementById('stars').textContent=totalStars();
+  document.getElementById('tstars').textContent=QUESTS.length;
+  document.getElementById('pfill').style.width=Math.min(100,totalStars()/QUESTS.length*100)+'%';
+}
+
+function unlockedQ(q){
+  const minDiff = Math.min(...QUESTS.map(x=>x.diff));
+  if(q.diff <= minDiff) return true;            // entry tier always open
+  const done=QUESTS.filter(x=>starsOf(x)>0);
+  return done.filter(x=>x.diff<q.diff).length >= (q.diff-minDiff);
+}
+
+function showMap(){
+  V.innerHTML='';
+  // topic filter chips
+  const topics=['all',...new Set(QUESTS.map(q=>q.topic))];
+  const bar=document.createElement('div');bar.className='topicbar';
+  topics.forEach(t=>{
+    const c=document.createElement('span');c.className='tchip'+(filter===t?' on':'');
+    c.textContent=t.toUpperCase();
+    c.onclick=()=>{filter=t;SFX.click();showMap();};
+    bar.appendChild(c);
+  });
+  V.appendChild(bar);
+  const map=document.createElement('div');map.id='map';
+
+  // module zones from official course outline
+  (typeof MODULE_REGIONS!=='undefined'?MODULE_REGIONS:[]).forEach(R=>{
+    const zone=document.createElement('div');zone.className='modzone m'+R.mod;
+    const qs=QUESTS.filter(q=>q.mod===R.mod&&(filter==='all'||q.topic===filter));
+    const cleared=qs.filter(q=>starsOf(q)>0).length;
+    const headEl=document.createElement('div');headEl.className='mhead';
+    headEl.innerHTML=`<b>${R.name}</b><span class="mline"></span><span class="mstat">${cleared}/${qs.length} cleared</span>`;
+    zone.appendChild(headEl);
+    const inner=document.createElement('div');inner.className='mzone';
+    qs.forEach(q=>inner.appendChild(nodeEl(q)));
+    zone.appendChild(inner);
+    map.appendChild(zone);
+  });
+
+  // EXAM TOWER — only when this track has practice exams
+  if(EXAMS && EXAMS.length){
+  const tower=document.createElement('div');tower.className='towerzone';
+  const starsNeeded=8;
+  const canExam=totalStars()>=starsNeeded;
+  const examCleared=S.examBest||{};
+  const thead=document.createElement('div');thead.className='mhead';
+  thead.innerHTML=`<b>🏰 THE EXAM TOWER</b><span class="mline"></span><span class="mstat">MODULES 10–11: EXAM PREP</span>`;
+  tower.appendChild(thead);
+  const tzone=document.createElement('div');tzone.className='tzone';
+  if(canExam&&(typeof EXAMS!=='undefined')){
+    EXAMS.forEach((e,i)=>{
+      const el=document.createElement('div');el.className='examnode';
+      const best=examCleared[e.id];
+      el.style.left=(18+i*32)+'%';el.style.top='42%';
+      el.innerHTML=`<span class="st">${best?'🏆'+best+'%':''}</span><span class="ic">${i===0?'🚪':i===1?'🏛️':'👑'}</span><span class="nm">${e.name}</span>`;
+      el.onclick=()=>{SFX.boss();openExam(e);};
+      tzone.appendChild(el);
+    });
+  } else {
+    const el=document.createElement('div');el.className='examnode locked';
+    el.style.left='50%';el.style.top='42%';
+    el.innerHTML=`<span class="ic">🔒</span><span class="nm">EARN ${starsNeeded}⭐</span>`;
+    tzone.appendChild(el);
+    const sub=document.createElement('div');sub.className='tsub';
+    sub.textContent=`locked — earn ${starsNeeded}⭐ to enter (you have ${totalStars()}) · ${typeof EXAMS!=='undefined'?EXAMS.length:0} real practice exams inside`;
+    tower.appendChild(sub);
+  }
+  tower.appendChild(tzone);
+  map.appendChild(tower);
+  } // end exams block
+  V.appendChild(map);
+  const lg=document.createElement('div');lg.className='legend';
+  lg.innerHTML=`<span>⭐ = quest cleared (1–3 stars)</span><span>clear lower-difficulty quests to unlock harder ones</span><span style="cursor:pointer;color:var(--acc)" onclick="wipe()">reset progress</span>`;
+  V.appendChild(lg);
+}
+function nodeEl(q){
+  const st=starsOf(q), un=unlockedQ(q);
+  const el=document.createElement('div');
+  el.className='node'+(st?' done':'')+(un?'':' locked');
+  el.style.left=q.x+'%';el.style.top=q.y+'%';
+  el.innerHTML=`<span class="st">${st?'⭐'.repeat(st):un?'':'🔒'}</span>
+    <span class="ic">${q.icon}</span><span class="nm">${q.name}</span>`;
+  el.onclick=()=>{
+    if(!un){SFX.bad();toast('Locked — clear '+(q.diff-1)+' easier quest'+(q.diff>2?'s':'')+' first');return;}
+    SFX.click(); openQuest(q);
+  };
+  return el;
+}
+function wipe(){ if(confirm('Erase all progress?')){S={xp:0,stars:{},missions:{}};save();showMap();SFX.bad();} }
+
+/* ---------- quest view ---------- */
+let cur=null, mIdx=0, cmdIdx=0, hit=0, miss=0, conEl=null, mode='show';
+let MODE_DECL=true; /*globals declared once above renderMission*/
+
+function openQuest(q){
+  cur=q;mIdx=0;cmdIdx=0;hit=0;miss=0;mode='show';quizDone=0;quizHit=0;quizMiss=0;
+  V.innerHTML=`<div class="topbar"><span class="l" onclick="backToMap()">← world map</span>
+    <span class="diff">${'★'.repeat(q.diff)}${'☆'.repeat(5-q.diff)} &nbsp;${q.topic.toUpperCase()}</span></div>
+   <div class="card"><h3>${q.icon} QUEST: ${q.name}</h3>
+    <p>${q.blurb} <span class="dim">— ${q.missions.length} missions, real SCOR quiz questions.</span></p>
+    </div>
+   <div id="mbody"></div>`;
+  renderMission();
+}
+function backToMap(){SFX.click();showMap();}
+
+function topoImg(q){
+  return `encor_img/${q.id}.png`;
+}
+function topoHTML(q, cap){
+  return `<div class="topo" onclick="this.classList.toggle('zoomed')" title="click to zoom">
+    <img src="${topoImg(q)}" alt="${q.name} topology" loading="lazy"
+         onerror="this.parentElement.style.display='none'">
+    <div class="cap">${cap||q.name.toUpperCase()} — TOPOLOGY (click to zoom)</div></div>`;
+}
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function explainCmd(c){
+  const w=c.split(' ')[0].toLowerCase();
+  return EXPL[w]||'';
+}
+
+function renderMission(){
+  const m=cur.missions[mIdx];
+  if(m.quizmode && cur.quiz && cur.quiz.length){
+    // SCOR quiz-quest: run all questions as the mission
+    quizPool=[...cur.quiz]; quizDone=0; quizHit=0; quizMiss=0;
+    renderQuizRun();
+    return;
+  }
+  const body=document.getElementById('mbody');
+  body.innerHTML=`<div class="mission">
+    <div class="mh"><span>MISSION ${mIdx+1}/${cur.missions.length} — <b>${m.device}</b></span>
+      <span class="status dim">cmd ${Math.min(cmdIdx+1,m.cmds.length)}/${m.cmds.length}</span></div>
+    <p style="font-size:.82rem;line-height:1.55">${m.task}</p>
+    
+    ${(cur.extraImgs||[]).map((p,i)=>`<div class="topo" onclick="this.classList.toggle('zoomed')" title="click to zoom"><img src="${p}" loading="lazy" style="max-height:240px" onerror="this.parentElement.style.display='none'"><div class="cap">EXTRA DIAGRAM ${i+1} — challenge topology (click to zoom)</div></div>`).join('')}
+
+    <div class="realout"><div class="ro-h">🖥 WHAT YOU'RE BUILDING TOWARD — real output from this mission appears here after you complete it</div><pre id="preview-out" style="color:#8e97c4">complete the mission to reveal what the real device shows…</pre></div>
+    <div class="modes">
+      <div class="mode${mode==='show'?' on':''}" data-m="show" onclick="setMode('show')"><b>👀 SHOW ME</b><small>read &amp; hear it (+5)</small></div>
+      <div class="mode${mode==='build'?' on':''}" data-m="build" onclick="setMode('build')"><b>🧩 BUILD</b><small>tap words in order (+12)</small></div>
+      <div class="mode${mode==='type'?' on':''}" data-m="type" onclick="setMode('type')"><b>⌨️ TYPE</b><small>expert recall (+20)</small></div>
+    </div>
+    <div class="console" id="con"></div>
+    <div id="realoutbox"></div>
+    <div id="modearea"></div>
+    <div class="fbk" id="fbk"></div>
+   </div>`;
+  conEl=document.getElementById('con');
+  conEl.innerHTML=`<span class="sys">*** SIM CONSOLE — ${m.device} ***</span>\n`;
+  const pout=document.getElementById('preview-out');
+  if(pout && m.out){ pout.textContent=m.out.substring(0,600)+(m.out.length>600?'…':''); pout.parentElement.querySelector('.ro-h').textContent='🖥 REAL DEVICE OUTPUT — from the Kevin Wallace lab (what you should expect)'; }
+  else if(pout){ pout.parentElement.style.display='none'; }
+  speak(teachLine(cur,mIdx));
+  renderMode();
+}
+function setMode(mo){mode=mo;SFX.click();document.querySelectorAll('.mode').forEach(e=>e.classList.toggle('on',e.dataset.m===mo));renderMode();}
+window.setMode=setMode;
+
+function updateStatus(){
+  const m=cur.missions[mIdx];
+  document.querySelector('.status').textContent=`cmd ${Math.min(cmdIdx+1,m.cmds.length)}/${m.cmds.length}`;
+}
+
+function renderMode(){
+  const m=cur.missions[mIdx];
+  const area=document.getElementById('modearea');
+  const fb=document.getElementById('fbk'); fb.style.display='none';
+  const want=m.cmds[cmdIdx];
+
+  if(mode==='show'){
+    area.innerHTML=`<div class="cmdrow2"><span class="saycmd">${m.device}&gt; ${want}</span></div>
+    <div class="why">💡 <b>what it does:</b> ${explainCmd(want)||'executes this step of the task above.'}</div>
+    <div class="cmdrow2" style="margin-top:10px">
+      <button id="hear">🔊 hear it</button>
+      <button id="ranit">▶ I read it — run it (+5 XP)</button></div>`;
+    speak(`Command. ${want.replace(/\s+/g,', ')}. ${explainCmd(want)||''}`);
+    document.getElementById('hear').onclick=()=>speak(want.replace(/\s+/g,', '));
+    document.getElementById('ranit').onclick=()=>{
+      conEl.innerHTML+=`<span class="in">${m.device}&gt; ${want}</span>\n<span class="ok">[OK]</span>\n`;conEl.scrollTop=1e6;
+      const ro=document.getElementById('realoutbox');
+      if(ro){ro.innerHTML=showRealOutput(m);}
+      SFX.good();award(5);advance();
+    };
+    return;
+  }
+
+  if(mode==='build'){
+    const toks=want.split(/\s+/);
+    const pool=shuffle(toks);
+    area.innerHTML=`<p class="dim" style="font-size:.72rem;margin-top:8px">Tap the words in the right order:</p>
+    <div class="slot" id="slot"></div><div class="chips" id="chips"></div>
+    <div class="cmdrow2"><button id="hear2">🔊 hear the target</button><button id="clearb">↺ clear</button></div>`;
+    const slot=document.getElementById('slot'), chips=document.getElementById('chips');
+    let pos=0;
+    pool.forEach(t=>{const b=document.createElement('button');b.className='chip';b.textContent=t;b.onclick=()=>{
+      if(toks[pos]===t){b.classList.add('used');const s=document.createElement('span');s.className='t';s.textContent=t;slot.appendChild(s);pos++;SFX.click();
+        if(pos===toks.length){conEl.innerHTML+=`<span class="in">${m.device}&gt; ${want}</span>\n<span class="ok">[OK]</span>\n`;conEl.scrollTop=1e6;SFX.good();award(12);advance();}
+      }else{miss++;b.classList.add('wrong');SFX.bad();setTimeout(()=>b.classList.remove('wrong'),350);}
+    };chips.appendChild(b);});
+    document.getElementById('clearb').onclick=()=>{pos=0;slot.innerHTML='';document.querySelectorAll('.chip').forEach(c=>c.classList.remove('used'));};
+    document.getElementById('hear2').onclick=()=>speak(want.replace(/\s+/g,', '));
+    return;
+  }
+
+  area.innerHTML=`<div class="cmdrow"><input id="cmd" placeholder="${m.device}&gt; type command… (abbreviations OK)" autocomplete="off"><button id="go">ENTER</button></div>
+    <div class="rowbtns"><button id="hint">💡 hint −5 XP</button></div>`;
+  const inp=document.getElementById('cmd');
+  inp.focus();
+  function go(){
+    const v=inp.value.trim(); if(!v)return;
+    conEl.innerHTML+=`<span class="in">${m.device}&gt; ${v}</span>\n`; inp.value='';
+    if(cmdMatches(v,want)){
+      hit++;SFX.good();
+      conEl.innerHTML+=`<span class="ok">[OK] ${want}</span>\n`;conEl.scrollTop=1e6;
+      award(20);advance();
+    } else {
+      miss++;SFX.bad();
+      conEl.innerHTML+=`<span class="err">[X] IOS blinked — check spelling/mode/order.</span>\n`;conEl.scrollTop=1e6;
+      fb.className='fbk bad';fb.style.display='block';
+      fb.innerHTML='❌ Try again — or switch to 🧩 BUILD to drill the order without typing.';
+    }
+  }
+  document.getElementById('go').onclick=go;
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+  document.getElementById('hint').onclick=()=>{S.xp=Math.max(0,S.xp-5);save();fb.className='fbk';fb.style.display='block';fb.innerHTML='💡 starts: <b>'+want.split(' ').slice(0,2).join(' ')+' …</b>';};
+}
+
+/** show the REAL console evidence from the lab PDF after the full mission's commands are done */
+function showRealOutput(m){
+  if(!m.out) return '';
+  const esc = m.out.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `<div class="realout"><div class="ro-h">🖥 REAL DEVICE OUTPUT — what you'll see when you run this (from the Kevin Wallace lab)</div><pre>${esc}</pre></div>`;
+}
+
+function advance(){
+  const m=cur.missions[mIdx];
+  cmdIdx++;
+  if(cmdIdx>=m.cmds.length){ setTimeout(()=>afterMission(false),700); }
+  else { updateStatus(); renderMode(); }
+}
+
+/* ---- quiz checkpoints ---- */
+let quizDone=0, quizHit=0, quizMiss=0;
+
+function afterMission(skipped){
+  // real quiz checkpoint every ~2 missions if questions remain
+  if(cur.quiz && cur.quiz.length && mIdx>0 && mIdx%2===1 && quizDone<cur.quiz.length){
+    renderQuiz(cur.quiz[quizDone++]);
+    return;
+  }
+  nextMission(skipped);
+}
+
+function renderQuiz(qz){
+  const body=document.getElementById('mbody');
+  const letters=['A','B','C','D','E'];
+  const ansIdx=letters.indexOf(qz.answer);
+  body.innerHTML=`<div class="quizq">
+    <div class="qh">🧠 KNOWLEDGE CHECKPOINT — real Kevin Wallace quiz <span class="badge-quiz">${qz.topic||''}</span></div>
+    <div class="qt">${qz.q}</div>
+    <div class="qo">${qz.options.map((o,i)=>`<div class="qoo" data-i="${i}">${letters[i]}. ${o}</div>`).join('')}</div>
+    <div class="qw" id="qw"></div>
+    <div class="rowbtns"><button id="qnext" style="display:none">CONTINUE MISSION →</button></div>
+   </div>`;
+  speak(`Checkpoint question. ${qz.q}`);
+  let answered=false;
+  const qw=document.getElementById('qw'), qn=document.getElementById('qnext');
+  document.querySelectorAll('.qoo').forEach(el=>{
+    el.onclick=()=>{
+      if(answered)return; answered=true;
+      const i=+el.dataset.i, ok=i===ansIdx;
+      document.querySelectorAll('.qoo')[ansIdx].classList.add('correct');
+      if(ok){quizHit++;SFX.good();award(15);}
+      else{el.classList.add('wrong');quizMiss++;SFX.bad();}
+      qw.classList.add('show');
+      qw.innerHTML=(ok?'✅ <b>CORRECT — +15 XP.</b> ':'❌ <b>Answer: '+qz.answer+'.</b> ')+(qz.why||'');
+      speak(ok?'Correct. '+(qz.why||'') : 'The answer is '+qz.answer+'. '+(qz.why||''));
+      setTimeout(()=>{qn.style.display='inline-block';},500);
+    };
+  });
+  qn.onclick=()=>{SFX.click();nextMission(false);};
+}
+
+/* mini explanations for matched commands */
+const EXPL={
+  show:'show commands are read-only — always safe to run.',
+  conf:'entering global config mode. changes will be live.',
+  hostname:'naming devices is step zero of documentation.',
+  int:'interface submode — commands here affect one port/subinterface.',
+  ip:'addressing lives here; mask decides the network size.',
+  no:'removing config. remembering what NO undoes is half of IOS.',
+  vlan:'VLAN database change — broadcast-domain surgery.',
+  switchport:'L2 port behavior: access or trunk.',
+  spanning:'loop prevention. roots are elected by lowest bridge ID.',
+  channel:'bundling physical links into one logical port-channel.',
+  access:'access = one VLAN for endpoints; trunk = many VLANs tagged.',
+  permit:'permit explicitly allows matched traffic.',
+  deny:'deny blocks matched traffic — implicit deny finishes every ACL.',
+  network:'OSPF network statements pick interfaces AND assign areas.',
+  router:'entering routing protocol config.',
+  clock:'time matters: logs, certificates, and Kerberos all depend on it.',
+  ntp:'synchronizing time. stratum 1 = atomic/GPS reference.',
+  cdp:'Cisco discovery — the reconnaissance classic.',
+  lldp:'vendor-neutral discovery, IEEE standard.',
+  default:'default routes forward everything unmatched.',
+  'ip nat':'NAT boundary between inside and outside.',
+  pool:'address pool from which translations draw public IPs.',
+  overload:'the PAT keyword — many privates to ONE public via ports.',
+  standby:'HSRP virtual gateway config.',
+  description:'documentation string — future-you says thanks.',
+  name:'names a VLAN (1-1005) for humans.',
+  encapsulation:'tagging choice: dot1q = IEEE standard trunking.',
+  trunk:'sets the port to trunk mode.',
+  service:'global service enablement (e.g. dhcp, timestamps).',
+  line:'console/vty line config for access.',
+  enable:' privilege level / password config.',
+  banner:'MOTD legal warning banner.',
+  username:'local user database entry.',
+  crypto:'key generation for SSH.',
+  transport:'protocol allowed on vty lines.',
+  passive:'passive-interface: advertise a network WITHOUT hellos.',
+  area:'OSPF area assignment (single-area = area 0 backbone).',
+  wildcard:'inverse mask used by OSPF/ACLs to match ranges.',
+  debug:'real-time diagnostics — CPU-hungry; use sparingly.',
+  ping:'connectivity probe; start of any troubleshooting ladder.',
+  version:'protocol version selection (OSPFv2=v4, v3=v6).',
+  lldp:'Link Layer Discovery Protocol (802.1AB) — vendor-neutral neighbor discovery.',
+};
+
+/* command book — always available */
+function openBook(){
+  SFX.click();
+  const md=document.createElement('div');md.className='modal';md.id='bookmodal';
+  let rows='';
+  if(cur){
+    cur.missions.forEach((m,i)=>{m.cmds.forEach(c=>{rows+=`<div class="bkrow"><div class="c">${m.device}&gt; ${c}</div><div class="w">${explainCmd(c)||'step '+(i+1)+' of this quest'}</div></div>`;});});
+  } else {
+    const seen=new Set();
+    QUESTS.forEach(q=>q.missions.slice(0,2).forEach(m=>m.cmds.slice(0,3).forEach(c=>{
+      const k=c.split(' ')[0]; if(seen.has(k))return; seen.add(k);
+      rows+=`<div class="bkrow"><div class="c">${c}</div><div class="w">${explainCmd(c)||''}</div></div>`;
+    })));
+  }
+  md.innerHTML=`<div class="inner"><h3>📖 COMMAND BOOK — ${cur?cur.name:'starter commands'}</h3>${rows}
+  <div class="rowbtns"><button onclick="document.getElementById('bookmodal').remove()">close</button></div></div>`;
+  document.body.appendChild(md);
+  md.onclick=e=>{if(e.target===md)md.remove();};
+}
+window.openBook=openBook;
+
+/* ---------- SCOR QUIZ RUN ---------- */
+let qrIdx=0;
+function renderQuizRun(){
+  const qz=quizPool[qrIdx];
+  if(qrIdx>=quizPool.length){return quizRunDone();}
+  const letters=['A','B','C','D','E'];
+  const ansIdx=letters.indexOf(qz.answer);
+  const body=document.getElementById('mbody');
+  body.innerHTML=`<div class="quizq">
+    <div class="qh">🔐 ${cur.name.toUpperCase()} — QUESTION ${qrIdx+1}/${quizPool.length} <span class="badge-quiz">${qz.vid||'SCOR'}</span></div>
+    <div class="qt">${qz.q}</div>
+    <div class="qo">${qz.options.map((o,i)=>`<div class="qoo" data-i="${i}">${letters[i]}. ${o}</div>`).join('')}</div>
+    <div class="qw" id="qw"></div>
+    <div class="rowbtns"><button id="qnext" style="display:none">${qrIdx===quizPool.length-1?'FINISH 🏁':'NEXT QUESTION →'}</button></div>
+   </div>`;
+  speak(qz.q);
+  let answered=false;
+  const qw=document.getElementById('qw'), qn=document.getElementById('qnext');
+  document.querySelectorAll('.qoo').forEach(el=>{
+    el.onclick=()=>{
+      if(answered)return; answered=true;
+      const i=+el.dataset.i, ok=i===ansIdx;
+      document.querySelectorAll('.qoo')[ansIdx].classList.add('correct');
+      if(ok){quizHit++;SFX.good();award(15);}
+      else{el.classList.add('wrong');quizMiss++;SFX.bad();}
+      qw.classList.add('show');
+      qw.innerHTML=(ok?'✅ <b>CORRECT — +15 XP.</b> ':'❌ <b>Answer: '+qz.answer+'.</b> ')+(qz.why||'');
+      speak(ok?'Correct. '+(qz.why||'').substring(0,200):'The answer is '+qz.answer+'. '+(qz.why||'').substring(0,200));
+      setTimeout(()=>{qn.style.display='inline-block';},500);
+    };
+  });
+  qn.onclick=()=>{SFX.click();qrIdx++;renderQuizRun();};
+}
+function quizRunDone(){
+  const tot=quizPool.length;
+  const acc=quizHit/tot;
+  const star=acc>=.9?3:acc>=.6?2:1;
+  const prev=starsOf(cur);
+  S.stars[cur.id]=Math.max(prev,star);
+  save();
+  if(star>prev){SFX.levelup(); if(star===3)SFX.star();}
+  const msg=star===3?'FLAWLESS — 3 ⭐':star===2?'SOLID — 2 ⭐':'CLEARED — 1 ⭐';
+  speak(`${cur.name} complete. ${msg}`);
+  document.getElementById('mbody').innerHTML=`<div class="card"><h3>🏁 ${cur.name} — COMPLETE</h3>
+    <p style="font-size:1.2rem">${msg}</p>
+    <p>Score: <b>${quizHit}/${tot} (${Math.round(acc*100)}%)</b></p>
+    <div class="rowbtns"><button onclick="openQuest(QUESTS.find(q=>q.id==='${cur.id}'))">🔁 replay for 3⭐</button>
+    <button onclick="backToMap()">🗺 world map →</button></div></div>`;
+}
+
+/* ---------- EXAM TOWER ---------- */
+let exCur=null, exIdx=0, exHit=0, exMiss=0;
+
+function openExam(e){
+  exCur=e;exIdx=0;exHit=0;exMiss=0;
+  const N=Math.min(25,e.questions.length); // 25-question gauntlet per exam run
+  exCur._run=shuffle(e.questions).slice(0,N);
+  V.innerHTML=`<div class="topbar"><span class="l" onclick="backToMap()">← world map</span>
+    <span class="diff">🏰 EXAM TOWER — ${e.name.toUpperCase()} — 25-QUESTION GAUNTLET</span></div>
+   <div id="ebody"></div>`;
+  renderExamQ();
+}
+window.openExam=openExam;
+
+function renderExamQ(){
+  const e=exCur, qs=e._run;
+  if(exIdx>=qs.length){return examDone();}
+  const qz=qs[exIdx];
+  const letters=['A','B','C','D','E'];
+  const ansIdx=letters.indexOf(qz.answer);
+  const body=document.getElementById('ebody');
+  body.innerHTML=`<div class="quizq">
+    <div class="qh">🏰 FLOOR ${exIdx+1}/${qs.length} — ${e.name.toUpperCase()} &nbsp;·&nbsp; score ${exHit}/${exIdx}</div>
+    <div class="qt">${qz.q}</div>
+    <div class="qo">${qz.options.map((o,i)=>`<div class="qoo" data-i="${i}">${letters[i]}. ${o}</div>`).join('')}</div>
+    <div class="qw" id="qw"></div>
+    <div class="rowbtns"><button id="qnext" style="display:none">${exIdx===qs.length-1?'FINISH 🏁':'NEXT FLOOR ↑'}</button></div>
+   </div>`;
+  speak(`Floor ${exIdx+1}. ${qz.q}`);
+  let answered=false;
+  const qw=document.getElementById('qw'), qn=document.getElementById('qnext');
+  document.querySelectorAll('.qoo').forEach(el=>{
+    el.onclick=()=>{
+      if(answered)return; answered=true;
+      const i=+el.dataset.i, ok=i===ansIdx;
+      document.querySelectorAll('.qoo')[ansIdx].classList.add('correct');
+      if(ok){exHit++;SFX.good();award(10);}
+      else{el.classList.add('wrong');exMiss++;SFX.bad();}
+      qw.classList.add('show');
+      qw.innerHTML=(ok?'✅ <b>CORRECT — +10 XP.</b> ':'❌ <b>Answer: '+qz.answer+'.</b> ')+(qz.why||'');
+      speak(ok?'Correct.':'The answer is '+qz.answer+'. '+(qz.why||'').substring(0,200));
+      setTimeout(()=>{qn.style.display='inline-block';},400);
+    };
+  });
+  qn.onclick=()=>{SFX.click();exIdx++;renderExamQ();};
+}
+
+function examDone(){
+  const total=exCur._run.length;
+  const pct=Math.round(exHit/total*100);
+  S.examBest=S.examBest||{};
+  const prev=S.examBest[exCur.id]||0;
+  S.examBest[exCur.id]=Math.max(prev,pct);
+  save();
+  const pass=pct>=80;
+  if(pass&&(pct>prev)){SFX.levelup();award(100);}else{SFX.star();if(pct>prev)award(50);}
+  const verdict=pass?'🏆 PASSED — CCNA READY SIGNAL':pct>=60?'🛡 SO CLOSE — 80% to pass':'💀 THE TOWER WINS — train and return';
+  speak(`Exam complete. Score ${pct} percent. ${pass?'You passed!':'Keep training.'}`);
+  document.getElementById('ebody').innerHTML=`<div class="card"><h3>🏰 ${exCur.name} — GAUNTLET COMPLETE</h3>
+   <p style="font-size:1.4rem">${verdict}</p>
+   <p>Score: <b>${exHit}/${total} (${pct}%)</b> &nbsp;·&nbsp; best: ${Math.max(prev,pct)}%</p>
+   <p class="dim">+${pass?100:pct>prev?50:0} XP bonus ${pass?'· pass bonus':'· improvement bonus'} · full 88-question exam re-runs shuffle new sets</p>
+   <div class="rowbtns"><button onclick="openExam(EXAMS.find(x=>x.id===${exCur.id}))">🔁 climb again</button>
+   <button onclick="backToMap()">🗺 world map →</button></div></div>`;
+}
+
+function nextMission(skipped){
+  const wasLast = mIdx>=cur.missions.length-1;
+  if(!skipped) award(10);
+  if(wasLast){
+    // star by accuracy: mission commands + quiz answers together
+    const tot=hit+miss+quizHit+quizMiss;
+    const acc = tot? (hit+quizHit)/tot : 1;
+    const star = acc>=.9?3:acc>=.6?2:1;
+    const prev=starsOf(cur);
+    S.stars[cur.id]=Math.max(prev,star);
+    save();
+    if(star>prev){SFX.levelup(); if(star===3)SFX.star();}
+    const msg = star===3?'FLAWLESS — 3 ⭐':star===2?'SOLID — 2 ⭐':'CLEARED — 1 ⭐';
+    speak(`Quest complete. ${cur.name}. ${msg}`);
+    document.getElementById('mbody').innerHTML=`<div class="card"><h3>🏁 QUEST COMPLETE: ${cur.name}</h3>
+      <p>${msg} &nbsp;(accuracy ${(acc*100).toFixed(0)}%)</p>
+      <p class="dim">Now run it LIVE in CML if you have that topology built — sim teaches patterns, the lab makes it permanent.</p>
+      <div class="rowbtns"><button onclick="backToMap()">🗺 world map →</button>
+      <button onclick="openQuest(QUESTS.find(q=>q.id==='${cur.id}'))">🔁 replay for 3⭐</button></div></div>`;
+  } else {
+    mIdx++;cmdIdx=0;renderMission();
+  }
+}
+
+/* ================= BOOT ================= */
+window.openQuest=openQuest; window.backToMap=backToMap; window.wipe=wipe; window.openBook=openBook;
+const bb=document.createElement('button');bb.className='bookbtn';bb.id='bookbtn';bb.textContent='📖 COMMAND BOOK';bb.onclick=openBook;document.body.appendChild(bb);
+renderHUD();
+SFX.boot();
+showMap();
+</script>
+</body>
+</html>
